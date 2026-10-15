@@ -1,0 +1,67 @@
+# GenteFit
+
+Aplicación de gestión de un centro deportivo (clientes, actividades, horarios, reservas y lista de espera), desarrollada en .NET para la asignatura **FP.452 – Técnicas de persistencia de datos con .NET y apps ERP** (DAM).
+
+Equipo: **BugBusters** 
+
+## Estado por productos
+
+| Producto | Contenido | Estado |
+|---|---|---|
+| 1 | Diseño UML y pantallas | Entregado |
+| 2 | Capa de acceso a datos (ORM + SQL Server, lectura XML) | En curso |
+| 3 | Aplicación Windows Forms | Pendiente |
+| 4 | Intercambio de datos con Odoo (Python + XML) | Pendiente |
+| 5 | Implantación del ERP | Pendiente |
+
+## Arquitectura
+
+Arquitectura **por capas**, una solución de Visual Studio (.NET 8) con un proyecto por capa. Cada capa solo conoce a las que tiene "debajo", nunca al revés.
+
+```
+Presentación  (GenteFit.UI)                   <- Producto 3
+      |
+   Negocio    (GenteFit.Negocio)              <- Producto 3
+      |
+ Datos / XML  (GenteFit.Datos, GenteFit.Xml)  <- Producto 2
+      |
+   Modelo     (GenteFit.Modelo)               <- clases del diagrama de clases (Producto 1)
+```
+
+### Estructura de carpetas
+
+```
+GenteFit/
+├── GenteFit.sln
+├── README.md
+├── .gitignore
+├── src/
+│   ├── GenteFit.Modelo/      (C#)  Entidades del dominio: Cliente, Actividad, Reserva...
+│   ├── GenteFit.Datos/       (C#)  Acceso a SQL Server mediante el ORM elegido
+│   ├── GenteFit.Xml/         (F#)  Lectura de la fuente de datos XML
+│   ├── GenteFit.Negocio/     (C#)  Reglas: 16 plazas, lista de espera... (Producto 3)
+│   └── GenteFit.UI/          (C#)  Windows Forms (Producto 3)
+├── tests/                          Pruebas automáticas, un proyecto por capa
+├── docs/                           Documentación, diagramas y justificación
+└── odoo/                           Módulo Python para Odoo (Producto 4)
+```
+
+### Responsabilidad de cada capa
+
+- **Modelo:** clases simples que representan los datos. No saben nada de SQL, XML ni pantallas. Es compartida por todas las demás capas.
+- **Datos:** guarda y recupera el modelo en SQL Server. Es la única capa que habla con la base de datos.
+- **Xml:** lee el fichero XML y lo convierte en objetos del modelo. Es independiente de la base de datos.
+- **Negocio:** aplica las reglas de GenteFit sobre el modelo, apoyándose en Datos y Xml.
+- **UI:** muestra la información y recoge las acciones del usuario. No accede nunca a la base de datos directamente.
+
+### Lenguajes
+
+- **C#:** modelo, datos, negocio e interfaz.
+- **F#:** capa XML.
+
+## Flujo de trabajo en Git
+
+- `main` siempre debe compilar. No se trabaja directamente en ella.
+- Una rama por tarea (`orm`, `xml`, `docs`...), fusionada con *Pull Request* revisado por otro miembro.
+- Mensajes de commit cortos que digan **qué** hace el cambio.
+- Las entregas se marcan con etiquetas (p. ej. `producto2-entrega`).
