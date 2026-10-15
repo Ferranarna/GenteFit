@@ -59,6 +59,19 @@ GenteFit/
 - **C#:** modelo, datos, negocio e interfaz.
 - **F#:** capa XML.
 
+### Cómo se han creado las capas (a alto nivel)
+
+1. **Solución en blanco** (`GenteFit.sln`) en la raíz del repo: es el contenedor que agrupa todos los proyectos.
+2. **Un proyecto por capa**, todos en la carpeta `src/` y con **.NET 8.0**. Cada capa es una *biblioteca de clases* (genera una `.dll`, no se ejecuta sola); la aplicación Windows Forms llegará en el Producto 3.
+   - `GenteFit.Modelo` (C#)
+   - `GenteFit.Datos` (C#)
+   - `GenteFit.Xml` (F#)
+3. **Referencias de proyecto** para que las capas se vean entre sí, siempre en una sola dirección: `Datos → Modelo` y `Xml → Modelo`. El Modelo no depende de ninguna otra capa.
+4. Los archivos `Class1.cs` y `Library.fs` son plantillas de ejemplo que genera Visual Studio; se sustituirán por las clases reales.
+5. `.gitignore` (plantilla de Visual Studio) evita subir `bin/`, `obj/` y `.vs/`, y `.gitattributes` unifica los finales de línea entre equipos.
+
+Para trabajar: clonar el repo, abrir `GenteFit.sln` en Visual Studio 2022 y compilar la solución para comprobar que todo funciona.
+
 ## Flujo de trabajo en Git
 
 - `main` siempre debe compilar. No se trabaja directamente en ella.
