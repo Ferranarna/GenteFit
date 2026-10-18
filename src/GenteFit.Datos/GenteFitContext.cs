@@ -6,6 +6,11 @@ namespace GenteFit.Datos;
 
 public class GenteFitContext : DbContext
 {
+        // Constructor normal
+    public GenteFitContext() { }
+
+    // Constructor para pruebas o para pasarle otra configuración desde fuera
+    public GenteFitContext(DbContextOptions<GenteFitContext> options) : base(options) { }
     public DbSet<Usuario> Usuarios => Set<Usuario>();
     public DbSet<Entrenador> Entrenadores => Set<Entrenador>();
     public DbSet<Actividad> Actividades => Set<Actividad>();
