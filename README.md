@@ -38,7 +38,7 @@ GenteFit/
 ├── src/
 │   ├── GenteFit.Modelo/      (C#)  Entidades del dominio: Cliente, Actividad, Reserva...
 │   ├── GenteFit.Datos/       (C#)  Acceso a SQL Server mediante el ORM elegido
-│   ├── GenteFit.Xml/         (F#)  Lectura de la fuente de datos XML
+│   ├── GenteFit.Xml/         (F#)  Lectura y escritura de la fuente de datos XML
 │   ├── GenteFit.Negocio/     (C#)  Reglas: 16 plazas, lista de espera... (Producto 3)
 │   └── GenteFit.UI/          (C#)  Windows Forms (Producto 3)
 ├── tests/                          Pruebas automáticas, un proyecto por capa
@@ -67,8 +67,7 @@ GenteFit/
    - `GenteFit.Datos` (C#)
    - `GenteFit.Xml` (F#)
 3. **Referencias de proyecto** para que las capas se vean entre sí, siempre en una sola dirección: `Datos → Modelo` y `Xml → Modelo`. El Modelo no depende de ninguna otra capa.
-4. Los archivos `Class1.cs` y `Library.fs` son plantillas de ejemplo que genera Visual Studio; se sustituirán por las clases reales.
-5. `.gitignore` (plantilla de Visual Studio) evita subir `bin/`, `obj/` y `.vs/`, y `.gitattributes` unifica los finales de línea entre equipos.
+4. `.gitignore` (plantilla de Visual Studio) evita subir `bin/`, `obj/` y `.vs/`, y `.gitattributes` unifica los finales de línea entre equipos.
 
 Para trabajar: clonar el repo, abrir `GenteFit.sln` en Visual Studio 2022 y compilar la solución para comprobar que todo funciona.
 
