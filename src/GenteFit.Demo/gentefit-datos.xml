@@ -151,6 +151,15 @@
 			<rol>CLIENTE</rol>
 			<activo>false</activo>
 		</usuario>
+		<usuario>
+			<nombre>Patrick</nombre>
+			<apellido1>O'Connor</apellido1>
+			<dni>56789012E</dni>
+			<email>patrick@correo.com</email>
+			<telefono>644567890</telefono>
+			<rol>CLIENTE</rol>
+			<activo>true</activo>
+		</usuario>
 	</usuarios>
 
 </gentefit>
