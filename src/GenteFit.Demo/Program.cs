@@ -107,8 +107,136 @@ var sentadilla = ejercicios.BuscarPorGrupo("Piernas").First();
 var detalle = rutinas.AnadirEjercicio(rutina.RutinaId, sentadilla.EjercicioId, 1, 4, 12);
 Ok($"Rutina '{rutina.NombreRutina}' con {sentadilla.NombreEjercicio} {detalle.Series}x{detalle.Repeticiones}");
 Probar("Configurar 0 series", () => rutinas.ConfigurarEjercicio(detalle.DetalleRutinaId, 0, 12));
+rutinas.ConfigurarEjercicio(detalle.DetalleRutinaId, 5, 10);
+Ok($"Modificación correcta: {sentadilla.NombreEjercicio} pasa de 4x12 a {detalle.Series}x{detalle.Repeticiones}");
 rutinas.Eliminar(rutina.RutinaId);
 Ok("Rutina eliminada (sus ejercicios configurados se borran en cascada).");
+
+
+//LECTURA XML
+Titulo("10. Lectura de datos desde XML");
+
+string rutaXml = Path.Combine(AppContext.BaseDirectory, "gentefit-datos.xml");
+
+void LeerActividadesXml(string descripcion, string ruta)
+{
+    var resultado = GenteFit.Xml.LectorXml.leerActividades(ruta);
+
+    if (resultado.IsError)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"  {descripcion}: {resultado.ErrorValue}");
+        Console.ResetColor();
+        return;
+    }
+
+    var lectura = resultado.ResultValue;
+    Console.WriteLine($"  {descripcion}");
+    foreach (var a in lectura.Elementos)
+    {
+        string desc = a.Descripcion ?? "";
+        if (desc.Length > 50) desc = desc[..50] + "...";
+        Console.WriteLine($"    - {a.NombreActividad} ({a.Intensidad}) {desc}");
+    }
+    foreach (var aviso in lectura.Avisos)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"  {descripcion}: {aviso}");
+        Console.ResetColor();
+    }
+}
+
+// a) Caso normal: acentos, apóstrofes y el símbolo & incluidos.
+LeerActividadesXml("a) Fichero correcto", rutaXml);
+
+// b) Fichero que no existe.
+LeerActividadesXml("b) Fichero inexistente", Path.Combine(AppContext.BaseDirectory, "no-existe.xml"));
+
+// c) Fichero mal formado (falta cerrar etiquetas).
+string xmlRoto = Path.GetTempFileName();
+File.WriteAllText(xmlRoto, "<gentefit><actividades><actividad><nombre>Yoga</nombre></gentefit>");
+LeerActividadesXml("c) XML mal formado", xmlRoto); File.Delete(xmlRoto);
+
+// d) Una actividad sin <nombre>: se ignora y se lee el resto.
+string xmlIncompleto = Path.GetTempFileName();
+File.WriteAllText(xmlIncompleto,
+    "<gentefit><actividades>" +
+    "<actividad><especialidad>YOGA</especialidad><intensidad>BAJA</intensidad></actividad>" +
+    "<actividad><nombre>Pilates</nombre><especialidad>PILATES</especialidad><intensidad>MEDIA</intensidad></actividad>" +
+    "</actividades></gentefit>");
+LeerActividadesXml("d) Actividad sin nombre", xmlIncompleto);
+File.Delete(xmlIncompleto);
+
+//IMPORTAR
+Titulo("11. Importar clientes desde XML a SQL Server");
+
+var importacion = GenteFit.Xml.LectorXml.leerUsuarios(rutaXml);
+if (importacion.IsError)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"  Importar clientes: {importacion.ErrorValue}");
+    Console.ResetColor();
+}
+else
+{
+    foreach (var cliente in importacion.ResultValue.Elementos)
+    {
+        bool estabaActivo = cliente.Activo; 
+        try
+        {
+            var guardado = usuarios.Crear(cliente, InicializadorBD.ContrasenaPrueba);
+            if (!estabaActivo)
+                usuarios.DarDeBaja(guardado.UsuarioId);
+            Ok($"Importado: {guardado.Nombre} {guardado.Apellido1} ({guardado.Email}){(estabaActivo ? "" : " - dado de baja")}");
+        }
+        catch (ValidacionException ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"  No importado ({cliente.Email}): {ex.Message}");
+            Console.ResetColor();
+        }
+    }
+
+    foreach (var aviso in importacion.ResultValue.Avisos)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"  Importar clientes: {aviso}");
+        Console.ResetColor();
+    }
+}
+
+//EXPORTAR
+Titulo("12. Exportar clientes de SQL Server a XML");
+
+string rutaExportacion = Path.Combine(AppContext.BaseDirectory, "clientes-exportados.xml");
+var clientesBD = usuarios.ObtenerClientes();
+
+var exportacion = GenteFit.Xml.EscritorXml.escribirUsuarios(rutaExportacion, clientesBD);
+if (exportacion.IsError)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"  Exportar clientes: {exportacion.ErrorValue}");
+    Console.ResetColor();
+}
+else
+{
+    Ok($"Exportados {exportacion.ResultValue} clientes a: {rutaExportacion}");
+
+    // Comprobación: se vuelve a leer el fichero generado con el mismo lector.
+    var comprobacion = GenteFit.Xml.LectorXml.leerUsuarios(rutaExportacion);
+    if (comprobacion.IsOk)
+        Ok($"Comprobación: al volver a leerlo salen {comprobacion.ResultValue.Elementos.Length} clientes.");
+}
+
+// Error esperado: la carpeta no existe.
+var exportacionMala = GenteFit.Xml.EscritorXml.escribirUsuarios(
+    Path.Combine(AppContext.BaseDirectory, "carpeta-inexistente", "clientes.xml"), clientesBD);
+if (exportacionMala.IsError)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine($"  Exportar a carpeta inexistente: {exportacionMala.ErrorValue}");
+    Console.ResetColor();
+}
 
 Titulo("Fin de la demo");
 

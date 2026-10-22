@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<gentefit>
+
+	<actividades>
+		<actividad>
+			<nombre>BodyCombat</nombre>
+			<especialidad>BODYCOMBAT</especialidad>
+			<descripcion>Clase de artes marciales sin contacto, al ritmo de la música, para quemar calorías y soltar energía. Combina golpes, patadas y coreografías que mejoran la coordinación, la resistencia y la explosividad.</descripcion>
+			<intensidad>ALTA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+		<actividad>
+			<nombre>BodyPump</nombre>
+			<especialidad>BODYPUMP</especialidad>
+			<descripcion>Entrenamiento de fuerza con barra y discos, con muchas repeticiones y música, para tonificar todo el cuerpo. Trabaja piernas, pecho, espalda, hombros y brazos en una sola sesión, ajustando el peso a tu nivel.</descripcion>
+			<intensidad>MEDIA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+		<actividad>
+			<nombre>Core</nombre>
+			<especialidad>ENTRENADORPERSONAL</especialidad>
+			<descripcion>Trabajo de la zona media del cuerpo: abdomen, lumbares y estabilidad.</descripcion>
+			<intensidad>MEDIA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+		<actividad>
+			<nombre>Pilates</nombre>
+			<especialidad>PILATES</especialidad>
+			<descripcion>Ejercicios de control, respiración y postura para fortalecer el cuerpo con movimientos suaves.</descripcion>
+			<intensidad>MEDIA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+		<actividad>
+			<nombre>Spinning</nombre>
+			<especialidad>SPINNING</especialidad>
+			<descripcion>Ciclismo indoor en grupo, con cambios de ritmo y resistencia al compás de la música.</descripcion>
+			<intensidad>ALTA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+		<actividad>
+			<nombre>Yoga</nombre>
+			<especialidad>YOGA</especialidad>
+			<descripcion>Posturas, respiración y relajación para ganar flexibilidad y reducir el estrés.</descripcion>
+			<intensidad>BAJA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+		<actividad>
+			<nombre>Zumba</nombre>
+			<especialidad>ZUMBA</especialidad>
+			<descripcion>Baile fitness al ritmo de música latina &amp; ejercicio aeróbico para toda la familia.</descripcion>
+			<intensidad>MEDIA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>
+	</actividades>
+
+	<salas>
+		<sala>
+			<nombre>Sala Alfa</nombre>
+			<ubicacion>PLANTA1</ubicacion>
+		</sala>
+		<sala>
+			<nombre>Sala Beta</nombre>
+			<ubicacion>PLANTA1</ubicacion>
+		</sala>
+		<sala>
+			<nombre>Sala Gamma</nombre>
+			<ubicacion>PLANTA2</ubicacion>
+		</sala>
+	</salas>
+
+	<ejercicios>
+		<ejercicio>
+			<nombre>Abdominales en plancha</nombre>
+			<grupoMuscular>ABDOMEN</grupoMuscular>
+			<descripcion>Mantén el cuerpo recto apoyado en antebrazos y puntas de los pies, con el abdomen activado. Fortalece el core y mejora la estabilidad.</descripcion>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Curl de bíceps</nombre>
+			<grupoMuscular>BRAZOS</grupoMuscular>
+			<descripcion>De pie, flexiona los codos llevando las mancuernas hacia los hombros sin balancear el cuerpo. Trabaja el bíceps de forma aislada.</descripcion>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Peso muerto rumano</nombre>
+			<grupoMuscular>PIERNAS</grupoMuscular>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Prensa</nombre>
+			<grupoMuscular>PIERNAS</grupoMuscular>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Press de banca</nombre>
+			<grupoMuscular>PECHO</grupoMuscular>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Puente de glúteo</nombre>
+			<grupoMuscular>GLÚTEOS</grupoMuscular>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Remo con barra</nombre>
+			<grupoMuscular>ESPALDA</grupoMuscular>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Sentadilla</nombre>
+			<grupoMuscular>PIERNAS</grupoMuscular>
+		</ejercicio>
+		<ejercicio>
+			<nombre>Zancada</nombre>
+			<grupoMuscular>PIERNAS</grupoMuscular>
+			<descripcion>Da un paso largo y flexiona ambas rodillas; la rodilla de atrás no toca el suelo ('sin rebotar').</descripcion>
+		</ejercicio>
+	</ejercicios>
+
+	<usuarios>
+		<usuario>
+			<nombre>Ana</nombre>
+			<apellido1>López</apellido1>
+			<apellido2>Ruiz</apellido2>
+			<dni>12345678A</dni>
+			<email>ana@correo.com</email>
+			<telefono>600123456</telefono>
+			<rol>CLIENTE</rol>
+			<activo>true</activo>
+		</usuario>
+		<usuario>
+			<nombre>Javier</nombre>
+			<apellido1>Martín</apellido1>
+			<apellido2>Gil</apellido2>
+			<dni>23456789B</dni>
+			<email>javier@correo.com</email>
+			<telefono>611234567</telefono>
+			<rol>CLIENTE</rol>
+			<activo>true</activo>
+		</usuario>
+		<usuario>
+			<nombre>Elena</nombre>
+			<apellido1>Vidal</apellido1>
+			<apellido2>Sanz</apellido2>
+			<dni>34567890C</dni>
+			<email>elena@correo.com</email>
+			<telefono>622345678</telefono>
+			<rol>CLIENTE</rol>
+			<activo>true</activo>
+		</usuario>
+		<usuario>
+			<nombre>Rubén</nombre>
+			<apellido1>Soto</apellido1>
+			<apellido2>Mora</apellido2>
+			<dni>45678901D</dni>
+			<email>ruben@correo.com</email>
+			<telefono>633456789</telefono>
+			<rol>CLIENTE</rol>
+			<activo>false</activo>
+		</usuario>
+	</usuarios>
+
+</gentefit>
