@@ -50,7 +50,7 @@ GenteFit/
 
 - **Modelo:** clases simples que representan los datos. No saben nada de SQL, XML ni pantallas. Es compartida por todas las demás capas.
 - **Datos:** guarda y recupera el modelo en SQL Server. Es la única capa que habla con la base de datos.
-- **Xml:** lee el fichero XML y lo convierte en objetos del modelo. Es independiente de la base de datos.
+- **Xml:** lee ficheros XML y los convierte en objetos del modelo, y también guarda objetos del modelo en un fichero XML. Es independiente de la base de datos.
 - **Negocio:** aplica las reglas de GenteFit sobre el modelo, apoyándose en Datos y Xml.
 - **UI:** muestra la información y recoge las acciones del usuario. No accede nunca a la base de datos directamente.
 
