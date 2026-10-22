@@ -72,9 +72,26 @@ GenteFit/
 
 Para trabajar: clonar el repo, abrir `GenteFit.sln` en Visual Studio 2022 y compilar la solución para comprobar que todo funciona.
 
+## Base de datos (SQL Server + EF Core)
+ 
+Cada miembro tiene su propia copia local de la base de datos, lo que se comparte por Git es la estructura (migraciones en `src/GenteFit.Datos/Migrations`).
+### Requisitos (solo la primera vez)
+ 
+- **SQL Server 2025 Developer:** para guardar y gestionar la base de datos.
+- **SSMS (SQL Server Management Studio):** para ver y manejar la base de datos.
+- **.NET 8 SDK:** kit para construir programas en .NET.
+- **Herramienta de EF Core (`dotnet-ef` 8.0.11):** utilidad de línea de comandos que añade el comando `dotnet ef`, con el que se crea y actualiza la estructura de la base de datos local (migraciones) y se puede borrar.
+### Normas
+ 
+- Nunca cambiar tablas a mano desde SSMS: el cambio no llega al resto y EF se desincroniza. Todo cambio de estructura = cambio en las clases + migración.
+- Una sola persona a la vez crea migraciones, para evitar conflictos en `GenteFitContextModelSnapshot.cs`. Avisar antes por el grupo.
+- Incluir siempre la carpeta `Migrations` en el commit.
+- No borrar ni editar migraciones ya fusionadas; si algo falla, se crea otra que lo corrija.
+
 ## Flujo de trabajo en Git
 
-- `main` siempre debe compilar. No se trabaja directamente en ella.
+- `main` no se toca: solo recibe `develop` cuando se termina un producto, y siempre debe compilar.
+- `develop` es la rama de integración: todo se fusiona aquí.
 - Una rama por tarea (`orm`, `xml`, `docs`...), fusionada con *Pull Request* revisado por otro miembro.
-- Mensajes de commit cortos que digan **qué** hace el cambio.
+- Mensajes de commit cortos que digan qué hace el cambio.
 - Las entregas se marcan con etiquetas (p. ej. `producto2-entrega`).
