@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<gentefit>
+
+	<actividades>
+		<actividad>
+			<nombre>BodyCombat</nombre>
+			<especialidad>BODYCOMBAT</especialidad>
+			<descripcion>Clase de artes marciales sin contacto, al ritmo de la música, para quemar calorías y soltar energía. Combina golpes, patadas y coreografías que mejoran la coordinación, la resistencia y la explosividad.</descripcion>
+			<intensidad>ALTA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>		
+		<actividad>
+			<nombre>Pilates</nombre>
+			<especialidad>PILATES</especialidad>
+			<descripcion>Ejercicios de control, respiración y postura para fortalecer el cuerpo con movimientos suaves.</descripcion>
+			<intensidad>MEDIA</intensidad>
+			<limiteUsuarios>16</limiteUsuarios>
+		</actividad>		
+	</actividades>
+
+	<usuarios>
+		<usuario>
+			<nombre>Elena</nombre>
+			<apellido1>Vidal</apellido1>
+			<apellido2>Sanz</apellido2>
+			<dni>34567890C</dni>
+			<email>elena@correo.com</email>
+			<telefono>622345678</telefono>
+			<rol>CLIENTE</rol>
+			<activo>true</activo>
+		</usuario>
+		<usuario>
+			<nombre>Rubén</nombre>
+			<apellido1>Soto</apellido1>
+			<apellido2>Mora</apellido2>
+			<dni>45678901D</dni>
+			<email>ruben@correo.com</email>
+			<telefono>633456789</telefono>
+			<rol>CLIENTE</rol>
+			<activo>false</activo>
+		</usuario>
+		<usuario>
+			<nombre>Patrick</nombre>
+			<apellido1>O'Connor</apellido1>
+			<dni>56789012E</dni>
+			<email>patrick@correo.com</email>
+			<telefono>644567890</telefono>
+			<rol>CLIENTE</rol>
+			<activo>true</activo>
+		</usuario>
+	</usuarios>
+
+</gentefit>
