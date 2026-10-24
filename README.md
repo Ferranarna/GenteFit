@@ -37,13 +37,13 @@ GenteFit/
 ├── .gitignore
 ├── src/
 │   ├── GenteFit.Modelo/      (C#)  Entidades del dominio: Cliente, Actividad, Reserva...
-│   ├── GenteFit.Datos/       (C#)  Acceso a SQL Server mediante el ORM elegido
+│   ├── GenteFit.Datos/       (C#)  Acceso a SQL Server mediante Entity Framework Core
 │   ├── GenteFit.Xml/         (F#)  Lectura de la fuente de datos XML
 │   ├── GenteFit.Negocio/     (C#)  Reglas: 16 plazas, lista de espera... (Producto 3)
-│   └── GenteFit.UI/          (C#)  Windows Forms (Producto 3)
+│   └── GenteFit.UI/          (C#)  ASP.NET Core (Producto 3)
 ├── tests/                          Pruebas automáticas, un proyecto por capa
 ├── docs/                           Documentación, diagramas y justificación
-└── odoo/                           Módulo Python para Odoo (Producto 4)
+└── odoo/                           Módulo para Odoo (Producto 4)
 ```
 
 ### Responsabilidad de cada capa
