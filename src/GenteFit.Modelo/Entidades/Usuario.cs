@@ -19,4 +19,6 @@ public class Usuario
     public ICollection<Reserva> Reservas { get; set; } = new List<Reserva>();
     public ICollection<Cita> Citas { get; set; } = new List<Cita>();
     public ICollection<Rutina> Rutinas { get; set; } = new List<Rutina>();
+
+    public Entrenador? Entrenador { get; set; }
 }

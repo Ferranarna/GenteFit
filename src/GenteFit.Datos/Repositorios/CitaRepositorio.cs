@@ -15,9 +15,9 @@ public class CitaRepositorio : Repositorio<Cita>
 
     public Cita Reservar(Guid usuarioId, Guid entrenadorId, DateTime fecha)
     {
-        var entrenador = _db.Entrenadores.Find(entrenadorId)
+        var entrenador = _db.Entrenadores.Include(e => e.Usuario).FirstOrDefault(e => e.EntrenadorId == entrenadorId)
             ?? throw new ValidacionException("El entrenador no existe.");
-        if (!entrenador.Activo || entrenador.Especialidad != Especialidad.EntrenadorPersonal)
+        if (!entrenador.Usuario.Activo || entrenador.Especialidad != Especialidad.EntrenadorPersonal)
             throw new ValidacionException("Las citas solo se pueden pedir con un entrenador personal activo.");
 
         if (!EstaLibre(entrenadorId, fecha))
@@ -69,7 +69,7 @@ public class CitaRepositorio : Repositorio<Cita>
 
     public List<Cita> ObtenerDeCliente(Guid usuarioId) =>
         _db.Citas
-            .Include(c => c.Entrenador)
+            .Include(c => c.Entrenador).ThenInclude(e => e.Usuario)
             .Where(c => c.UsuarioId == usuarioId && c.Estado == EstadoCita.Programada)
             .OrderBy(c => c.FechaActividad)
             .ToList();

@@ -31,7 +31,7 @@ Titulo("3. Catálogo y sesiones de mañana");
 foreach (var a in actividades.ObtenerTodos())
     Console.WriteLine($"  - {a.NombreActividad} ({a.Intensidad}, máx. {a.LimiteUsuarios})");
 foreach (var s in sesiones.Buscar(null, DateTime.Today.AddDays(1)))
-    Console.WriteLine($"  - {s.Fecha:dd/MM HH:mm} {s.Actividad.NombreActividad} con {s.Entrenador.Nombre} en {s.Sala.NombreSala} · plazas libres: {sesiones.PlazasDisponibles(s.SesionId)}");
+    Console.WriteLine($"  - {s.Fecha:dd/MM HH:mm} {s.Actividad.NombreActividad} con {s.Entrenador.Usuario.Nombre} en {s.Sala.NombreSala} · plazas libres: {sesiones.PlazasDisponibles(s.SesionId)}");
 
 Titulo("4. Validaciones al crear datos");
 var yoga = actividades.Buscar("Yoga").First();
@@ -42,28 +42,47 @@ var manana = DateTime.Today.AddDays(1);
 
 Probar("Sesión con entrenador de otra especialidad", () => sesiones.Crear(new Sesion
 {
-    ActividadId = yoga.ActividadId, SalaId = salaGrande.SalaId, EntrenadorId = instructorSpinning.EntrenadorId,
-    Fecha = manana.AddHours(21), Duracion = 60
+    ActividadId = yoga.ActividadId,
+    SalaId = salaGrande.SalaId,
+    EntrenadorId = instructorSpinning.EntrenadorId,
+    Fecha = manana.AddHours(21),
+    Duracion = 60
 }));
 Probar("Sesión fuera de horario", () => sesiones.Crear(new Sesion
 {
-    ActividadId = yoga.ActividadId, SalaId = salaGrande.SalaId, EntrenadorId = instructoraYoga.EntrenadorId,
-    Fecha = manana.AddHours(7), Duracion = 60
+    ActividadId = yoga.ActividadId,
+    SalaId = salaGrande.SalaId,
+    EntrenadorId = instructoraYoga.EntrenadorId,
+    Fecha = manana.AddHours(7),
+    Duracion = 60
 }));
 Probar("Cliente con email incorrecto", () => usuarios.Crear(new Usuario
 {
-    Nombre = "Pepe", Apellido1 = "Mal", Dni = "99999999Z", Email = "pepe-sin-arroba", Telefono = 699000000, Rol = Rol.Cliente
+    Nombre = "Pepe",
+    Apellido1 = "Mal",
+    Dni = "99999999Z",
+    Email = "pepe-sin-arroba",
+    Telefono = 699000000,
+    Rol = Rol.Cliente
 }, "1234"));
 Probar("Cliente con DNI repetido", () => usuarios.Crear(new Usuario
 {
-    Nombre = "Otra", Apellido1 = "Ana", Dni = "11111111A", Email = "otra@correo.com", Telefono = 699000001, Rol = Rol.Cliente
+    Nombre = "Otra",
+    Apellido1 = "Ana",
+    Dni = "11111111A",
+    Email = "otra@correo.com",
+    Telefono = 699000001,
+    Rol = Rol.Cliente
 }, "1234"));
 
 Titulo("5. Reservas y lista de espera");
 var sesionDemo = sesiones.Crear(new Sesion
 {
-    ActividadId = yoga.ActividadId, SalaId = salaGrande.SalaId, EntrenadorId = instructoraYoga.EntrenadorId,
-    Fecha = manana.AddHours(21), Duracion = 60
+    ActividadId = yoga.ActividadId,
+    SalaId = salaGrande.SalaId,
+    EntrenadorId = instructoraYoga.EntrenadorId,
+    Fecha = manana.AddHours(21),
+    Duracion = 60
 });
 Ok($"Sesión de demo creada: {yoga.NombreActividad} {sesionDemo.Fecha:dd/MM HH:mm}");
 
@@ -95,7 +114,7 @@ var personal = entrenadores.ObtenerActivosPorEspecialidad(Especialidad.Entrenado
 var ana = usuarios.Buscar("ana@correo.com").First();
 var huecos = citas.BuscarDisponibilidad(personal.EntrenadorId, manana.AddDays(1));
 var cita = citas.Reservar(ana.UsuarioId, personal.EntrenadorId, huecos.First());
-Ok($"Cita de {ana.Nombre} con {personal.Nombre} el {cita.FechaActividad:dd/MM HH:mm} ({cita.Duracion} min)");
+Ok($"Cita de {ana.Nombre} con {personal.Usuario.Nombre} el {cita.FechaActividad:dd/MM HH:mm} ({cita.Duracion} min)");
 Probar("Otra cita a la misma hora", () => citas.Reservar(ana.UsuarioId, personal.EntrenadorId, cita.FechaActividad));
 Probar("Cita con entrenador que no es personal", () => citas.Reservar(ana.UsuarioId, instructoraYoga.EntrenadorId, huecos.Last()));
 citas.Anular(cita.CitaId);
@@ -181,7 +200,7 @@ else
 {
     foreach (var cliente in importacion.ResultValue.Elementos)
     {
-        bool estabaActivo = cliente.Activo; 
+        bool estabaActivo = cliente.Activo;
         try
         {
             var guardado = usuarios.Crear(cliente, InicializadorBD.ContrasenaPrueba);

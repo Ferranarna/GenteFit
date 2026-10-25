@@ -5,5 +5,6 @@ public enum Rol
     Cliente,
     Administrador,
     Encargado,
-    Recepcionista
+    Recepcionista,
+    Entrenador
 }
