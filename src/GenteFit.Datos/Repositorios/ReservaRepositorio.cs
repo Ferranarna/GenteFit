@@ -78,6 +78,16 @@ public class ReservaRepositorio : Repositorio<Reserva>
         return promovida;
     }
 
+    public List<Reserva> ListarConfirmadosDeEntrenador(Guid entrenadorId, Guid sesionId)
+    {
+        var sesion = _db.Sesiones.Find(sesionId)
+            ?? throw new ValidacionException("La sesión no existe.");
+        if (sesion.EntrenadorId != entrenadorId)
+            throw new ValidacionException("La sesión no es de este entrenador.");
+
+        return ListarConfirmados(sesionId);
+    }
+
     public List<Reserva> ObtenerDeCliente(Guid usuarioId) =>
         _db.Reservas
             .Include(r => r.Sesion).ThenInclude(s => s.Actividad)

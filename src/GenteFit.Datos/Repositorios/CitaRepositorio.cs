@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GenteFit.Datos.Repositorios;
 
-// Citas con entrenador personal: siempre 30 minutos, sin lista de espera
 public class CitaRepositorio : Repositorio<Cita>
 {
     private const int DuracionCita = 30;
@@ -72,5 +71,22 @@ public class CitaRepositorio : Repositorio<Cita>
             .Include(c => c.Entrenador).ThenInclude(e => e.Usuario)
             .Where(c => c.UsuarioId == usuarioId && c.Estado == EstadoCita.Programada)
             .OrderBy(c => c.FechaActividad)
+            .ToList();
+
+    public List<Cita> ObtenerDeEntrenador(Guid entrenadorId) =>
+        _db.Citas
+            .Include(c => c.Usuario)
+            .Where(c => c.EntrenadorId == entrenadorId
+                && c.Estado == EstadoCita.Programada
+                && c.FechaActividad >= DateTime.Now)
+            .OrderBy(c => c.FechaActividad)
+            .ToList();
+
+    public List<Usuario> ObtenerClientesDeEntrenador(Guid entrenadorId) =>
+        _db.Citas
+            .Where(c => c.EntrenadorId == entrenadorId && c.Estado == EstadoCita.Programada)
+            .Select(c => c.Usuario)
+            .Distinct()
+            .OrderBy(u => u.Nombre)
             .ToList();
 }

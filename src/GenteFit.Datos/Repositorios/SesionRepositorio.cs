@@ -39,6 +39,16 @@ public class SesionRepositorio : Repositorio<Sesion>
         return consulta.OrderBy(s => s.Fecha).ToList();
     }
 
+    public List<Sesion> ObtenerDeEntrenador(Guid entrenadorId) =>
+        _db.Sesiones
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Where(s => s.EntrenadorId == entrenadorId
+                && s.Estado == EstadoSesion.Programada
+                && s.Fecha >= DateTime.Today)
+            .OrderBy(s => s.Fecha)
+            .ToList();
+
     public int PlazasDisponibles(Guid sesionId)
     {
         var sesion = _db.Sesiones.Include(s => s.Actividad).First(s => s.SesionId == sesionId);

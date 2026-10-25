@@ -279,7 +279,25 @@ Console.WriteLine($"  Antes: reserva {reservaPrueba.Estado}, cita {citaPrueba.Es
 usuarios.DarDeBaja(clientePrueba.UsuarioId);
 Console.WriteLine($"  Después: reserva {reservaPrueba.Estado}, cita {citaPrueba.Estado}, activo {clientePrueba.Activo}");
 
+Titulo("Consultas del entrenador");
+var luis = usuarios.Buscar("luis@correo.com").First();
+var citaLuis = citas.Reservar(luis.UsuarioId, personal.EntrenadorId,
+    citas.BuscarDisponibilidad(personal.EntrenadorId, DateTime.Today.AddDays(1)).First());
+Console.WriteLine("  Agenda de David:");
+foreach (var c in citas.ObtenerDeEntrenador(personal.EntrenadorId))
+    Console.WriteLine($"    {c.FechaActividad:dd/MM HH:mm} con {c.Usuario.Nombre}");
+Console.WriteLine("  Clientes de David: " + string.Join(", ", citas.ObtenerClientesDeEntrenador(personal.EntrenadorId).Select(u => u.Nombre)));
+citas.Anular(citaLuis.CitaId);
+
+Console.WriteLine("  Sesiones de la instructora de yoga:");
+foreach (var s in sesiones.ObtenerDeEntrenador(instructoraYoga.EntrenadorId))
+    Console.WriteLine($"    {s.Fecha:dd/MM HH:mm} {s.Actividad.NombreActividad} en {s.Sala.NombreSala}");
+var sesionDeLaura = sesiones.ObtenerDeEntrenador(instructoraYoga.EntrenadorId).First();
+Probar("Ver los clientes de una sesión que no es suya", () => reservas.ListarConfirmadosDeEntrenador(personal.EntrenadorId, sesionDeLaura.SesionId));
+
 Titulo("Fin de la demo");
+
+
 
 // ---------- Funciones auxiliares ----------
 
