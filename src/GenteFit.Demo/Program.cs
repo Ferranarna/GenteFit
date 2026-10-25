@@ -94,6 +94,8 @@ foreach (var cliente in clientesDemo)
     Console.WriteLine($"  {cliente.Nombre,-10} -> {r.Estado}");
 }
 MostrarEstado(sesionDemo.SesionId);
+foreach (var enEspera in reservas.ListarListaEspera(sesionDemo.SesionId))
+    Console.WriteLine($"  {enEspera.Usuario.Nombre}: posición {reservas.ObtenerPosicion(enEspera.ReservaId)}");
 
 Probar("Reservar dos veces la misma sesión", () => reservas.Reservar(clientesDemo[0].UsuarioId, sesionDemo.SesionId));
 
@@ -104,6 +106,9 @@ Ok($"{primera.Usuario.Nombre} anula su reserva.");
 if (promovida != null)
     Ok($"{promovida.Usuario.Nombre} pasa de la lista de espera a CONFIRMADA (se le avisaría por correo).");
 MostrarEstado(sesionDemo.SesionId);
+foreach (var enEspera in reservas.ListarListaEspera(sesionDemo.SesionId))
+    Console.WriteLine($"  {enEspera.Usuario.Nombre}: ahora en posición {reservas.ObtenerPosicion(enEspera.ReservaId)}");
+Console.WriteLine($"  Posición de la reserva anulada: {reservas.ObtenerPosicion(primera.ReservaId)?.ToString() ?? "ninguna"}");
 
 Titulo("7. Cancelar la sesión");
 var afectados = sesiones.Cancelar(sesionDemo.SesionId);
@@ -341,7 +346,6 @@ Probar("Perfil sin nombre", () => usuarios.ModificarPerfil(luis.UsuarioId, new U
     Telefono = luis.Telefono
 }));
 
-// Se deja el perfil como estaba
 usuarios.ModificarPerfil(luis.UsuarioId, new Usuario
 {
     Nombre = luis.Nombre,
@@ -350,9 +354,6 @@ usuarios.ModificarPerfil(luis.UsuarioId, new Usuario
     Email = luis.Email,
     Telefono = 622000002
 });
-
-Titulo("Fin de la demo");
-
 
 
 // ---------- Funciones auxiliares ----------
