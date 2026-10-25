@@ -295,6 +295,23 @@ foreach (var s in sesiones.ObtenerDeEntrenador(instructoraYoga.EntrenadorId))
 var sesionDeLaura = sesiones.ObtenerDeEntrenador(instructoraYoga.EntrenadorId).First();
 Probar("Ver los clientes de una sesión que no es suya", () => reservas.ListarConfirmadosDeEntrenador(personal.EntrenadorId, sesionDeLaura.SesionId));
 
+// RUTINA CREADA POR ENTRENADOR PERSONAL
+Titulo("Rutina creada por el entrenador personal");
+var marta = usuarios.Buscar("marta@correo.com").First();
+var citaRutina = citas.Reservar(luis.UsuarioId, personal.EntrenadorId,
+    citas.BuscarDisponibilidad(personal.EntrenadorId, DateTime.Today.AddDays(1)).First());
+
+var rutinaLuis = rutinas.CrearParaCliente(personal.EntrenadorId, luis.UsuarioId, "Rutina de David");
+var sentadillaLuis = ejercicios.BuscarPorGrupo("Piernas").First();
+var detalleLuis = rutinas.AnadirEjercicio(rutinaLuis.RutinaId, sentadillaLuis.EjercicioId, 1, 3, 10);
+Ok($"Rutina '{rutinaLuis.NombreRutina}' creada para {luis.Nombre} con {sentadillaLuis.NombreEjercicio} {detalleLuis.Series}x{detalleLuis.Repeticiones}");
+
+Probar("Rutina para un cliente sin cita con él", () => rutinas.CrearParaCliente(personal.EntrenadorId, marta.UsuarioId, "No debería"));
+Probar("Rutina de un entrenador que no es personal", () => rutinas.CrearParaCliente(instructoraYoga.EntrenadorId, luis.UsuarioId, "No debería"));
+
+rutinas.Eliminar(rutinaLuis.RutinaId);
+citas.Anular(citaRutina.CitaId);
+
 Titulo("Fin de la demo");
 
 
