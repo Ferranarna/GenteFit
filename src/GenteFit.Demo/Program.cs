@@ -312,6 +312,45 @@ Probar("Rutina de un entrenador que no es personal", () => rutinas.CrearParaClie
 rutinas.Eliminar(rutinaLuis.RutinaId);
 citas.Anular(citaRutina.CitaId);
 
+// PERFIL SIN MODIFICAR DNI 
+Titulo("Modificar perfil");
+string dniAntes = luis.Dni;
+usuarios.ModificarPerfil(luis.UsuarioId, new Usuario
+{
+    Nombre = luis.Nombre,
+    Apellido1 = luis.Apellido1,
+    Apellido2 = "Prueba",
+    Email = luis.Email,
+    Telefono = 633000111,
+    Dni = "99999999X"
+});
+Ok($"Perfil modificado: teléfono {luis.Telefono}, apellido2 {luis.Apellido2}. DNI sin cambiar: {luis.Dni == dniAntes}");
+
+Probar("Perfil con el email de otro usuario", () => usuarios.ModificarPerfil(luis.UsuarioId, new Usuario
+{
+    Nombre = luis.Nombre,
+    Apellido1 = luis.Apellido1,
+    Email = "ana@correo.com",
+    Telefono = luis.Telefono
+}));
+Probar("Perfil sin nombre", () => usuarios.ModificarPerfil(luis.UsuarioId, new Usuario
+{
+    Nombre = "",
+    Apellido1 = luis.Apellido1,
+    Email = luis.Email,
+    Telefono = luis.Telefono
+}));
+
+// Se deja el perfil como estaba
+usuarios.ModificarPerfil(luis.UsuarioId, new Usuario
+{
+    Nombre = luis.Nombre,
+    Apellido1 = luis.Apellido1,
+    Apellido2 = null,
+    Email = luis.Email,
+    Telefono = 622000002
+});
+
 Titulo("Fin de la demo");
 
 

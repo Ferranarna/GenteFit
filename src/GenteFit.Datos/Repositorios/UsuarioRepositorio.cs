@@ -27,6 +27,27 @@ public class UsuarioRepositorio : Repositorio<Usuario>
         base.Actualizar(usuario);
     }
 
+    public Usuario ModificarPerfil(Guid usuarioId, Usuario datos)
+    {
+        var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+
+        Validador.Obligatorio(datos.Nombre, "nombre");
+        Validador.Obligatorio(datos.Apellido1, "primer apellido");
+        Validador.Email(datos.Email);
+        Validador.Telefono(datos.Telefono);
+        if (_db.Usuarios.Any(u => u.Email == datos.Email && u.UsuarioId != usuarioId))
+            throw new ValidacionException("Ya existe un usuario con ese email.");
+
+        usuario.Nombre = datos.Nombre;
+        usuario.Apellido1 = datos.Apellido1;
+        usuario.Apellido2 = datos.Apellido2;
+        usuario.Email = datos.Email;
+        usuario.Telefono = datos.Telefono;
+
+        _db.SaveChanges();
+        return usuario;
+    }
+
     public Usuario IniciarSesion(string email, string contrasena)
     {
         var usuario = _db.Usuarios.FirstOrDefault(u => u.Email == email && u.Activo);
