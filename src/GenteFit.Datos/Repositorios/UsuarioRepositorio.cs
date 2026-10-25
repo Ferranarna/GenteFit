@@ -56,8 +56,32 @@ public class UsuarioRepositorio : Repositorio<Usuario>
     public void DarDeBaja(Guid usuarioId)
     {
         var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+
+        using var transaccion = _db.Database.BeginTransaction();
+        AnularReservasYCitas(usuarioId);
         usuario.Activo = false;
         _db.SaveChanges();
+        transaccion.Commit();
+    }
+
+    private void AnularReservasYCitas(Guid usuarioId)
+    {
+        var reservas = new ReservaRepositorio(_db);
+        var pendientes = _db.Reservas
+            .Where(r => r.UsuarioId == usuarioId
+                && r.Estado != EstadoReserva.Cancelada
+                && r.Sesion.Estado == EstadoSesion.Programada)
+            .ToList();
+        foreach (var reserva in pendientes)
+            reservas.Anular(reserva.ReservaId);
+
+        var citasFuturas = _db.Citas
+            .Where(c => c.UsuarioId == usuarioId
+                && c.Estado == EstadoCita.Programada
+                && c.FechaActividad > DateTime.Now)
+            .ToList();
+        foreach (var cita in citasFuturas)
+            cita.Estado = EstadoCita.Cancelada;
     }
 
     public List<Usuario> Buscar(string texto, Rol? rol = null)

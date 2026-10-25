@@ -257,6 +257,28 @@ if (exportacionMala.IsError)
     Console.ResetColor();
 }
 
+// PRUEBAS CAMBIOS P1 CORREGIDO
+Titulo("Baja de cliente con reservas y citas");
+string marca = DateTime.Now.ToString("HHmmss");
+var clientePrueba = usuarios.Crear(new Usuario
+{
+    Nombre = "Baja",
+    Apellido1 = "Prueba",
+    Dni = $"BAJA{marca}",
+    Email = $"baja{marca}@correo.com",
+    Telefono = 699000100,
+    Rol = Rol.Cliente
+}, InicializadorBD.ContrasenaPrueba);
+
+var sesionPrueba = sesiones.Buscar(null, DateTime.Today.AddDays(2)).First();
+var reservaPrueba = reservas.Reservar(clientePrueba.UsuarioId, sesionPrueba.SesionId);
+var huecoPrueba = citas.BuscarDisponibilidad(personal.EntrenadorId, DateTime.Today.AddDays(2)).First();
+var citaPrueba = citas.Reservar(clientePrueba.UsuarioId, personal.EntrenadorId, huecoPrueba);
+Console.WriteLine($"  Antes: reserva {reservaPrueba.Estado}, cita {citaPrueba.Estado}, activo {clientePrueba.Activo}");
+
+usuarios.DarDeBaja(clientePrueba.UsuarioId);
+Console.WriteLine($"  Después: reserva {reservaPrueba.Estado}, cita {citaPrueba.Estado}, activo {clientePrueba.Activo}");
+
 Titulo("Fin de la demo");
 
 // ---------- Funciones auxiliares ----------
