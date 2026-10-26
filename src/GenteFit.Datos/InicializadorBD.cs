@@ -33,14 +33,6 @@ public static class InicializadorBD
         var bodypump = new Actividad { NombreActividad = "Body Pump", Descripcion = "Fuerza con barra", Intensidad = Intensidad.Alta, Especialidad = Especialidad.Bodypump };
         db.Actividades.AddRange(yoga, spinning, zumba, bodypump);
 
-        // Entrenadores
-        var laura = new Entrenador { Nombre = "Laura", Apellido1 = "Gómez", Telefono = 600111222, Especialidad = Especialidad.Yoga };
-        var marc = new Entrenador { Nombre = "Marc", Apellido1 = "Puig", Telefono = 600222333, Especialidad = Especialidad.Spinning };
-        var sara = new Entrenador { Nombre = "Sara", Apellido1 = "Ruiz", Telefono = 600333444, Especialidad = Especialidad.Zumba };
-        var pau = new Entrenador { Nombre = "Pau", Apellido1 = "Vidal", Telefono = 600444555, Especialidad = Especialidad.Bodypump };
-        var david = new Entrenador { Nombre = "David", Apellido1 = "López", Telefono = 600555666, Especialidad = Especialidad.EntrenadorPersonal };
-        db.Entrenadores.AddRange(laura, marc, sara, pau, david);
-
         // Ejercicios
         db.Ejercicios.AddRange(
             new Ejercicio { NombreEjercicio = "Sentadilla", GrupoMuscular = "Piernas" },
@@ -59,6 +51,14 @@ public static class InicializadorBD
             NuevoUsuario("Ana", "García", "11111111A", "ana@correo.com", Rol.Cliente, 622000001, hash),
             NuevoUsuario("Luis", "Pérez", "22222222B", "luis@correo.com", Rol.Cliente, 622000002, hash),
             NuevoUsuario("Marta", "Soler", "33333333C", "marta@correo.com", Rol.Cliente, 622000003, hash));
+
+        // Entrenadores: cada uno es un usuario con rol Entrenador (inicia sesión con su email)
+        var laura = new Entrenador { Usuario = NuevoUsuario("Laura", "Gómez", "44444441D", "laura@gentefit.com", Rol.Entrenador, 600111222, hash), Especialidad = Especialidad.Yoga };
+        var marc = new Entrenador { Usuario = NuevoUsuario("Marc", "Puig", "44444442E", "marc@gentefit.com", Rol.Entrenador, 600222333, hash), Especialidad = Especialidad.Spinning };
+        var sara = new Entrenador { Usuario = NuevoUsuario("Sara", "Ruiz", "44444443F", "sara@gentefit.com", Rol.Entrenador, 600333444, hash), Especialidad = Especialidad.Zumba };
+        var pau = new Entrenador { Usuario = NuevoUsuario("Pau", "Vidal", "44444444G", "pau@gentefit.com", Rol.Entrenador, 600444555, hash), Especialidad = Especialidad.Bodypump };
+        var david = new Entrenador { Usuario = NuevoUsuario("David", "López", "44444445H", "david@gentefit.com", Rol.Entrenador, 600555666, hash), Especialidad = Especialidad.EntrenadorPersonal };
+        db.Entrenadores.AddRange(laura, marc, sara, pau, david);
 
         // Sesiones de los próximos 3 días
         var hoy = DateTime.Today;

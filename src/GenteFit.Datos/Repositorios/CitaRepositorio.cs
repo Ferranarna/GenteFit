@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GenteFit.Datos.Repositorios;
 
-// Citas con entrenador personal: siempre 30 minutos, sin lista de espera
 public class CitaRepositorio : Repositorio<Cita>
 {
     private const int DuracionCita = 30;
@@ -15,9 +14,9 @@ public class CitaRepositorio : Repositorio<Cita>
 
     public Cita Reservar(Guid usuarioId, Guid entrenadorId, DateTime fecha)
     {
-        var entrenador = _db.Entrenadores.Find(entrenadorId)
+        var entrenador = _db.Entrenadores.Include(e => e.Usuario).FirstOrDefault(e => e.EntrenadorId == entrenadorId)
             ?? throw new ValidacionException("El entrenador no existe.");
-        if (!entrenador.Activo || entrenador.Especialidad != Especialidad.EntrenadorPersonal)
+        if (!entrenador.Usuario.Activo || entrenador.Especialidad != Especialidad.EntrenadorPersonal)
             throw new ValidacionException("Las citas solo se pueden pedir con un entrenador personal activo.");
 
         if (!EstaLibre(entrenadorId, fecha))
@@ -69,8 +68,25 @@ public class CitaRepositorio : Repositorio<Cita>
 
     public List<Cita> ObtenerDeCliente(Guid usuarioId) =>
         _db.Citas
-            .Include(c => c.Entrenador)
+            .Include(c => c.Entrenador).ThenInclude(e => e.Usuario)
             .Where(c => c.UsuarioId == usuarioId && c.Estado == EstadoCita.Programada)
             .OrderBy(c => c.FechaActividad)
+            .ToList();
+
+    public List<Cita> ObtenerDeEntrenador(Guid entrenadorId) =>
+        _db.Citas
+            .Include(c => c.Usuario)
+            .Where(c => c.EntrenadorId == entrenadorId
+                && c.Estado == EstadoCita.Programada
+                && c.FechaActividad >= DateTime.Now)
+            .OrderBy(c => c.FechaActividad)
+            .ToList();
+
+    public List<Usuario> ObtenerClientesDeEntrenador(Guid entrenadorId) =>
+        _db.Citas
+            .Where(c => c.EntrenadorId == entrenadorId && c.Estado == EstadoCita.Programada)
+            .Select(c => c.Usuario)
+            .Distinct()
+            .OrderBy(u => u.Nombre)
             .ToList();
 }

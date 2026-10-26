@@ -30,7 +30,7 @@ public class SesionRepositorio : Repositorio<Sesion>
         var consulta = _db.Sesiones
             .Include(s => s.Actividad)
             .Include(s => s.Sala)
-            .Include(s => s.Entrenador)
+            .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
             .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha.Date == dia.Date);
 
         if (actividadId != null)
@@ -38,6 +38,16 @@ public class SesionRepositorio : Repositorio<Sesion>
 
         return consulta.OrderBy(s => s.Fecha).ToList();
     }
+
+    public List<Sesion> ObtenerDeEntrenador(Guid entrenadorId) =>
+        _db.Sesiones
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Where(s => s.EntrenadorId == entrenadorId
+                && s.Estado == EstadoSesion.Programada
+                && s.Fecha >= DateTime.Today)
+            .OrderBy(s => s.Fecha)
+            .ToList();
 
     public int PlazasDisponibles(Guid sesionId)
     {
@@ -70,12 +80,12 @@ public class SesionRepositorio : Repositorio<Sesion>
     {
         var actividad = _db.Actividades.Find(sesion.ActividadId)
             ?? throw new ValidacionException("La actividad no existe.");
-        var entrenador = _db.Entrenadores.Find(sesion.EntrenadorId)
+        var entrenador = _db.Entrenadores.Include(e => e.Usuario).FirstOrDefault(e => e.EntrenadorId == sesion.EntrenadorId)
             ?? throw new ValidacionException("El entrenador no existe.");
         if (_db.Salas.Find(sesion.SalaId) == null)
             throw new ValidacionException("La sala no existe.");
 
-        if (!entrenador.Activo)
+        if (!entrenador.Usuario.Activo)
             throw new ValidacionException("El entrenador está dado de baja.");
         if (entrenador.Especialidad != actividad.Especialidad)
             throw new ValidacionException("La especialidad del entrenador no coincide con la de la actividad.");

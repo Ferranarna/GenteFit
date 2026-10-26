@@ -2,10 +2,10 @@ using System;
 using GenteFit.Datos.Validaciones;
 using GenteFit.Modelo.Entidades;
 using Microsoft.EntityFrameworkCore;
+using GenteFit.Modelo.Enums;
 
 namespace GenteFit.Datos.Repositorios;
 
-// Rutinas del cliente. Es lo único que se puede borra de verdad.
 public class RutinaRepositorio : Repositorio<Rutina>
 {
     public RutinaRepositorio(GenteFitContext db) : base(db) { }
@@ -14,6 +14,22 @@ public class RutinaRepositorio : Repositorio<Rutina>
     {
         Validador.Obligatorio(nombre, "nombre de la rutina");
         return base.Crear(new Rutina { UsuarioId = usuarioId, NombreRutina = nombre });
+    }
+
+    public Rutina CrearParaCliente(Guid entrenadorId, Guid clienteId, string nombre)
+    {
+        var entrenador = _db.Entrenadores.Include(e => e.Usuario).FirstOrDefault(e => e.EntrenadorId == entrenadorId)
+            ?? throw new ValidacionException("El entrenador no existe.");
+        if (!entrenador.Usuario.Activo || entrenador.Especialidad != Especialidad.EntrenadorPersonal)
+            throw new ValidacionException("Solo un entrenador personal activo puede crear rutinas para clientes.");
+
+        bool esSuCliente = _db.Citas.Any(c => c.EntrenadorId == entrenadorId
+            && c.UsuarioId == clienteId
+            && c.Estado == EstadoCita.Programada);
+        if (!esSuCliente)
+            throw new ValidacionException("El cliente no tiene ninguna cita con este entrenador.");
+
+        return Crear(clienteId, nombre);
     }
 
     public void Renombrar(Guid rutinaId, string nombre)
