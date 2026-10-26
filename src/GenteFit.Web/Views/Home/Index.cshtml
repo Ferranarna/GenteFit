@@ -1,18 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "GenteFit";
+    ViewData["Title"] = "Inicio";
 }
-<h1>GenteFit</h1>
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger">@ViewBag.Error</div>
-}
-else
-{
-    <p>Conexión con la base de datos correcta. Actividades:</p>
-    <ul>
-        @foreach (var a in ViewBag.Actividades)
-        {
-            <li>@a.NombreActividad</li>
-        }
-    </ul>
-}
+<h1>Bienvenido, @User.Identity?.Name</h1>
+<p class="gf-ayuda">Rol: @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
