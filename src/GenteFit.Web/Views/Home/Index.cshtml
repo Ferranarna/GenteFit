@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "GenteFit";
+}
+<h1>GenteFit</h1>
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+else
+{
+    <p>Conexión con la base de datos correcta. Actividades:</p>
+    <ul>
+        @foreach (var a in ViewBag.Actividades)
+        {
+            <li>@a.NombreActividad</li>
+        }
+    </ul>
+}
