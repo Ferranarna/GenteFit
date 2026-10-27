@@ -51,6 +51,11 @@ public class GenteFitContext : DbContext
 
         modelBuilder.Entity<Reserva>().HasIndex(r => new { r.UsuarioId, r.SesionId }).IsUnique();
 
+        modelBuilder.Entity<Entrenador>()
+            .HasOne(e => e.Usuario)
+            .WithOne(u => u.Entrenador)
+            .HasForeignKey<Entrenador>(e => e.EntrenadorId);
+
         foreach (var fk in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
         {
             fk.DeleteBehavior = DeleteBehavior.Restrict;

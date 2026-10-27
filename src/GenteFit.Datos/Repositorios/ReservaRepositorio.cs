@@ -78,6 +78,28 @@ public class ReservaRepositorio : Repositorio<Reserva>
         return promovida;
     }
 
+    public int? ObtenerPosicion(Guid reservaId)
+    {
+        var reserva = _db.Reservas.Find(reservaId)
+            ?? throw new ValidacionException("La reserva no existe.");
+        if (reserva.Estado != EstadoReserva.ListaEspera)
+            return null;
+
+        return _db.Reservas.Count(r => r.SesionId == reserva.SesionId
+            && r.Estado == EstadoReserva.ListaEspera
+            && r.FechaReserva < reserva.FechaReserva) + 1;
+    }
+
+    public List<Reserva> ListarConfirmadosDeEntrenador(Guid entrenadorId, Guid sesionId)
+    {
+        var sesion = _db.Sesiones.Find(sesionId)
+            ?? throw new ValidacionException("La sesión no existe.");
+        if (sesion.EntrenadorId != entrenadorId)
+            throw new ValidacionException("La sesión no es de este entrenador.");
+
+        return ListarConfirmados(sesionId);
+    }
+
     public List<Reserva> ObtenerDeCliente(Guid usuarioId) =>
         _db.Reservas
             .Include(r => r.Sesion).ThenInclude(s => s.Actividad)

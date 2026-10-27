@@ -27,6 +27,27 @@ public class UsuarioRepositorio : Repositorio<Usuario>
         base.Actualizar(usuario);
     }
 
+    public Usuario ModificarPerfil(Guid usuarioId, Usuario datos)
+    {
+        var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+
+        Validador.Obligatorio(datos.Nombre, "nombre");
+        Validador.Obligatorio(datos.Apellido1, "primer apellido");
+        Validador.Email(datos.Email);
+        Validador.Telefono(datos.Telefono);
+        if (_db.Usuarios.Any(u => u.Email == datos.Email && u.UsuarioId != usuarioId))
+            throw new ValidacionException("Ya existe un usuario con ese email.");
+
+        usuario.Nombre = datos.Nombre;
+        usuario.Apellido1 = datos.Apellido1;
+        usuario.Apellido2 = datos.Apellido2;
+        usuario.Email = datos.Email;
+        usuario.Telefono = datos.Telefono;
+
+        _db.SaveChanges();
+        return usuario;
+    }
+
     public Usuario IniciarSesion(string email, string contrasena)
     {
         var usuario = _db.Usuarios.FirstOrDefault(u => u.Email == email && u.Activo);
@@ -56,8 +77,32 @@ public class UsuarioRepositorio : Repositorio<Usuario>
     public void DarDeBaja(Guid usuarioId)
     {
         var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+
+        using var transaccion = _db.Database.BeginTransaction();
+        AnularReservasYCitas(usuarioId);
         usuario.Activo = false;
         _db.SaveChanges();
+        transaccion.Commit();
+    }
+
+    private void AnularReservasYCitas(Guid usuarioId)
+    {
+        var reservas = new ReservaRepositorio(_db);
+        var pendientes = _db.Reservas
+            .Where(r => r.UsuarioId == usuarioId
+                && r.Estado != EstadoReserva.Cancelada
+                && r.Sesion.Estado == EstadoSesion.Programada)
+            .ToList();
+        foreach (var reserva in pendientes)
+            reservas.Anular(reserva.ReservaId);
+
+        var citasFuturas = _db.Citas
+            .Where(c => c.UsuarioId == usuarioId
+                && c.Estado == EstadoCita.Programada
+                && c.FechaActividad > DateTime.Now)
+            .ToList();
+        foreach (var cita in citasFuturas)
+            cita.Estado = EstadoCita.Cancelada;
     }
 
     public List<Usuario> Buscar(string texto, Rol? rol = null)

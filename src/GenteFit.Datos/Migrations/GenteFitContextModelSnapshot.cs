@@ -22,6 +22,21 @@ namespace GenteFit.Datos.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Entrenador", b =>
+                {
+                    b.Property<Guid>("EntrenadorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Especialidad")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("EntrenadorId");
+
+                    b.ToTable("Entrenadores");
+                });
+
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Actividad", b =>
                 {
                     b.Property<Guid>("ActividadId")
@@ -147,42 +162,6 @@ namespace GenteFit.Datos.Migrations
                     b.HasKey("EjercicioId");
 
                     b.ToTable("Ejercicios");
-                });
-
-            modelBuilder.Entity("GenteFit.Modelo.Entidades.Entrenador", b =>
-                {
-                    b.Property<Guid>("EntrenadorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Activo")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Apellido1")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Apellido2")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Especialidad")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<int>("Telefono")
-                        .HasColumnType("int");
-
-                    b.HasKey("EntrenadorId");
-
-                    b.ToTable("Entrenadores");
                 });
 
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Reserva", b =>
@@ -351,9 +330,20 @@ namespace GenteFit.Datos.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("Entrenador", b =>
+                {
+                    b.HasOne("GenteFit.Modelo.Entidades.Usuario", "Usuario")
+                        .WithOne("Entrenador")
+                        .HasForeignKey("Entrenador", "EntrenadorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Cita", b =>
                 {
-                    b.HasOne("GenteFit.Modelo.Entidades.Entrenador", "Entrenador")
+                    b.HasOne("Entrenador", "Entrenador")
                         .WithMany("Citas")
                         .HasForeignKey("EntrenadorId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -427,7 +417,7 @@ namespace GenteFit.Datos.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("GenteFit.Modelo.Entidades.Entrenador", "Entrenador")
+                    b.HasOne("Entrenador", "Entrenador")
                         .WithMany("Sesiones")
                         .HasForeignKey("EntrenadorId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -446,6 +436,13 @@ namespace GenteFit.Datos.Migrations
                     b.Navigation("Sala");
                 });
 
+            modelBuilder.Entity("Entrenador", b =>
+                {
+                    b.Navigation("Citas");
+
+                    b.Navigation("Sesiones");
+                });
+
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Actividad", b =>
                 {
                     b.Navigation("Sesiones");
@@ -454,13 +451,6 @@ namespace GenteFit.Datos.Migrations
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Ejercicio", b =>
                 {
                     b.Navigation("Detalles");
-                });
-
-            modelBuilder.Entity("GenteFit.Modelo.Entidades.Entrenador", b =>
-                {
-                    b.Navigation("Citas");
-
-                    b.Navigation("Sesiones");
                 });
 
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Rutina", b =>
@@ -481,6 +471,8 @@ namespace GenteFit.Datos.Migrations
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Usuario", b =>
                 {
                     b.Navigation("Citas");
+
+                    b.Navigation("Entrenador");
 
                     b.Navigation("Reservas");
 
