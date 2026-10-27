@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Resultados generados del instalador (se crean con dotnet publish y con Inno Setup)
+/publicar/
+/salida/
+
 # User-specific files
 *.rsuser
 *.suo
