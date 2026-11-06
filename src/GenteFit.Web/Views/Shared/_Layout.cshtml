@@ -34,6 +34,10 @@
                                 <span class="gf-avatar">@inicial</span> @nombre
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                @if (User.IsInRole("Cliente"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="MisDatos">Mis datos</a></li>
+                                }
                                 <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="CambiarContrasena">Cambiar contraseña</a></li>
                                 <li>
                                     <form asp-controller="Cuenta" asp-action="Logout" method="post">

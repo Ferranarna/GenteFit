@@ -1,4 +1,4 @@
-:root {
+ï»¿:root {
     --gf-fondo: #05080f;
     --gf-tarjeta: #0f1b2b;
     --gf-borde: #1e3550;
@@ -191,7 +191,7 @@ label.gf-etiqueta {
     color: var(--gf-texto-suave);
 }
 
-.gf-campo, .form-control, .form-select {
+.form-control, .form-select {
     background: #050b14;
     color: var(--gf-texto);
     border: 1px solid var(--gf-borde);
@@ -199,12 +199,19 @@ label.gf-etiqueta {
     padding: .7rem .9rem;
 }
 
-    .gf-campo:focus, .form-control:focus, .form-select:focus {
-        background: #050b14;
-        color: #fff;
-        border-color: var(--gf-acento);
-        box-shadow: 0 0 0 3px rgba(58, 168, 240, .25);
-    }
+.form-control:focus, .form-select:focus {
+    background: #050b14;
+    color: #fff;
+    border-color: var(--gf-acento);
+    box-shadow: 0 0 0 3px rgba(58, 168, 240, .25);
+}
+
+.form-control:disabled, .form-select:disabled {
+    background: #050b14;
+    color: var(--gf-texto-suave);
+    opacity: .6;
+    cursor: not-allowed;
+}
 
 .gf-ayuda {
     color: var(--gf-texto-suave);
@@ -240,7 +247,6 @@ label.gf-etiqueta {
     border: 1px solid var(--gf-borde);
 }
 
-/* ===== Avisos ===== */
 /* ===== Avisos ===== */
 .gf-aviso {
     border-radius: 10px;
@@ -337,12 +343,6 @@ label.gf-etiqueta {
     margin: 0 auto;
 }
 
-.gf-nota {
-    color: var(--gf-texto-suave);
-    font-size: .75rem;
-    margin: .4rem 0 1rem;
-}
-
 .gf-botones {
     display: flex;
     justify-content: center;
@@ -356,13 +356,14 @@ label.gf-etiqueta {
     text-decoration: none;
     text-align: center;
 }
+
 @media (max-width: 576px) {
     .gf-contenido {
         padding: 1rem .75rem 2rem;
     }
 }
 
-/* Forzamos el diseño para cuando el navegador recuerde la contraseña */
+/* Forzamos el diseÃ±o para cuando el navegador recuerde la contraseÃ±a */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
