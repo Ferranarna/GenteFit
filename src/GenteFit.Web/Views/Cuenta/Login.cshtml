@@ -7,11 +7,17 @@
         <span class="gf-logo">GENTE<span>FIT</span></span>
 
         <label class="gf-etiqueta" for="email">Email</label>
-        <input class="form-control mb-3" id="email" name="email" type="email"
-               placeholder="nombre@correo.com" value="@ViewBag.Email" autofocus />
+        <div class="gf-input-icono mb-3">
+            @Iconos.Ver("sobre")
+            <input class="form-control" id="email" name="email" type="email"
+                   placeholder="nombre@correo.com" value="@ViewBag.Email" autofocus />
+        </div>
 
         <label class="gf-etiqueta" for="contrasena">Contraseña</label>
-        <input class="form-control" id="contrasena" name="contrasena" type="password" placeholder="••••••••" />
+        <div class="gf-input-icono">
+            @Iconos.Ver("candado")
+            <input class="form-control" id="contrasena" name="contrasena" type="password" placeholder="••••••••" />
+        </div>
 
         @if (ViewBag.Error != null)
         {

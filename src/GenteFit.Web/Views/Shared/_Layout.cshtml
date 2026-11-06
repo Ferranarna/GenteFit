@@ -36,12 +36,12 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 @if (User.IsInRole("Cliente"))
                                 {
-                                    <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="MisDatos">Mis datos</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="MisDatos">@Iconos.Ver("usuario") Mis datos</a></li>
                                 }
-                                <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="CambiarContrasena">Cambiar contraseña</a></li>
+                                <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="CambiarContrasena">@Iconos.Ver("candado") Cambiar contraseña</a></li>
                                 <li>
                                     <form asp-controller="Cuenta" asp-action="Logout" method="post">
-                                        <button class="dropdown-item" type="submit">Cerrar sesión</button>
+                                        <button class="dropdown-item" type="submit">@Iconos.Ver("cerrar-sesion") Cerrar sesión</button>
                                     </form>
                                 </li>
                             </ul>

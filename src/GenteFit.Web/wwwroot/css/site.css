@@ -117,6 +117,9 @@ a {
 
 .gf-nav .dropdown-item {
     color: var(--gf-texto);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
 }
 
     .gf-nav .dropdown-item:hover {
@@ -371,4 +374,36 @@ input:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--gf-texto);
     caret-color: #fff;
     transition: background-color 9999s ease-out 0s;
+}
+
+/* ===== Iconos (SVG) ===== */
+.gf-ico {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    color: var(--gf-acento);
+}
+
+.gf-input-icono {
+    position: relative;
+}
+
+    .gf-input-icono > .gf-ico {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .gf-input-icono > .form-control {
+        padding-left: 2.8rem;
+    }
+
+.gf-avatar .gf-ico {
+    color: #04101c;
 }
