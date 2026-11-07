@@ -24,4 +24,13 @@ public static class DatosPrueba
             Telefono = telefono
         }, Contrasena);
     }
+
+    // Crea varios usuarios del mismo rol. El prefijo evita repetir emails y DNI entre grupos distintos.
+    public static List<Usuario> CrearUsuarios(UsuarioRepositorio repo, int cuantos, Rol rol, string prefijo)
+    {
+        var usuarios = new List<Usuario>();
+        for (int i = 1; i <= cuantos; i++)
+            usuarios.Add(CrearUsuario(repo, email: $"{prefijo}{i}@prueba.com", dni: $"{prefijo}{i}", rol: rol));
+        return usuarios;
+    }
 }
