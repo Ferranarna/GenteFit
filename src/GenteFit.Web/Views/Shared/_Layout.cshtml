@@ -1,6 +1,7 @@
 ﻿@{
     bool sinMenu = ViewData["SinMenu"] is true;
     string nombre = User.Identity?.Name ?? "";
+    string ruta = Context.Request.Path.Value ?? "/";
     string inicial = nombre.Length > 0 ? nombre.Substring(0, 1).ToUpper() : "?";
 }
 <!DOCTYPE html>
@@ -16,22 +17,19 @@
     @if (!sinMenu)
     {
         <header>
-            <nav class="navbar navbar-expand-lg gf-nav">
+            <nav class="navbar navbar-expand-xl gf-nav">
                 <div class="container-fluid">
                     <a class="gf-logo" asp-controller="Home" asp-action="Index">GENTE<span>FIT</span></a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#menuPrincipal" aria-label="Abrir menú">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="menuPrincipal">
-                        <ul class="navbar-nav me-auto ms-lg-4">
-                            <li class="nav-item">
-                                <a class="nav-link activo" asp-controller="Home" asp-action="Index">Inicio</a>
-                            </li>
-                        </ul>
+
+                    <div class="d-flex align-items-center gap-2 ms-auto order-xl-3">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#menuPrincipal" aria-label="Abrir menú">
+                            @Iconos.Ver("menu")
+                        </button>
                         <div class="dropdown">
-                            <button class="gf-usuario dropdown-toggle" data-bs-toggle="dropdown">
-                                <span class="gf-avatar">@inicial</span> @nombre
+                            <button class="gf-usuario dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static">
+                                <span class="gf-avatar">@inicial</span>
+                                <span class="d-none d-xl-inline">@nombre</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 @if (User.IsInRole("Cliente"))
@@ -47,6 +45,22 @@
                             </ul>
                         </div>
                     </div>
+
+                    <div class="collapse navbar-collapse order-xl-2" id="menuPrincipal">
+                        <ul class="navbar-nav mx-xl-auto">
+                            <li class="nav-item">
+                                <a class="nav-link @(ruta == "/" || ruta.StartsWith("/Home", StringComparison.OrdinalIgnoreCase) ? "activo" : "")"
+                                   asp-controller="Home" asp-action="Index">Inicio</a>
+                            </li>
+                            @foreach (var pantalla in Menus.De(User))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(ruta.StartsWith(pantalla.Url, StringComparison.OrdinalIgnoreCase) ? "activo" : "")"
+                                       href="@pantalla.Url">@pantalla.Titulo</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </header>
@@ -56,6 +70,15 @@
     </main>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Solo un panel abierto a la vez: el de pestañas o el del usuario
+        const menu = document.getElementById('menuPrincipal');
+        const usuario = document.querySelector('.gf-nav [data-bs-toggle="dropdown"]');
+        if (menu && usuario) {
+            usuario.addEventListener('show.bs.dropdown', () => bootstrap.Collapse.getInstance(menu)?.hide());
+            menu.addEventListener('show.bs.collapse', () => bootstrap.Dropdown.getInstance(usuario)?.hide());
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

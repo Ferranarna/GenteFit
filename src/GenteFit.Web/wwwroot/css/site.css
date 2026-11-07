@@ -61,31 +61,64 @@ a {
         color: var(--gf-acento);
     }
 
-.gf-nav .nav-link {
+/* Texto de las opciones: igual en las pestañas y en el menú del usuario */
+.gf-nav .nav-link,
+.gf-nav .dropdown-item {
     color: var(--gf-texto-suave);
     text-transform: uppercase;
-    letter-spacing: .08em;
-    font-size: .8rem;
+    letter-spacing: .04em;
+    font-size: .87rem;
     font-weight: 600;
-    border-radius: 999px;
-    padding: .45rem 1rem;
+    border-radius: 10px;
+    padding: .6rem 1.2rem;
 }
 
-    .gf-nav .nav-link:hover {
+    .gf-nav .nav-link:hover,
+    .gf-nav .dropdown-item:hover,
+    .gf-nav .dropdown-item:active {
         color: #fff;
+        background: rgba(77, 184, 255, .18);
     }
 
     .gf-nav .nav-link.activo {
-        color: #fff;
-        background: rgba(58, 168, 240, .18);
+        color: #04121f;
+        background: var(--gf-acento);
     }
+
+.gf-nav .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+.gf-nav .navbar-nav {
+    gap: 8px;
+}
 
 .gf-nav .navbar-toggler {
     border-color: var(--gf-borde);
+    padding: .4rem .5rem;
 }
 
-.gf-nav .navbar-toggler-icon {
-    filter: invert(1);
+.gf-nav .dropdown {
+    position: static;
+}
+
+.gf-nav .dropdown-menu {
+    --bs-dropdown-min-width: 250px;
+    top: calc(100% + 8px);
+    right: 1.75rem;
+    left: auto;
+    margin-top: 0;
+    background: var(--gf-tarjeta);
+    border: 1px solid var(--gf-borde);
+    border-radius: var(--gf-radio);
+    padding: .5rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+}
+
+.gf-nav .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(77, 184, 255, .25);
 }
 
 .gf-usuario {
@@ -109,23 +142,26 @@ a {
     justify-content: center;
 }
 
-.gf-nav .dropdown-menu {
-    background: var(--gf-tarjeta);
-    border: 1px solid var(--gf-borde);
-    border-radius: var(--gf-radio);
-}
-
-.gf-nav .dropdown-item {
-    color: var(--gf-texto);
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-}
-
-    .gf-nav .dropdown-item:hover {
-        background: rgba(58, 168, 240, .18);
-        color: #fff;
+/* Ventana estrecha: el menú de pestañas se abre como una tarjeta flotante */
+@media (max-width: 1199.98px) {
+    .gf-nav .navbar-collapse {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 1.75rem;
+        min-width: 250px;
+        padding: .5rem;
+        background: var(--gf-tarjeta);
+        border: 1px solid var(--gf-borde);
+        border-radius: var(--gf-radio);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+        z-index: 1000;
     }
+
+    .gf-nav .navbar-nav {
+        gap: 2px;
+    }
+
+}
 
 /* ===== Contenido ===== */
 .gf-contenido {
@@ -187,7 +223,7 @@ a.gf-tarjeta {
     height: 52px;
     border: 2px solid var(--gf-acento);
     border-radius: 10px;
-    box-shadow: 0 0 14px rgba(58, 168, 240, .45);
+    box-shadow: 0 0 14px rgba(77, 184, 255, .45);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -217,12 +253,12 @@ label.gf-etiqueta {
     padding: .7rem .9rem;
 }
 
-.form-control:focus, .form-select:focus {
-    background: #050b14;
-    color: #fff;
-    border-color: var(--gf-acento);
-    box-shadow: 0 0 0 3px rgba(58, 168, 240, .25);
-}
+    .form-control:focus, .form-select:focus {
+        background: #050b14;
+        color: #fff;
+        border-color: var(--gf-acento);
+        box-shadow: 0 0 0 3px rgba(77, 184, 255, .25);
+    }
 
 .form-control:disabled, .form-select:disabled {
     background: #050b14;
@@ -251,7 +287,7 @@ label.gf-etiqueta {
     color: #04101c;
     cursor: pointer;
     background: linear-gradient(180deg, var(--gf-acento-claro), var(--gf-acento));
-    box-shadow: 0 4px 18px rgba(58, 168, 240, .35);
+    box-shadow: 0 4px 18px rgba(77, 184, 255, .35);
 }
 
     .gf-boton:hover {
@@ -290,7 +326,7 @@ label.gf-etiqueta {
 .gf-aviso-info {
     color: var(--gf-acento-claro);
     border-color: var(--gf-acento);
-    background: rgba(58, 168, 240, .1);
+    background: rgba(77, 184, 255, .1);
 }
 
 /* ===== Tablas ===== */
@@ -419,6 +455,3 @@ input:-webkit-autofill:focus {
         padding-left: 2.8rem;
     }
 
-.gf-avatar .gf-ico {
-    color: #04101c;
-}
