@@ -1,0 +1,28 @@
+﻿@model List<Estadistica>
+@{
+    ViewData["Title"] = "Inicio";
+}
+<h1>Hola, @User.Identity?.Name</h1>
+<p class="gf-subtitulo">Todo lo que necesitas para organizar tus entrenamientos, en un solo lugar.</p>
+<div class="gf-rejilla mt-4">
+    <partial name="_Tarjeta" model='new Tarjeta("actividad", "Actividades", "Conoce las actividades del centro.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("calendario", "Sesiones", "Consulta las sesiones disponibles.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("marcador", "Mis reservas", "Consulta tus reservas.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("lista", "Mis rutinas", "Personaliza tus rutinas de entrenamiento.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("reloj", "Mis citas", "Organiza tus citas con tu entrenador.")' />
+</div>
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error">@ViewBag.Error</div>
+}
+@if (Model.Count > 0)
+{
+    <h2 class="gf-seccion">Mi resumen</h2>
+    <div class="gf-rejilla">
+        @foreach (var estadistica in Model)
+        {
+            <partial name="_Estadistica" model="estadistica" />
+        }
+    </div>
+}

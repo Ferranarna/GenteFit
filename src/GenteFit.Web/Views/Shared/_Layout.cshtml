@@ -1,49 +1,84 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    bool sinMenu = ViewData["SinMenu"] is true;
+    string nombre = User.Identity?.Name ?? "";
+    string ruta = Context.Request.Path.Value ?? "/";
+    string inicial = nombre.Length > 0 ? nombre.Substring(0, 1).ToUpper() : "?";
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - GenteFit.Web</title>
+    <title>@ViewData["Title"] - GenteFit</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/GenteFit.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GenteFit.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    @if (!sinMenu)
+    {
+        <header>
+            <nav class="navbar navbar-expand-xl gf-nav">
+                <div class="container-fluid">
+                    <a class="gf-logo" asp-controller="Home" asp-action="Index">GENTE<span>FIT</span></a>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - GenteFit.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+                    <div class="d-flex align-items-center gap-2 ms-auto order-xl-3">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#menuPrincipal" aria-label="Abrir menú">
+                            @Iconos.Ver("menu")
+                        </button>
+                        <div class="dropdown">
+                            <button class="gf-usuario dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static">
+                                <span class="gf-avatar">@inicial</span>
+                                <span class="d-none d-xl-inline">@nombre</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                @if (User.IsInRole("Cliente"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="MisDatos">@Iconos.Ver("usuario") Mis datos</a></li>
+                                }
+                                <li><a class="dropdown-item" asp-controller="Cuenta" asp-action="CambiarContrasena">@Iconos.Ver("candado") Cambiar contraseña</a></li>
+                                <li>
+                                    <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                                        <button class="dropdown-item" type="submit">@Iconos.Ver("cerrar-sesion") Cerrar sesión</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="collapse navbar-collapse order-xl-2" id="menuPrincipal">
+                        <ul class="navbar-nav mx-xl-auto">
+                            <li class="nav-item">
+                                <a class="nav-link @(ruta == "/" || ruta.StartsWith("/Home", StringComparison.OrdinalIgnoreCase) ? "activo" : "")"
+                                   asp-controller="Home" asp-action="Index">Inicio</a>
+                            </li>
+                            @foreach (var pantalla in Menus.De(User))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(ruta.StartsWith(pantalla.Url, StringComparison.OrdinalIgnoreCase) ? "activo" : "")"
+                                       href="@pantalla.Url">@pantalla.Titulo</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+    <main class="@(sinMenu ? "" : "gf-contenido")">
+        @RenderBody()
+    </main>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Solo un panel abierto a la vez: el de pestañas o el del usuario
+        const menu = document.getElementById('menuPrincipal');
+        const usuario = document.querySelector('.gf-nav [data-bs-toggle="dropdown"]');
+        if (menu && usuario) {
+            usuario.addEventListener('show.bs.dropdown', () => bootstrap.Collapse.getInstance(menu)?.hide());
+            menu.addEventListener('show.bs.collapse', () => bootstrap.Dropdown.getInstance(usuario)?.hide());
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

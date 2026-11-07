@@ -120,6 +120,19 @@ public class UsuarioRepositorio : Repositorio<Usuario>
     public List<Usuario> ObtenerClientes() =>
         _db.Usuarios.Where(u => u.Rol == Rol.Cliente).OrderBy(u => u.Nombre).ToList();
 
+    // Estadística del inicio del administrador: usuarios activos y de baja
+    public (int Activos, int DeBaja) ContarActivosYDeBaja() =>
+        (_db.Usuarios.Count(u => u.Activo), _db.Usuarios.Count(u => !u.Activo));
+
+    // Estadística del inicio del administrador: clientes activos y personal activo (el resto de roles)
+    public (int Clientes, int Plantilla) ContarClientesYPlantilla() =>
+        (_db.Usuarios.Count(u => u.Activo && u.Rol == Rol.Cliente),
+         _db.Usuarios.Count(u => u.Activo && u.Rol != Rol.Cliente));
+
+    // Estadística del inicio del recepcionista: clientes activos y de baja
+    public (int Activos, int DeBaja) ContarClientesActivosYDeBaja() =>
+        (_db.Usuarios.Count(u => u.Rol == Rol.Cliente && u.Activo),
+         _db.Usuarios.Count(u => u.Rol == Rol.Cliente && !u.Activo));
     private void Validar(Usuario usuario)
     {
         Validador.Obligatorio(usuario.Nombre, "nombre");

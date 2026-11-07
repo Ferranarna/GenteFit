@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Cambiar contraseña";
+}
+<div class="gf-estrecho">
+    <h1>Cambiar contraseña</h1>
+
+    <form class="gf-tarjeta" method="post" asp-action="CambiarContrasena">
+        <label class="gf-etiqueta" for="actual">Contraseña actual</label>
+        <input class="form-control mb-3" id="actual" name="actual" type="password" />
+
+        <label class="gf-etiqueta" for="nueva">Contraseña nueva</label>
+        <input class="form-control" id="nueva" name="nueva" type="password" />
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="gf-aviso gf-aviso-error">@ViewBag.Error</div>
+        }
+        else if (ViewBag.Ok != null)
+        {
+            <div class="gf-aviso gf-aviso-ok">@ViewBag.Ok</div>
+        }
+        else
+        {
+            <div class="gf-aviso gf-aviso-info">Introduce tu contraseña actual y la nueva.</div>
+        }
+
+        <div class="gf-botones">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-controller="Home" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>

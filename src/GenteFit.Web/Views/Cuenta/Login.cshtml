@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Iniciar sesión";
+    ViewData["SinMenu"] = true;
+}
+<div class="gf-centrado">
+    <form class="gf-tarjeta gf-login" method="post" asp-action="Login">
+        <span class="gf-logo">GENTE<span>FIT</span></span>
+
+        <label class="gf-etiqueta" for="email">Email</label>
+        <div class="gf-input-icono mb-3">
+            @Iconos.Ver("sobre")
+            <input class="form-control" id="email" name="email" type="email"
+                   placeholder="nombre@correo.com" value="@ViewBag.Email" autofocus />
+        </div>
+
+        <label class="gf-etiqueta" for="contrasena">Contraseña</label>
+        <div class="gf-input-icono">
+            @Iconos.Ver("candado")
+            <input class="form-control" id="contrasena" name="contrasena" type="password" placeholder="••••••••" />
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="gf-aviso gf-aviso-error">@ViewBag.Error</div>
+        }
+        else
+        {
+            <div class="gf-aviso gf-aviso-info">Introduce tus datos.</div>
+        }
+
+        <button class="gf-boton" type="submit">Iniciar sesión</button>
+    </form>
+</div>

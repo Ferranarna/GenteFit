@@ -120,4 +120,42 @@ public class ReservaRepositorio : Repositorio<Reserva>
             .Where(r => r.SesionId == sesionId && r.Estado == EstadoReserva.ListaEspera)
             .OrderBy(r => r.FechaReserva)
             .ToList();
+
+    // Estadística: reservas de las sesiones del mes de la fecha indicada
+    public (int Confirmadas, int EnEspera) ContarDelMes(DateTime fecha)
+    {
+        var inicio = new DateTime(fecha.Year, fecha.Month, 1);
+        var fin = inicio.AddMonths(1);
+        var delMes = _db.Reservas.Where(r => r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (delMes.Count(r => r.Estado == EstadoReserva.Confirmada),
+                delMes.Count(r => r.Estado == EstadoReserva.ListaEspera));
+    }
+
+    // Estadística: reservas de las sesiones de hoy
+    public (int Confirmadas, int EnEspera) ContarDeHoy(DateTime fecha)
+    {
+        var inicio = fecha.Date;
+        var fin = inicio.AddDays(1);
+        var deHoy = _db.Reservas.Where(r => r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (deHoy.Count(r => r.Estado == EstadoReserva.Confirmada),
+                deHoy.Count(r => r.Estado == EstadoReserva.ListaEspera));
+    }
+
+    // Estadística: alumnos distintos y reservas confirmadas en las sesiones de un entrenador esta semana
+    public (int Alumnos, int Reservas) ContarAlumnosDeLaSemana(Guid entrenadorId, DateTime fecha)
+    {
+        // Semana de lunes a domingo
+        var inicio = fecha.Date.AddDays(-(((int)fecha.DayOfWeek + 6) % 7));
+        var fin = inicio.AddDays(7);
+
+        var confirmadas = _db.Reservas
+            .Where(r => r.Estado == EstadoReserva.Confirmada
+                && r.Sesion.Estado == EstadoSesion.Programada
+                && r.Sesion.EntrenadorId == entrenadorId
+                && r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (confirmadas.Select(r => r.UsuarioId).Distinct().Count(), confirmadas.Count());
+    }
 }
