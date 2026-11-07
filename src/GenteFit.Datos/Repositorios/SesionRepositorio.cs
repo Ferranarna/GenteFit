@@ -107,6 +107,32 @@ public class SesionRepositorio : Repositorio<Sesion>
         return (sesiones.Count(), sesiones.Select(s => s.SalaId).Distinct().Count());
     }
 
+    // Estadística: sesiones programadas de hoy y hora de la próxima (null si no queda ninguna)
+    public (int Sesiones, DateTime? Proxima) ContarDeHoy(DateTime ahora)
+    {
+        var inicio = ahora.Date;
+        var fin = inicio.AddDays(1);
+        var deHoy = _db.Sesiones
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin);
+
+        return (deHoy.Count(), deHoy.Where(s => s.Fecha >= ahora).Min(s => (DateTime?)s.Fecha));
+    }
+
+    // Estadística: plazas libres y sesiones que quedan hoy (las que aún no han empezado)
+    public (int Libres, int Sesiones) PlazasLibresHoy(DateTime ahora)
+    {
+        var fin = ahora.Date.AddDays(1);
+        var quedan = _db.Sesiones
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= ahora && s.Fecha < fin);
+
+        int plazas = quedan.Sum(s => s.Actividad.LimiteUsuarios);
+        int reservadas = _db.Reservas
+            .Count(r => r.Estado == EstadoReserva.Confirmada
+                && r.Sesion.Estado == EstadoSesion.Programada
+                && r.Sesion.Fecha >= ahora && r.Sesion.Fecha < fin);
+
+        return (Math.Max(0, plazas - reservadas), quedan.Count());
+    }
     private void Validar(Sesion sesion)
     {
         var actividad = _db.Actividades.Find(sesion.ActividadId)

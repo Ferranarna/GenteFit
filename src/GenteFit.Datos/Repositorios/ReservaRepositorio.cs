@@ -131,4 +131,15 @@ public class ReservaRepositorio : Repositorio<Reserva>
         return (delMes.Count(r => r.Estado == EstadoReserva.Confirmada),
                 delMes.Count(r => r.Estado == EstadoReserva.ListaEspera));
     }
+
+    // Estadística: reservas de las sesiones de hoy
+    public (int Confirmadas, int EnEspera) ContarDeHoy(DateTime fecha)
+    {
+        var inicio = fecha.Date;
+        var fin = inicio.AddDays(1);
+        var deHoy = _db.Reservas.Where(r => r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (deHoy.Count(r => r.Estado == EstadoReserva.Confirmada),
+                deHoy.Count(r => r.Estado == EstadoReserva.ListaEspera));
+    }
 }

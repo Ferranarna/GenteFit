@@ -128,6 +128,11 @@ public class UsuarioRepositorio : Repositorio<Usuario>
     public (int Clientes, int Plantilla) ContarClientesYPlantilla() =>
         (_db.Usuarios.Count(u => u.Activo && u.Rol == Rol.Cliente),
          _db.Usuarios.Count(u => u.Activo && u.Rol != Rol.Cliente));
+
+    // Estadística del inicio del recepcionista: clientes activos y de baja
+    public (int Activos, int DeBaja) ContarClientesActivosYDeBaja() =>
+        (_db.Usuarios.Count(u => u.Rol == Rol.Cliente && u.Activo),
+         _db.Usuarios.Count(u => u.Rol == Rol.Cliente && !u.Activo));
     private void Validar(Usuario usuario)
     {
         Validador.Obligatorio(usuario.Nombre, "nombre");

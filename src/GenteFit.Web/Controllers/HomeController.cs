@@ -80,6 +80,27 @@ public class HomeController : Controller
                     "Sin sesiones este mes", "Ver salas"));
         }
 
+        if (rol == nameof(Rol.Recepcionista))
+        {
+            var (clientesActivos, clientesDeBaja) = new UsuarioRepositorio(_db).ContarClientesActivosYDeBaja();
+            var sesiones = new SesionRepositorio(_db);
+            var (sesionesHoy, proxima) = sesiones.ContarDeHoy(DateTime.Now);
+            var (libres, quedan) = sesiones.PlazasLibresHoy(DateTime.Now);
+            var (reservasHoy, enEspera) = new ReservaRepositorio(_db).ContarDeHoy(DateTime.Today);
+
+            estadisticas.Add(new Estadistica("usuarios", "Clientes activos", clientesActivos.ToString(),
+                "{0} clientes de baja", "Ver clientes", Resaltado: clientesDeBaja.ToString()));
+            estadisticas.Add(proxima is { } p
+                ? new Estadistica("calendario", "Sesiones de hoy", sesionesHoy.ToString(),
+                    "Próxima a las {0}", "Ver sesiones", Resaltado: p.ToString("HH:mm"))
+                : new Estadistica("calendario", "Sesiones de hoy", sesionesHoy.ToString(),
+                    "No quedan más sesiones hoy", "Ver sesiones"));
+            estadisticas.Add(new Estadistica("puerta", "Plazas libres hoy", libres.ToString(),
+                "En {0} sesiones que quedan hoy", "Ver sesiones", Resaltado: quedan.ToString()));
+            estadisticas.Add(new Estadistica("marcador", "Reservas de hoy", reservasHoy.ToString(),
+                "{0} en lista de espera", "Ver sesiones", Resaltado: enEspera.ToString()));
+        }
+
         return estadisticas;
     }
 }
