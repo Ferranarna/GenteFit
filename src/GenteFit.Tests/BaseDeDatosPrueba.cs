@@ -8,6 +8,7 @@ namespace GenteFit.Tests;
 public class BaseDeDatosPrueba : IDisposable
 {
     private readonly SqliteConnection _conexion;
+    private readonly DbContextOptions<GenteFitContext> _opciones;
 
     public GenteFitContext Contexto { get; }
 
@@ -17,13 +18,16 @@ public class BaseDeDatosPrueba : IDisposable
         _conexion = new SqliteConnection("DataSource=:memory:");
         _conexion.Open();
 
-        var opciones = new DbContextOptionsBuilder<GenteFitContext>()
+        _opciones = new DbContextOptionsBuilder<GenteFitContext>()
             .UseSqlite(_conexion)
             .Options;
 
-        Contexto = new GenteFitContext(opciones);
+        Contexto = new GenteFitContext(_opciones);
         Contexto.Database.EnsureCreated();   // crea las tablas a partir de las clases del modelo
     }
+
+    // Un contexto nuevo sobre la MISMA base: lee de verdad lo que se guardó, sin recordar nada en memoria
+    public GenteFitContext NuevoContexto() => new GenteFitContext(_opciones);
 
     public void Dispose()
     {
