@@ -1,5 +1,0 @@
-﻿@{
-    ViewData["Title"] = "Inicio";
-}
-<h1>Bienvenido, @User.Identity?.Name</h1>
-<p class="gf-ayuda">Rol: @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>

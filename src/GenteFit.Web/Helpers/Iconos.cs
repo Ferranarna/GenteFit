@@ -27,7 +27,7 @@ public static class Iconos
         ["actividad"] = """<path d="M2.5 12h4l2.5-7 5 14 2.5-7h5"/>""",
         ["puerta"] = """<path d="M5 21V4.5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1V21"/><path d="M3 21h18"/><path d="M15 12h.01"/>""",
         ["calendario"] = """<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>""",
-        ["entrenador"] = """<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/><path d="M12 14.5v3"/>""",
+        ["entrenador"] = """<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/><path d="M12 14.5v6"/>""",
         ["mancuerna"] = """<path d="M2.5 9.5v5M5.5 7v10M18.5 7v10M21.5 9.5v5M5.5 12h13"/>""",
         ["usuarios"] = """<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.1-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17.5 14.5c2.3.1 3.7 1.6 4 4.5"/>""",
         ["casa"] = """<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>""",

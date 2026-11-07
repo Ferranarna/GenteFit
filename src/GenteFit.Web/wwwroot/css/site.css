@@ -1,11 +1,11 @@
 ﻿:root {
-    --gf-fondo: #05080f;
-    --gf-tarjeta: #0f1b2b;
+    --gf-fondo: #060c15;
+    --gf-tarjeta: #0f1c2e;
     --gf-borde: #1e3550;
-    --gf-texto: #dbe7f5;
-    --gf-texto-suave: #8ba3bd;
-    --gf-acento: #3aa8f0;
-    --gf-acento-claro: #6cc8ff;
+    --gf-texto: #e9f2fc;
+    --gf-texto-suave: #93a8c0;
+    --gf-acento: #4db8ff;
+    --gf-acento-claro: #8fdcff;
     --gf-error: #ff5c6c;
     --gf-ok: #2ecc8f;
     --gf-radio: 12px;
@@ -20,7 +20,7 @@ body {
     min-height: 100vh;
     color: var(--gf-texto);
     font-family: "Exo 2", "Segoe UI", Tahoma, sans-serif;
-    background: radial-gradient(ellipse at top right, #0b2a47 0%, transparent 45%), radial-gradient(ellipse at bottom left, #0a2038 0%, transparent 40%), var(--gf-fondo);
+    background: radial-gradient(1200px 600px at 80% -10%, #12385f 0, transparent 60%), radial-gradient(900px 500px at -10% 110%, #0d2a47 0, transparent 55%), var(--gf-fondo);
     background-attachment: fixed;
 }
 
@@ -134,6 +134,12 @@ a {
     padding: 1.5rem 1rem 3rem;
 }
 
+.gf-subtitulo {
+    color: var(--gf-texto-suave);
+    margin: .25rem 0 0;
+    font-size: .95rem;
+}
+
 /* ===== Tarjetas ===== */
 .gf-tarjeta {
     background: var(--gf-tarjeta);
@@ -151,7 +157,12 @@ a {
 a.gf-tarjeta {
     text-decoration: none;
     color: inherit;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: center;
+    min-height: 150px;
     transition: border-color .15s, transform .15s;
 }
 
@@ -172,16 +183,20 @@ a.gf-tarjeta {
 }
 
 .gf-icono {
-    width: 46px;
-    height: 46px;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--gf-acento);
     border-radius: 10px;
-    font-size: 1.4rem;
-    background: rgba(58, 168, 240, .15);
-    border: 1px solid var(--gf-borde);
+    box-shadow: 0 0 14px rgba(58, 168, 240, .45);
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
+
+    .gf-icono .gf-ico {
+        width: 28px;
+        height: 28px;
+    }
 
 /* ===== Formularios ===== */
 label.gf-etiqueta {

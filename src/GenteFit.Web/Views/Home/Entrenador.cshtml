@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+<h1>Hola, @User.Identity?.Name</h1>
+<p class="gf-subtitulo">Consulta tus sesiones, tus clientes y tus citas en un solo lugar.</p>
+<div class="gf-rejilla mt-4">
+    <partial name="_Tarjeta" model='new Tarjeta("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("reloj", "Mis citas", "Organiza tus citas con tus clientes.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("usuarios", "Mis clientes", "Consulta los clientes que entrenas.")' />
+</div>
