@@ -521,3 +521,42 @@ input:-webkit-autofill:focus {
         padding-left: 2.8rem;
     }
 
+/* ===== Página de error ===== */
+.gf-error {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 2.25rem 1.75rem;
+}
+
+    .gf-error .gf-logo {
+        margin-bottom: .75rem;
+    }
+
+    .gf-error h1 {
+        font-size: 1.5rem;
+        margin: .25rem 0 0;
+    }
+
+    .gf-error p {
+        color: var(--gf-texto-suave);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .gf-error .gf-botones {
+        margin-top: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .gf-error .gf-boton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }

@@ -25,9 +25,9 @@ public class HomeController : Controller
         {
             return View(rol, EstadisticasDe(rol));
         }
-        catch (Exception)
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
-            ViewBag.Error = "No se pueden cargar las estadísticas. Comprueba la conexión con la base de datos.";
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
             return View(rol, new List<Estadistica>());
         }
     }

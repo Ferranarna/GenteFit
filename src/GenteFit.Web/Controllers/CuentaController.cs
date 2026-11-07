@@ -2,11 +2,12 @@
 using GenteFit.Datos;
 using GenteFit.Datos.Repositorios;
 using GenteFit.Datos.Validaciones;
+using GenteFit.Modelo.Entidades;
+using GenteFit.Web.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using GenteFit.Modelo.Entidades;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GenteFit.Web.Controllers;
 
@@ -50,9 +51,9 @@ public class CuentaController : Controller
             ViewBag.Error = ex.Message;
             return View();
         }
-        catch (Exception)
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
-            ViewBag.Error = "No se puede conectar con la base de datos. Comprueba que SQL Server está en marcha y que la conexión es correcta.";
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
             return View();
         }
     }
@@ -73,13 +74,13 @@ public class CuentaController : Controller
         {
             ViewBag.Error = ex.Message;
         }
-        catch (Exception)
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
-            ViewBag.Error = "No se puede conectar con la base de datos. Inténtalo de nuevo más tarde.";
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
         }
         return View();
     }
-   
+
     [Authorize(Roles = "Cliente"), HttpGet]
     public IActionResult MisDatos()
     {
@@ -90,9 +91,9 @@ public class CuentaController : Controller
             var usuario = new UsuarioRepositorio(_db).ObtenerPorId(id);
             return View(usuario ?? new Usuario());
         }
-        catch (Exception)
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
-            ViewBag.Error = "No se puede conectar con la base de datos. Inténtalo de nuevo más tarde.";
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
             return View(new Usuario());
         }
     }
@@ -125,9 +126,9 @@ public class CuentaController : Controller
         {
             ViewBag.Error = ex.Message;
         }
-        catch (Exception)
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
-            ViewBag.Error = "No se puede conectar con la base de datos. Inténtalo de nuevo más tarde.";
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
         }
         return View(datos);
     }

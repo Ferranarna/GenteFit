@@ -14,6 +14,7 @@ public static class Iconos
         ["crear"] = """<path d="M12 5v14M5 12h14"/>""",
         ["quitar"] = """<path d="M5 12h14"/>""",
         ["informe"] = """<path d="M6 20V12M12 20V4M18 20V12M2 20h20"/>""",
+        ["alerta"] = """<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/>""",
         ["flecha"] = """<path d="M5 12h14M13 6l6 6-6 6"/>""",
         ["volver"] = """<path d="M19 12H5M11 6l-6 6 6 6"/>""",
 
