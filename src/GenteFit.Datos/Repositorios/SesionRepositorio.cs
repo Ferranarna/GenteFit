@@ -76,6 +76,37 @@ public class SesionRepositorio : Repositorio<Sesion>
         return afectados;
     }
 
+    // Estadística: plazas reservadas y plazas totales de las sesiones programadas de la semana
+    public (int Reservadas, int Plazas) OcupacionDeLaSemana(DateTime fecha)
+    {
+        // Semana de lunes a domingo
+        var inicio = fecha.Date.AddDays(-(((int)fecha.DayOfWeek + 6) % 7));
+        var fin = inicio.AddDays(7);
+
+        int plazas = _db.Sesiones
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin)
+            .Sum(s => s.Actividad.LimiteUsuarios);
+        int reservadas = _db.Reservas
+            .Count(r => r.Estado == EstadoReserva.Confirmada
+                && r.Sesion.Estado == EstadoSesion.Programada
+                && r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (reservadas, plazas);
+    }
+
+    // Estadística: sesiones programadas de la semana y cuántas salas distintas usan
+    public (int Sesiones, int SalasEnUso) ContarDeLaSemana(DateTime fecha)
+    {
+        // Semana de lunes a domingo
+        var inicio = fecha.Date.AddDays(-(((int)fecha.DayOfWeek + 6) % 7));
+        var fin = inicio.AddDays(7);
+
+        var sesiones = _db.Sesiones
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin);
+
+        return (sesiones.Count(), sesiones.Select(s => s.SalaId).Distinct().Count());
+    }
+
     private void Validar(Sesion sesion)
     {
         var actividad = _db.Actividades.Find(sesion.ActividadId)
@@ -94,5 +125,16 @@ public class SesionRepositorio : Repositorio<Sesion>
         var fin = sesion.Fecha.AddMinutes(sesion.Duracion);
         if (sesion.Fecha.Hour < HoraApertura || fin > sesion.Fecha.Date.AddDays(1))
             throw new ValidacionException("La sesión debe estar dentro del horario del centro (09:00 - 00:00).");
+    }
+
+    // Estadística: sesiones del mes de la fecha indicada
+    public (int Programadas, int Canceladas) ContarDelMes(DateTime fecha)
+    {
+        var inicio = new DateTime(fecha.Year, fecha.Month, 1);
+        var fin = inicio.AddMonths(1);
+        var delMes = _db.Sesiones.Where(s => s.Fecha >= inicio && s.Fecha < fin);
+
+        return (delMes.Count(s => s.Estado == EstadoSesion.Programada),
+                delMes.Count(s => s.Estado == EstadoSesion.Cancelada));
     }
 }

@@ -13,6 +13,8 @@ public static class Iconos
         ["reservas"] = """<path d="M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/>""",
         ["crear"] = """<path d="M12 5v14M5 12h14"/>""",
         ["quitar"] = """<path d="M5 12h14"/>""",
+        ["informe"] = """<path d="M6 20V12M12 20V4M18 20V12M2 20h20"/>""",
+        ["flecha"] = """<path d="M5 12h14M13 6l6 6-6 6"/>""",
         ["volver"] = """<path d="M19 12H5M11 6l-6 6 6 6"/>""",
 
         // Barra superior y menú de usuario

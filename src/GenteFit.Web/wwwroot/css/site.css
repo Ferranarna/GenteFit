@@ -234,6 +234,72 @@ a.gf-tarjeta {
         height: 28px;
     }
 
+/* ===== Estadísticas (resumen de los inicios) ===== */
+.gf-seccion {
+    margin: 2rem 0 1rem;
+    font-size: 1.6rem;
+}
+
+.gf-estadistica {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: .65rem;
+}
+
+.gf-estadistica-titulo {
+    color: var(--gf-acento-claro);
+    font-size: .93rem;
+    font-weight: 600;
+}
+
+.gf-estadistica-valor {
+    color: #fff;
+    font-size: 2.27rem;
+    font-weight: 700;
+    line-height: 1.05;
+}
+
+.gf-estadistica-detalle {
+    color: var(--gf-texto-suave);
+    font-size: .93rem;
+}
+
+    .gf-estadistica-detalle b {
+        color: var(--gf-acento);
+    }
+
+.gf-estadistica-enlace {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .93rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--gf-acento);
+}
+
+    .gf-estadistica-enlace .gf-ico {
+        width: 16px;
+        height: 16px;
+    }
+
+.gf-barra {
+    width: 100%;
+    height: 8px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, .08);
+    overflow: hidden;
+}
+
+    .gf-barra > i {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, #2f9be0, var(--gf-acento-claro));
+    }
+
 /* ===== Formularios ===== */
 label.gf-etiqueta {
     display: block;

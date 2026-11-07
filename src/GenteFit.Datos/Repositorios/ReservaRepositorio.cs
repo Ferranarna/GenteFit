@@ -120,4 +120,15 @@ public class ReservaRepositorio : Repositorio<Reserva>
             .Where(r => r.SesionId == sesionId && r.Estado == EstadoReserva.ListaEspera)
             .OrderBy(r => r.FechaReserva)
             .ToList();
+
+    // Estadística: reservas de las sesiones del mes de la fecha indicada
+    public (int Confirmadas, int EnEspera) ContarDelMes(DateTime fecha)
+    {
+        var inicio = new DateTime(fecha.Year, fecha.Month, 1);
+        var fin = inicio.AddMonths(1);
+        var delMes = _db.Reservas.Where(r => r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (delMes.Count(r => r.Estado == EstadoReserva.Confirmada),
+                delMes.Count(r => r.Estado == EstadoReserva.ListaEspera));
+    }
 }

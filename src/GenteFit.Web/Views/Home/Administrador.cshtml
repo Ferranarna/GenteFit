@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<Estadistica>
+@{
     ViewData["Title"] = "Inicio";
 }
 <h1>Hola, @User.Identity?.Name</h1>
@@ -7,3 +8,17 @@
     <partial name="_Tarjeta" model='new Tarjeta("usuarios", "Usuarios", "Gestiona los usuarios y sus roles.")' />
     <partial name="_Tarjeta" model='new Tarjeta("casa", "Centro de mando", "Accede a todas las funciones del centro.")' />
 </div>
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error">@ViewBag.Error</div>
+}
+@if (Model.Count > 0)
+{
+    <h2 class="gf-seccion">Resumen del centro</h2>
+    <div class="gf-rejilla">
+        @foreach (var estadistica in Model)
+        {
+            <partial name="_Estadistica" model="estadistica" />
+        }
+    </div>
+}
