@@ -24,7 +24,11 @@ app.UseExceptionHandler("/Error");
 using (var scope = app.Services.CreateScope())
 {
     try { InicializadorBD.Inicializar(scope.ServiceProvider.GetRequiredService<GenteFitContext>()); }
-    catch (Exception) { }
+    catch (Exception ex)
+    {
+        // La web arranca igualmente; las pantallas avisarán al intentar usar la base de datos
+        app.Logger.LogError(ex, "No se pudo inicializar la base de datos al arrancar.");
+    }
 }
 
 app.UseStaticFiles();
