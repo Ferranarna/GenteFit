@@ -101,6 +101,76 @@ public class HomeController : Controller
                 "{0} en lista de espera", "Ver sesiones", Resaltado: enEspera.ToString()));
         }
 
+        if (rol == nameof(Rol.Entrenador))
+        {
+            // El id del entrenador es el mismo que el de su usuario
+            var entrenadorId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var especialidad = new EntrenadorRepositorio(_db).ObtenerPorUsuario(entrenadorId)?.Especialidad;
+
+            estadisticas.AddRange(especialidad == Especialidad.EntrenadorPersonal
+                ? EstadisticasDeEntrenadorPersonal(entrenadorId)
+                : EstadisticasDeEntrenadorDeClases(entrenadorId));
+        }
+
         return estadisticas;
+    }
+    // Entrenador de clases (yoga, spinning...): sus sesiones y las reservas de sus alumnos
+    private List<Estadistica> EstadisticasDeEntrenadorDeClases(Guid entrenadorId)
+    {
+        var sesiones = new SesionRepositorio(_db);
+        var (sesionesSemana, _) = sesiones.ContarDeLaSemana(DateTime.Today, entrenadorId);
+        var proximaSesion = sesiones.ObtenerDeEntrenador(entrenadorId).FirstOrDefault(s => s.Fecha >= DateTime.Now);
+        var (sesionesHoy, proximaHoy) = sesiones.ContarDeHoy(DateTime.Now, entrenadorId);
+        var (reservadas, plazas) = sesiones.OcupacionDeLaSemana(DateTime.Today, entrenadorId);
+        var porcentaje = plazas == 0 ? 0 : reservadas * 100 / plazas;
+        var (alumnos, reservas) = new ReservaRepositorio(_db).ContarAlumnosDeLaSemana(entrenadorId, DateTime.Today);
+
+        return new List<Estadistica>
+        {
+            proximaSesion != null
+                ? new Estadistica("calendario", "Mis sesiones esta semana", sesionesSemana.ToString(),
+                    "Próxima el {0}", "Ver sesiones", Resaltado: proximaSesion.Fecha.ToString("dd/MM HH:mm"))
+                : new Estadistica("calendario", "Mis sesiones esta semana", sesionesSemana.ToString(),
+                    "No tienes sesiones próximas", "Ver sesiones"),
+            proximaHoy is { } hora
+                ? new Estadistica("reloj", "Mis sesiones de hoy", sesionesHoy.ToString(),
+                    "Próxima a las {0}", "Ver sesiones", Resaltado: hora.ToString("HH:mm"))
+                : new Estadistica("reloj", "Mis sesiones de hoy", sesionesHoy.ToString(),
+                    "No quedan más sesiones hoy", "Ver sesiones"),
+            new Estadistica("informe", "Ocupación de mis sesiones", $"{porcentaje} %",
+                "{0} plazas reservadas esta semana", "Ver sesiones",
+                Porcentaje: porcentaje, Resaltado: reservadas.ToString()),
+            new Estadistica("usuarios", "Alumnos esta semana", alumnos.ToString(),
+                "{0} reservas en total", "Ver sesiones", Resaltado: reservas.ToString())
+        };
+    }
+
+    // Entrenador personal: sus citas y sus clientes
+    private List<Estadistica> EstadisticasDeEntrenadorPersonal(Guid entrenadorId)
+    {
+        var citas = new CitaRepositorio(_db);
+        var pendientes = citas.ObtenerDeEntrenador(entrenadorId); // citas futuras, ordenadas por fecha
+        var proxima = pendientes.FirstOrDefault();
+        var clientes = citas.ObtenerClientesDeEntrenador(entrenadorId);
+        var citasHoy = pendientes.Where(c => c.FechaActividad.Date == DateTime.Today).ToList();
+        var enSieteDias = pendientes.Count(c => c.FechaActividad < DateTime.Now.AddDays(7));
+
+        return new List<Estadistica>
+        {
+            citasHoy.Count > 0
+                ? new Estadistica("reloj", "Citas que quedan hoy", citasHoy.Count.ToString(),
+                    "Próxima a las {0}", "Ver citas", Resaltado: citasHoy[0].FechaActividad.ToString("HH:mm"))
+                : new Estadistica("reloj", "Citas que quedan hoy", "0",
+                    "No quedan más citas hoy", "Ver citas"),
+            new Estadistica("calendario", "Citas próximos 7 días", enSieteDias.ToString(),
+                "{0} citas pendientes en total", "Ver citas", Resaltado: pendientes.Count.ToString()),
+            new Estadistica("usuarios", "Mis clientes", clientes.Count.ToString(),
+                clientes.Count > 0 ? "Con citas programadas" : "Aún sin citas con clientes", "Ver clientes"),
+            proxima != null
+                ? new Estadistica("marcador", "Próxima cita", proxima.FechaActividad.ToString("dd/MM HH:mm"),
+                    "Con {0}", "Ver citas", Resaltado: $"{proxima.Usuario.Nombre} {proxima.Usuario.Apellido1}")
+                : new Estadistica("marcador", "Próxima cita", "—",
+                    "Sin citas pendientes", "Ver citas")
+        };
     }
 }

@@ -142,4 +142,20 @@ public class ReservaRepositorio : Repositorio<Reserva>
         return (deHoy.Count(r => r.Estado == EstadoReserva.Confirmada),
                 deHoy.Count(r => r.Estado == EstadoReserva.ListaEspera));
     }
+
+    // Estadística: alumnos distintos y reservas confirmadas en las sesiones de un entrenador esta semana
+    public (int Alumnos, int Reservas) ContarAlumnosDeLaSemana(Guid entrenadorId, DateTime fecha)
+    {
+        // Semana de lunes a domingo
+        var inicio = fecha.Date.AddDays(-(((int)fecha.DayOfWeek + 6) % 7));
+        var fin = inicio.AddDays(7);
+
+        var confirmadas = _db.Reservas
+            .Where(r => r.Estado == EstadoReserva.Confirmada
+                && r.Sesion.Estado == EstadoSesion.Programada
+                && r.Sesion.EntrenadorId == entrenadorId
+                && r.Sesion.Fecha >= inicio && r.Sesion.Fecha < fin);
+
+        return (confirmadas.Select(r => r.UsuarioId).Distinct().Count(), confirmadas.Count());
+    }
 }
