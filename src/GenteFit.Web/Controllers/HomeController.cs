@@ -112,6 +112,12 @@ public class HomeController : Controller
                 : EstadisticasDeEntrenadorDeClases(entrenadorId));
         }
 
+        if (rol == nameof(Rol.Cliente))
+        {
+            var clienteId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            estadisticas.AddRange(EstadisticasDeCliente(clienteId));
+        }
+
         return estadisticas;
     }
     // Entrenador de clases (yoga, spinning...): sus sesiones y las reservas de sus alumnos
@@ -171,6 +177,51 @@ public class HomeController : Controller
                     "Con {0}", "Ver citas", Resaltado: $"{proxima.Usuario.Nombre} {proxima.Usuario.Apellido1}")
                 : new Estadistica("marcador", "Próxima cita", "—",
                     "Sin citas pendientes", "Ver citas")
+        };
+    }
+
+    // Cliente: sus reservas, su próxima cita y sus rutinas
+    private List<Estadistica> EstadisticasDeCliente(Guid clienteId)
+    {
+        var reservas = new ReservaRepositorio(_db).ObtenerDeCliente(clienteId); // no canceladas, por fecha
+        var proximas = reservas
+            .Where(r => r.Sesion.Estado == EstadoSesion.Programada && r.Sesion.Fecha >= DateTime.Now)
+            .ToList();
+        var proximaReserva = proximas.FirstOrDefault();
+        var favorita = reservas
+            .GroupBy(r => r.Sesion.Actividad.NombreActividad)
+            .Select(g => new { Nombre = g.Key, Veces = g.Count() })
+            .OrderByDescending(x => x.Veces).ThenBy(x => x.Nombre)
+            .FirstOrDefault();
+
+        var proximaCita = new CitaRepositorio(_db).ObtenerDeCliente(clienteId)
+            .FirstOrDefault(c => c.FechaActividad >= DateTime.Now);
+
+        var rutinas = new RutinaRepositorio(_db).ObtenerDeCliente(clienteId);
+        var ejercicios = rutinas.Sum(r => r.Detalles.Count);
+
+        return new List<Estadistica>
+        {
+            proximaReserva != null
+                ? new Estadistica("marcador", "Mis próximas reservas", proximas.Count.ToString(),
+                    "Próxima: {0}", "Ver reservas",
+                    Resaltado: $"{proximaReserva.Sesion.Actividad.NombreActividad} · {proximaReserva.Sesion.Fecha:dd/MM HH:mm}")
+                : new Estadistica("marcador", "Mis próximas reservas", "0",
+                    "No tienes reservas próximas", "Ver sesiones"),
+            proximaCita != null
+                ? new Estadistica("reloj", "Mi próxima cita", proximaCita.FechaActividad.ToString("dd/MM HH:mm"),
+                    "Con {0}", "Ver citas",
+                    Resaltado: $"{proximaCita.Entrenador.Usuario.Nombre} {proximaCita.Entrenador.Usuario.Apellido1}")
+                : new Estadistica("reloj", "Mi próxima cita", "—",
+                    "No tienes citas pendientes", "Ver citas"),
+            new Estadistica("lista", "Mis rutinas", rutinas.Count.ToString(),
+                rutinas.Count > 0 ? "{0} ejercicios en total" : "Aún no has creado rutinas",
+                "Ver rutinas", Resaltado: ejercicios.ToString()),
+            favorita != null
+                ? new Estadistica("actividad", "Mi actividad más reservada", favorita.Nombre,
+                    "{0} reservas", "Ver actividades", Resaltado: favorita.Veces.ToString())
+                : new Estadistica("actividad", "Mi actividad más reservada", "—",
+                    "Aún sin reservas", "Ver actividades")
         };
     }
 }
