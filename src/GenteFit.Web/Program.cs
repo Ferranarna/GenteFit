@@ -1,5 +1,4 @@
 ﻿using GenteFit.Datos;
-using GenteFit.Datos.Repositorios;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -15,9 +14,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 string cadena = builder.Configuration.GetConnectionString("GenteFit")
     ?? throw new InvalidOperationException("Falta la cadena de conexión GenteFit.");
 builder.Services.AddDbContext<GenteFitContext>(o => o.UseSqlServer(cadena));
-builder.Services.AddScoped<SesionRepositorio>();
-builder.Services.AddScoped<ReservaRepositorio>();
-builder.Services.AddScoped<ActividadRepositorio>();
 
 var app = builder.Build();
 
