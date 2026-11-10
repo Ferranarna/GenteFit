@@ -18,6 +18,9 @@ public class ReservaRepositorio : Repositorio<Reserva>
         if (sesion.Estado == EstadoSesion.Cancelada)
             throw new ValidacionException("La sesión está cancelada.");
 
+        if (sesion.Fecha <= DateTime.Now)
+            throw new ValidacionException("La sesión ya ha empezado.");
+
         var usuario = _db.Usuarios.Find(usuarioId)
             ?? throw new ValidacionException("El cliente no existe.");
         if (!usuario.Activo)
