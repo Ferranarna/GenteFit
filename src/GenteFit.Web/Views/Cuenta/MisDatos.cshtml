@@ -1,0 +1,55 @@
+﻿@model GenteFit.Modelo.Entidades.Usuario
+@{
+    ViewData["Title"] = "Mis datos";
+}
+<div class="gf-estrecho">
+    <h1>Mis datos</h1>
+
+    <form class="gf-tarjeta" method="post" asp-action="MisDatos">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="gf-etiqueta" for="nombre">Nombre</label>
+                <input class="form-control" id="nombre" name="nombre" type="text" value="@Model.Nombre" />
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" for="apellido1">Primer apellido</label>
+                <input class="form-control" id="apellido1" name="apellido1" type="text" value="@Model.Apellido1" />
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" for="apellido2">Segundo apellido</label>
+                <input class="form-control" id="apellido2" name="apellido2" type="text" value="@Model.Apellido2" />
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" for="telefono">Teléfono</label>
+                <input class="form-control" id="telefono" name="telefono" type="tel"
+                       value="@(Model.Telefono == 0 ? "" : Model.Telefono.ToString())" />
+            </div>
+            <div class="col-12">
+                <label class="gf-etiqueta" for="email">Email</label>
+                <input class="form-control" id="email" name="email" type="email" value="@Model.Email" />
+            </div>
+            <div class="col-12">
+                <label class="gf-etiqueta" for="dni">DNI</label>
+                <input class="form-control" id="dni" type="text" value="@Model.Dni" disabled />
+            </div>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="gf-aviso gf-aviso-error">@ViewBag.Error</div>
+        }
+        else if (ViewBag.Ok != null)
+        {
+            <div class="gf-aviso gf-aviso-ok">@ViewBag.Ok</div>
+        }
+        else
+        {
+            <div class="gf-aviso gf-aviso-info">Modifica tus datos y pulsa Guardar.</div>
+        }
+
+        <div class="gf-botones">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-controller="Home" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
