@@ -1,0 +1,149 @@
+﻿@using System.Globalization
+@using GenteFit.Modelo.Enums
+@model SesionesViewModel
+@{
+    ViewData["Title"] = "Sesiones";
+    var es = new CultureInfo("es-ES");
+    var ahora = DateTime.Now;
+    var mesAnterior = Model.PrimeroDelMes.AddMonths(-1);
+    var mesSiguiente = Model.PrimeroDelMes.AddMonths(1);
+    var diasDelMes = DateTime.DaysInMonth(Model.Dia.Year, Model.Dia.Month);
+    string Fecha(DateTime d) => d.ToString("yyyy-MM-dd");
+}
+
+<div class="gf-cabecera">
+    <h1>Sesiones</h1>
+    <form class="gf-filtro" method="get" asp-action="Index">
+        <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+        <label class="gf-etiqueta" for="actividad">Actividad</label>
+        <select class="form-select" id="actividad" name="actividad" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            @foreach (var a in Model.Actividades)
+            {
+                <option value="@a.ActividadId" selected="@(a.ActividadId == Model.ActividadId)">@a.NombreActividad</option>
+            }
+        </select>
+        <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
+    </form>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+
+<nav class="gf-tarjeta gf-calendario" aria-label="Calendario de sesiones">
+    <div class="gf-calendario-mes">
+        <a class="gf-calendario-flecha" asp-action="Index"
+           asp-route-dia="@Fecha(mesAnterior)" asp-route-actividad="@Model.ActividadId"
+           aria-label="Mes anterior: @mesAnterior.ToString("MMMM yyyy", es)">@Iconos.Ver("volver")</a>
+        <h2>@Model.PrimeroDelMes.ToString("MMMM yyyy", es)</h2>
+        <a class="gf-calendario-flecha" asp-action="Index"
+           asp-route-dia="@Fecha(mesSiguiente)" asp-route-actividad="@Model.ActividadId"
+           aria-label="Mes siguiente: @mesSiguiente.ToString("MMMM yyyy", es)">@Iconos.Ver("flecha")</a>
+    </div>
+
+    <div class="gf-calendario-rejilla">
+        @foreach (var nombre in new[] { "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom" })
+        {
+            <span class="gf-calendario-semana" aria-hidden="true">@nombre</span>
+        }
+        @for (int i = 0; i < Model.HuecosAntesDelUno; i++)
+        {
+            <span aria-hidden="true"></span>
+        }
+        @for (int d = 1; d <= diasDelMes; d++)
+        {
+            var fecha = new DateTime(Model.Dia.Year, Model.Dia.Month, d);
+            var elegido = fecha == Model.Dia;
+            var conSesiones = Model.DiasConSesiones.Contains(d);
+            var clases = "gf-dia"
+            + (elegido ? " gf-dia-elegido" : "")
+            + (fecha == DateTime.Today ? " gf-dia-hoy" : "")
+            + (fecha < DateTime.Today ? " gf-dia-pasado" : "")
+            + (conSesiones ? " gf-dia-con-sesiones" : "");
+            <a class="@clases" asp-action="Index" asp-route-dia="@Fecha(fecha)" asp-route-actividad="@Model.ActividadId"
+               aria-current="@(elegido ? "date" : null)"
+               aria-label="@fecha.ToString("dddd d 'de' MMMM", es)@(conSesiones ? ", con sesiones" : ", sin sesiones")">@d</a>
+        }
+    </div>
+</nav>
+
+<section class="gf-tarjeta gf-dia-lista" aria-labelledby="titulo-dia">
+    <h2 id="titulo-dia">@Model.Dia.ToString("dddd d 'de' MMMM", es)</h2>
+
+    @if (Model.Sesiones.Count == 0 && ViewBag.Error == null)
+    {
+        <p class="gf-ayuda">No hay sesiones este día. Elige otro día en el calendario.</p>
+    }
+
+    <ul class="gf-sesiones">
+        @foreach (var fila in Model.Sesiones)
+        {
+            var s = fila.Sesion;
+            var porcentaje = fila.Plazas == 0 ? 0 : Math.Min(100, fila.Confirmadas * 100 / fila.Plazas);
+            var empezada = s.Fecha <= ahora;
+            <li class="gf-sesion">
+                <span class="gf-sesion-hora">@s.Fecha.ToString("HH:mm")–@s.Fecha.AddMinutes(s.Duracion).ToString("HH:mm")</span>
+
+                <div class="gf-sesion-datos">
+                    <strong>@s.Actividad.NombreActividad</strong>
+                    <small>@s.Sala.NombreSala · @s.Entrenador.Usuario.Nombre @s.Entrenador.Usuario.Apellido1</small>
+                </div>
+
+                <div class="gf-sesion-ocupacion">
+                    <div class="gf-barra @(fila.Completa ? "gf-barra-llena" : "")" aria-hidden="true"><i style="width:@(porcentaje)%"></i></div>
+                    <small>
+                        @if (fila.Completa)
+                        {
+                            @:Completa · @fila.EnEspera en lista de espera
+                        }
+                        else
+                        {
+                            @:@fila.Confirmadas de @fila.Plazas plazas ocupadas
+                        }
+                    </small>
+                </div>
+
+                @if (Model.PuedeReservar)
+                {
+                    <div class="gf-sesion-accion">
+                        @if (fila.MiEstado == EstadoReserva.Confirmada)
+                        {
+                            <span class="gf-chip gf-chip-activo">Reservada</span>
+                        }
+                        else if (fila.MiEstado == EstadoReserva.ListaEspera)
+                        {
+                            <span class="gf-chip gf-chip-espera">En espera · posición @fila.MiPosicion</span>
+                        }
+                        else if (empezada)
+                        {
+                            <span class="gf-chip gf-chip-apagado">Ya ha empezado</span>
+                        }
+                        else
+                        {
+                            <form method="post" asp-action="Reservar">
+                                <input type="hidden" name="sesionId" value="@s.SesionId" />
+                                <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+                                <input type="hidden" name="actividad" value="@Model.ActividadId" />
+                                <button type="submit" class="gf-boton gf-boton-auto @(fila.Completa ? "gf-boton-borde" : "")"
+                                        aria-label="@(fila.Completa ? "Apuntarme a la lista de espera de" : "Reservar") @s.Actividad.NombreActividad a las @s.Fecha.ToString("HH:mm")">
+                                    @(fila.Completa ? "Lista de espera" : "Reservar")
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+</section>
