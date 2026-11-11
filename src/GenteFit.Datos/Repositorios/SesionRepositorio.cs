@@ -39,6 +39,56 @@ public class SesionRepositorio : Repositorio<Sesion>
         return consulta.OrderBy(s => s.Fecha).ToList();
     }
 
+    public List<SesionDelDia> ListarDelDia(DateTime dia, Guid? actividadId = null, Guid? usuarioId = null)
+    {
+        var inicio = dia.Date;
+        var fin = inicio.AddDays(1);
+
+        var sesiones = _db.Sesiones
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin
+                && (actividadId == null || s.ActividadId == actividadId))
+            .OrderBy(s => s.Fecha)
+            .ToList();
+
+        var ids = sesiones.Select(s => s.SesionId).ToList();
+        var reservas = _db.Reservas
+            .Where(r => ids.Contains(r.SesionId) && r.Estado != EstadoReserva.Cancelada)
+            .Select(r => new { r.SesionId, r.UsuarioId, r.Estado, r.FechaReserva })
+            .ToList();
+
+        return sesiones.Select(s =>
+        {
+            var deEsta = reservas.Where(r => r.SesionId == s.SesionId).ToList();
+            var espera = deEsta.Where(r => r.Estado == EstadoReserva.ListaEspera)
+                               .OrderBy(r => r.FechaReserva).ToList();
+            var mia = usuarioId == null ? null : deEsta.FirstOrDefault(r => r.UsuarioId == usuarioId);
+            int? posicion = mia?.Estado == EstadoReserva.ListaEspera ? espera.IndexOf(mia) + 1 : null;
+
+            return new SesionDelDia(s,
+                deEsta.Count(r => r.Estado == EstadoReserva.Confirmada),
+                espera.Count,
+                mia?.Estado,
+                posicion);
+        }).ToList();
+    }
+
+    public HashSet<int> DiasConSesiones(int anio, int mes, Guid? actividadId = null)
+    {
+        var inicio = new DateTime(anio, mes, 1);
+        var fin = inicio.AddMonths(1);
+
+        return _db.Sesiones
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin
+                && (actividadId == null || s.ActividadId == actividadId))
+            .Select(s => s.Fecha)
+            .AsEnumerable()
+            .Select(f => f.Day)
+            .ToHashSet();
+    }
+
     public List<Sesion> ObtenerDeEntrenador(Guid entrenadorId) =>
         _db.Sesiones
             .Include(s => s.Actividad)

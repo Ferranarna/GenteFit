@@ -11,7 +11,7 @@ public static class Menus
         [
             new("actividad", "Actividades", "Conoce las actividades del centro."),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
-            new("calendario", "Sesiones", "Consulta las sesiones disponibles."),
+            new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("marcador", "Mis reservas", "Consulta tus reservas."),
             new("lista", "Mis rutinas", "Personaliza tus rutinas de entrenamiento."),
             new("reloj", "Mis citas", "Organiza tus citas con tu entrenador.")
@@ -20,7 +20,7 @@ public static class Menus
         [
             new("actividad", "Actividades", "Gestiona las actividades del centro."),
             new("puerta", "Salas", "Gestiona las salas del centro."),
-            new("calendario", "Sesiones", "Gestiona las sesiones y sus reservas."),
+            new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro."),
             new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.")
         ],
@@ -28,7 +28,7 @@ public static class Menus
         [
             new("usuarios", "Clientes", "Gestiona los clientes del centro."),
             new("actividad", "Actividades", "Consulta las actividades del centro."),
-            new("calendario", "Sesiones", "Consulta las sesiones y su disponibilidad.")
+            new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones")
         ],
         ["Administrador"] =
         [

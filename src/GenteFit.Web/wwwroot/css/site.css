@@ -560,3 +560,206 @@ input:-webkit-autofill:focus {
         justify-content: center;
         white-space: nowrap;
     }
+
+/* ===== Cabecera de pantalla con filtro (Sesiones y otras) ===== */
+.gf-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.gf-filtro {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+
+    .gf-filtro label.gf-etiqueta {
+        margin: 0;
+    }
+
+    .gf-filtro .form-select {
+        min-width: 200px;
+    }
+
+/* ===== Pantalla Sesiones: calendario ===== */
+.gf-calendario-mes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+    .gf-calendario-mes h2 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--gf-acento-claro);
+        min-width: 12rem;
+        text-align: center;
+    }
+
+.gf-calendario-flecha {
+    display: inline-flex;
+    padding: .4rem;
+    border-radius: 8px;
+    color: var(--gf-acento-claro);
+}
+
+    .gf-calendario-flecha:hover, .gf-calendario-flecha:focus-visible {
+        background: rgba(77, 184, 255, .15);
+    }
+
+.gf-calendario-rejilla {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: .6rem;
+}
+
+.gf-calendario-semana {
+    text-align: center;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--gf-acento-claro);
+}
+
+.gf-dia {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    border: 1px solid var(--gf-borde);
+    border-radius: 10px;
+    background: #14243a;
+    color: var(--gf-texto);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .gf-dia:hover, .gf-dia:focus-visible {
+        border-color: var(--gf-acento);
+        color: #fff;
+    }
+
+.gf-dia-pasado {
+    opacity: .55;
+}
+
+.gf-dia-hoy {
+    border-color: var(--gf-acento-claro);
+}
+
+.gf-dia-elegido {
+    background: #1e4466;
+    border-color: var(--gf-acento);
+    box-shadow: 0 0 12px rgba(77, 184, 255, .35);
+    opacity: 1;
+}
+
+/* Punto bajo el número: el día tiene sesiones (el aria-label lo dice también con texto) */
+.gf-dia-con-sesiones::after {
+    content: "";
+    position: absolute;
+    bottom: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gf-acento);
+}
+
+/* ===== Pantalla Sesiones: lista del día ===== */
+.gf-dia-lista {
+    margin-top: 1.5rem;
+}
+
+    .gf-dia-lista h2 {
+        font-size: 1rem;
+        color: var(--gf-acento-claro);
+    }
+
+.gf-sesiones {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.gf-sesion {
+    display: grid;
+    grid-template-columns: 8rem 1fr 1fr 12rem;
+    align-items: center;
+    gap: 1rem;
+    padding: .9rem 0;
+    border-bottom: 1px solid rgba(30, 53, 80, .5);
+}
+
+    .gf-sesion:last-child {
+        border-bottom: 0;
+    }
+
+.gf-sesion-hora {
+    font-weight: 700;
+    color: var(--gf-acento-claro);
+}
+
+.gf-sesion-datos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+    .gf-sesion-datos small, .gf-sesion-ocupacion small {
+        color: var(--gf-texto-suave);
+    }
+
+.gf-sesion-ocupacion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+}
+
+.gf-sesion-accion {
+    text-align: right;
+}
+
+.gf-barra-llena > i {
+    background: linear-gradient(90deg, #d9434f, var(--gf-error));
+}
+
+.gf-chip-espera {
+    color: #f5b942;
+    background: rgba(245, 185, 66, .15);
+}
+
+.gf-chip-apagado {
+    color: var(--gf-texto-suave);
+    background: rgba(255, 255, 255, .06);
+}
+
+/* Móvil: cada sesión en una columna y el calendario más compacto */
+@media (max-width: 768px) {
+    .gf-sesion {
+        grid-template-columns: 1fr;
+        gap: .5rem;
+        text-align: center;
+    }
+
+    .gf-sesion-accion {
+        text-align: center;
+    }
+
+    .gf-dia {
+        min-height: 40px;
+    }
+
+    .gf-calendario-rejilla {
+        gap: .3rem;
+    }
+}
