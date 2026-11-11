@@ -763,3 +763,58 @@ input:-webkit-autofill:focus {
         gap: .3rem;
     }
 }
+
+/* ===== Botones de icono redondos (barra de herramientas de las pantallas con edición) ===== */
+.gf-herramientas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+}
+
+.gf-boton-icono {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--gf-borde);
+    background: transparent;
+    color: var(--gf-acento-claro);
+    cursor: pointer;
+}
+
+    .gf-boton-icono:hover:not(:disabled), .gf-boton-icono:focus-visible {
+        border-color: var(--gf-acento);
+        background: rgba(77, 184, 255, .15);
+    }
+
+    .gf-boton-icono:disabled {
+        opacity: .35;
+        cursor: not-allowed;
+    }
+
+/* ===== Tablas con fila seleccionable (Mis reservas y otras pantallas con edición) ===== */
+.gf-tabla-seleccion tbody tr {
+    cursor: pointer;
+}
+
+    .gf-tabla-seleccion tbody tr:hover {
+        background: rgba(77, 184, 255, .06);
+    }
+
+    .gf-tabla-seleccion tbody tr:has(input:checked) {
+        background: rgba(77, 184, 255, .15);
+    }
+
+.gf-tabla-seleccion input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--gf-acento);
+}
+
+.gf-tabla-seleccion tbody tr.gf-fila-bloqueada {
+    cursor: default;
+    color: var(--gf-texto-suave);
+}

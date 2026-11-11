@@ -12,7 +12,7 @@ public static class Menus
             new("actividad", "Actividades", "Conoce las actividades del centro."),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
-            new("marcador", "Mis reservas", "Consulta tus reservas."),
+           new("marcador", "Mis reservas", "Consulta tus reservas.", "/MisReservas"),
             new("lista", "Mis rutinas", "Personaliza tus rutinas de entrenamiento."),
             new("reloj", "Mis citas", "Organiza tus citas con tu entrenador.")
         ],
