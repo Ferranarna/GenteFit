@@ -1,0 +1,101 @@
+﻿@using System.Globalization
+@model MisCitasViewModel
+@{
+    ViewData["Title"] = "Mis citas";
+    var es = new CultureInfo("es-ES");
+    string Fecha(DateTime d) => d.ToString("yyyy-MM-dd");
+}
+
+<h1>Citas con entrenador personal</h1>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+<div class="gf-citas">
+    <section class="gf-tarjeta" aria-labelledby="titulo-reservar">
+        <h2 id="titulo-reservar" class="gf-titulo-tarjeta">Reservar cita</h2>
+
+        @if (Model.Entrenadores.Count == 0 && ViewBag.Error == null)
+        {
+            <p class="gf-ayuda">Ahora mismo no hay entrenadores personales disponibles.</p>
+        }
+        else if (Model.Entrenadores.Count > 0)
+        {
+            <form class="gf-citas-filtro" method="get" asp-action="Index">
+                <div>
+                    <label class="gf-etiqueta" for="entrenador">Entrenador</label>
+                    <select class="form-select" id="entrenador" name="entrenador" onchange="this.form.submit()">
+                        @foreach (var e in Model.Entrenadores)
+                        {
+                            <option value="@e.EntrenadorId" selected="@(e.EntrenadorId == Model.EntrenadorId)">@e.Usuario.Nombre @e.Usuario.Apellido1 · Entrenador personal</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="gf-etiqueta" for="dia">Día</label>
+                    <input class="form-control" type="date" id="dia" name="dia" value="@Fecha(Model.Dia)"
+                           min="@Fecha(DateTime.Today)" onchange="this.form.submit()" />
+                </div>
+                <noscript><button class="gf-boton gf-boton-auto" type="submit">Ver huecos</button></noscript>
+            </form>
+
+            <form method="post" asp-action="Reservar">
+                <input type="hidden" name="entrenadorId" value="@Model.EntrenadorId" />
+                <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+                <fieldset class="gf-huecos">
+                    <legend>Huecos disponibles (30 min)</legend>
+                    @foreach (var hueco in Model.Huecos())
+                    {
+                        var libre = Model.Libres.Contains(hueco);
+                        var id = $"hueco-{hueco:HHmm}";
+                        <input type="radio" class="gf-hueco-radio" name="hora" id="@id"
+                               value="@hueco.ToString("yyyy-MM-ddTHH:mm")" disabled="@(!libre)" />
+                        <label class="gf-hueco" for="@id">@hueco.ToString("HH:mm")<span class="visually-hidden">@(libre ? "" : ", ocupado")</span></label>
+                    }
+                </fieldset>
+                <div class="gf-botones">
+                    <button class="gf-boton gf-boton-auto" type="submit">Reservar</button>
+                </div>
+            </form>
+        }
+    </section>
+
+    <section class="gf-tarjeta" aria-labelledby="titulo-mis-citas">
+        <h2 id="titulo-mis-citas" class="gf-titulo-tarjeta">Mis citas</h2>
+        @if (Model.MisCitas.Count == 0 && ViewBag.Error == null)
+        {
+            <p class="gf-ayuda">No tienes citas pendientes.</p>
+        }
+        <ul class="gf-lista-citas">
+            @foreach (var cita in Model.MisCitas)
+            {
+                var cuando = cita.FechaActividad.ToString("dddd d 'de' MMMM 'a las' HH:mm", es);
+                <li>
+                    <div>
+                        <strong>@cita.Entrenador.Usuario.Nombre @cita.Entrenador.Usuario.Apellido1</strong>
+                        <small>@cita.FechaActividad.ToString("ddd d MMM", es) · @cita.FechaActividad.ToString("HH:mm")–@cita.FechaActividad.AddMinutes(cita.Duracion).ToString("HH:mm")</small>
+                    </div>
+                    <form method="post" asp-action="Anular" onsubmit="return confirm('¿Seguro que quieres anular la cita del @cuando?')">
+                        <input type="hidden" name="citaId" value="@cita.CitaId" />
+                        <input type="hidden" name="entrenador" value="@Model.EntrenadorId" />
+                        <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+                        <button class="gf-boton-icono gf-boton-icono-peligro" type="submit"
+                                aria-label="Anular la cita del @cuando" title="Anular cita">
+                            @Iconos.Ver("baja")
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </section>
+</div>

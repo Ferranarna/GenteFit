@@ -1,0 +1,100 @@
+﻿@using System.Globalization
+@using GenteFit.Modelo.Enums
+@model CitasEntrenadorViewModel
+@{
+    ViewData["Title"] = "Mis citas";
+    var es = new CultureInfo("es-ES");
+}
+
+<div class="gf-cabecera">
+    <h1>Mis citas</h1>
+    <div class="gf-herramientas">
+        <form class="gf-filtro" method="get" asp-action="Index">
+            <label class="gf-etiqueta" for="estado">Mostrar</label>
+            <select class="form-select" id="estado" name="estado" onchange="this.form.submit()">
+                @foreach (var (valor, texto) in CitasEntrenadorViewModel.Opciones)
+                {
+                    <option value="@valor" selected="@(valor == Model.Estado)">@texto</option>
+                }
+            </select>
+            <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
+        </form>
+        <button id="boton-anular" class="gf-boton-icono" type="submit" form="form-anular" disabled
+                aria-label="Anular la cita seleccionada" title="Anular la cita seleccionada">
+            @Iconos.Ver("baja")
+        </button>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+<form id="form-anular" method="post" asp-action="Anular"
+      onsubmit="return confirm('¿Seguro que quieres anular esta cita? El cliente dejará de tenerla.')">
+    <input type="hidden" name="estado" value="@Model.Estado" />
+    <div class="gf-tarjeta">
+        @if (Model.Citas.Count == 0 && ViewBag.Error == null)
+        {
+            <p class="gf-ayuda">No tienes citas@(Model.Estado == null ? "" : " con este estado").</p>
+        }
+        else if (Model.Citas.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="gf-tabla gf-tabla-seleccion">
+                    <caption class="visually-hidden">Tus citas. Elige una fila y pulsa el botón Anular.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Fecha y hora</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in Model.Citas)
+                        {
+                            var anulable = Model.SePuedeAnular(cita);
+                            var (chip, texto) = cita.Estado == EstadoCita.Cancelada ? ("gf-chip-baja", "Cancelada")
+                            : cita.FechaActividad <= Model.Ahora ? ("gf-chip-apagado", "Realizada")
+                            : ("gf-chip-activo", "Confirmada");
+                            <tr class="@(anulable ? "" : "gf-fila-bloqueada")">
+                                <td>
+                                    <input type="radio" name="citaId" value="@cita.CitaId" disabled="@(!anulable)"
+                                           aria-label="Elegir la cita de @cita.Usuario.Nombre del @cita.FechaActividad.ToString("dddd d 'de' MMMM 'a las' HH:mm", es)" />
+                                </td>
+                                <td><strong>@cita.Usuario.Nombre @cita.Usuario.Apellido1</strong></td>
+                                <td>@cita.FechaActividad.ToString("ddd d MMM", es) · @cita.FechaActividad.ToString("HH:mm")–@cita.FechaActividad.AddMinutes(cita.Duracion).ToString("HH:mm")</td>
+                                <td><span class="gf-chip @chip">@texto</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Al elegir una fila se activa el botón de anular (mismo patrón que Mis reservas)
+        const boton = document.getElementById('boton-anular');
+        const actualizar = () => boton.disabled = !document.querySelector('input[name="citaId"]:checked');
+        document.querySelectorAll('input[name="citaId"]').forEach(radio => radio.addEventListener('change', actualizar));
+        document.querySelectorAll('.gf-tabla-seleccion tbody tr').forEach(fila =>
+            fila.addEventListener('click', e => {
+                const radio = fila.querySelector('input[name="citaId"]');
+                if (radio && !radio.disabled && e.target !== radio) { radio.checked = true; actualizar(); }
+            }));
+        actualizar();
+    </script>
+}
