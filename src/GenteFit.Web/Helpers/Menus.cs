@@ -12,9 +12,9 @@ public static class Menus
             new("actividad", "Actividades", "Conoce las actividades del centro."),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
-           new("marcador", "Mis reservas", "Consulta tus reservas.", "/MisReservas"),
+            new("marcador", "Mis reservas", "Consulta tus reservas.", "/MisReservas"),
             new("lista", "Mis rutinas", "Personaliza tus rutinas de entrenamiento."),
-            new("reloj", "Mis citas", "Organiza tus citas con tu entrenador.")
+            new("reloj", "Mis citas", "Organiza tus citas con tu entrenador.", "/MisCitas")
         ],
         ["Encargado"] =
         [
@@ -39,8 +39,8 @@ public static class Menus
         [
             new("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas."),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
-            new("reloj", "Mis citas", "Organiza tus citas con tus clientes."),
-            new("usuarios", "Mis clientes", "Consulta los clientes que entrenas.")
+            new("reloj", "Mis citas", "Organiza tus citas con tus clientes.", "/MisCitas"),
+            new("usuarios", "Mis clientes", "Consulta los clientes que entrenas.", "/MisClientes")
         ]
     };
 
