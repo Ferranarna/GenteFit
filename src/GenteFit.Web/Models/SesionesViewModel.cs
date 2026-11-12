@@ -15,6 +15,8 @@ public class SesionesViewModel
     // Solo el cliente ve los botones Reservar / Lista de espera
     public bool PuedeReservar { get; set; }
 
+    public bool PuedeEditar { get; set; }
+
     public DateTime PrimeroDelMes => new(Dia.Year, Dia.Month, 1);
 
     public int HuecosAntesDelUno => ((int)PrimeroDelMes.DayOfWeek + 6) % 7;

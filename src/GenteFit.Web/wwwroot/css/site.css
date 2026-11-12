@@ -808,6 +808,15 @@ input:-webkit-autofill:focus {
         background: rgba(77, 184, 255, .15);
     }
 
+/* Sesiones (encargado): fila elegida */
+.gf-sesion:has(input[name="sesionId"]) {
+    cursor: pointer;
+}
+
+.gf-sesion:has(input[name="sesionId"]:checked) {
+    background: rgba(77, 184, 255, .15);
+}
+
 .gf-tabla-seleccion input[type="radio"] {
     width: 1.1rem;
     height: 1.1rem;

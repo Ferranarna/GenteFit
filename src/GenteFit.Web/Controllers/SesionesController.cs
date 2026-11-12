@@ -28,7 +28,8 @@ public class SesionesController : Controller
         {
             Dia = (dia ?? DateTime.Today).Date,
             ActividadId = actividad,
-            PuedeReservar = User.IsInRole(nameof(Rol.Cliente))
+            PuedeReservar = User.IsInRole(nameof(Rol.Cliente)),
+            PuedeEditar = User.IsInRole(nameof(Rol.Encargado))
         };
 
         try
@@ -58,6 +59,28 @@ public class SesionesController : Controller
             TempData["Ok"] = reserva.Estado == EstadoReserva.Confirmada
                 ? "Reserva confirmada. La tienes en Mis reservas."
                 : $"La sesión está completa: estás en la lista de espera en la posición {reservas.ObtenerPosicion(reserva.ReservaId)}.";
+        }
+        catch (ValidacionException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            TempData["Error"] = Errores.ErrorBaseDeDatos;
+        }
+
+        return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = nameof(Rol.Encargado))]
+    public IActionResult Cancelar(Guid sesionId, DateTime dia, Guid? actividad)
+    {
+        try
+        {
+            var afectados = new SesionRepositorio(_db).Cancelar(sesionId, DateTime.Now);
+            TempData["Ok"] = afectados.Count == 0
+                ? "Sesión cancelada. No tenía reservas."
+                : $"Sesión cancelada. Se han anulado {afectados.Count} reservas.";
         }
         catch (ValidacionException ex)
         {

@@ -39,6 +39,13 @@ public class SesionRepositorio : Repositorio<Sesion>
         return consulta.OrderBy(s => s.Fecha).ToList();
     }
 
+    public Sesion? ObtenerConDetalle(Guid sesionId) =>
+       _db.Sesiones
+           .Include(s => s.Actividad)
+           .Include(s => s.Sala)
+           .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
+           .FirstOrDefault(s => s.SesionId == sesionId);
+
     public List<SesionDelDia> ListarDelDia(DateTime dia, Guid? actividadId = null, Guid? usuarioId = null)
     {
         var inicio = dia.Date;
@@ -106,12 +113,18 @@ public class SesionRepositorio : Repositorio<Sesion>
         return Math.Max(0, sesion.Actividad.LimiteUsuarios - confirmadas);
     }
 
-    public List<Usuario> Cancelar(Guid sesionId)
+    public List<Usuario> Cancelar(Guid sesionId, DateTime ahora)
     {
         var sesion = _db.Sesiones
             .Include(s => s.Reservas).ThenInclude(r => r.Usuario)
             .FirstOrDefault(s => s.SesionId == sesionId)
             ?? throw new ValidacionException("La sesión no existe.");
+
+        if (sesion.Estado == EstadoSesion.Cancelada)
+            throw new ValidacionException("Esta sesión ya estaba cancelada.");
+
+        if (sesion.Fecha <= ahora)
+            throw new ValidacionException("No se puede cancelar una sesión que ya ha empezado.");
 
         sesion.Estado = EstadoSesion.Cancelada;
 
