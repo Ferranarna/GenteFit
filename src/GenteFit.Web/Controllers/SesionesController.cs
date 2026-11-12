@@ -1,12 +1,13 @@
-﻿using System.Security.Claims;
-using GenteFit.Datos;
+﻿using GenteFit.Datos;
 using GenteFit.Datos.Repositorios;
 using GenteFit.Datos.Validaciones;
+using GenteFit.Modelo.Entidades;
 using GenteFit.Modelo.Enums;
 using GenteFit.Web.Helpers;
 using GenteFit.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GenteFit.Web.Controllers;
 
@@ -159,6 +160,49 @@ public class SesionesController : Controller
             TempData["Error"] = Errores.ErrorBaseDeDatos;
             return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
         }
+    }
+
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = nameof(Rol.Encargado))]
+    public IActionResult Guardar(SesionFormularioViewModel modelo)
+    {
+        if (!ModelState.IsValid)
+            return MostrarFormulario(modelo);
+
+        var sesion = new Sesion
+        {
+            SesionId = modelo.SesionId ?? Guid.Empty,
+            ActividadId = modelo.ActividadId!.Value,
+            SalaId = modelo.SalaId!.Value,
+            EntrenadorId = modelo.EntrenadorId!.Value,
+            Fecha = modelo.Fecha!.Value.Date + modelo.Hora!.Value,
+            Duracion = modelo.Duracion
+        };
+
+        try
+        {
+            var repo = new SesionRepositorio(_db);
+            if (modelo.EsNueva)
+            {
+                repo.Programar(sesion, DateTime.Now);
+                TempData["Ok"] = "Sesión creada.";
+            }
+            else
+            {
+                repo.Modificar(sesion, DateTime.Now);
+                TempData["Ok"] = "Sesión modificada.";
+            }
+            return RedirectToAction(nameof(Index), new { dia = sesion.Fecha.ToString("yyyy-MM-dd") });
+        }
+        catch (ValidacionException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
+        }
+
+        return MostrarFormulario(modelo);
     }
 
     private IActionResult MostrarFormulario(SesionFormularioViewModel modelo)

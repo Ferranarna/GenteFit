@@ -25,6 +25,33 @@ public class SesionRepositorio : Repositorio<Sesion>
         base.Actualizar(sesion);
     }
 
+    public Sesion Programar(Sesion sesion, DateTime ahora)
+    {
+        if (sesion.Fecha <= ahora)
+            throw new ValidacionException("No se puede programar una sesión en el pasado.");
+        return Crear(sesion);
+    }
+
+    public void Modificar(Sesion cambios, DateTime ahora)
+    {
+        var sesion = _db.Sesiones.Find(cambios.SesionId)
+            ?? throw new ValidacionException("La sesión no existe.");
+
+        if (sesion.Estado == EstadoSesion.Cancelada)
+            throw new ValidacionException("No se puede modificar una sesión cancelada.");
+        if (sesion.Fecha <= ahora)
+            throw new ValidacionException("No se puede modificar una sesión que ya ha empezado.");
+        if (cambios.Fecha <= ahora)
+            throw new ValidacionException("La nueva fecha y hora ya han pasado.");
+
+        sesion.ActividadId = cambios.ActividadId;
+        sesion.SalaId = cambios.SalaId;
+        sesion.EntrenadorId = cambios.EntrenadorId;
+        sesion.Fecha = cambios.Fecha;
+        sesion.Duracion = cambios.Duracion;
+        Actualizar(sesion);
+    }
+
     public List<Sesion> Buscar(Guid? actividadId, DateTime dia)
     {
         var consulta = _db.Sesiones
