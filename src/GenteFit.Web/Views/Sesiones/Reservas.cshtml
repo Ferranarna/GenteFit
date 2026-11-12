@@ -1,0 +1,98 @@
+﻿@using System.Globalization
+@model ReservasDeSesionViewModel
+@{
+    ViewData["Title"] = "Reservas de la sesión";
+    var es = new CultureInfo("es-ES");
+    var s = Model.Sesion;
+}
+
+<div class="gf-cabecera">
+    <h1>Reservas de la sesión</h1>
+    <a class="gf-boton-icono" asp-action="Index"
+       asp-route-dia="@Model.Dia.ToString("yyyy-MM-dd")" asp-route-actividad="@Model.ActividadId"
+       aria-label="Volver a sesiones" title="Volver">@Iconos.Ver("volver")</a>
+</div>
+
+<section class="gf-tarjeta" aria-label="Datos de la sesión">
+    <h2>@s.Actividad.NombreActividad</h2>
+    <p>
+        @s.Fecha.ToString("dddd d 'de' MMMM", es) · @s.Fecha.ToString("HH:mm")–@s.Fecha.AddMinutes(s.Duracion).ToString("HH:mm")
+        · @s.Sala.NombreSala · @s.Entrenador.Usuario.Nombre @s.Entrenador.Usuario.Apellido1
+    </p>
+    <p>
+        <strong>@Model.Confirmadas.Count de @Model.Plazas</strong> plazas ocupadas
+        · @Model.Libres libres · @Model.EnEspera.Count en lista de espera
+    </p>
+</section>
+
+<section class="gf-tarjeta mt-3" aria-labelledby="titulo-confirmadas">
+    <h2 id="titulo-confirmadas">Con plaza (@Model.Confirmadas.Count)</h2>
+    @if (Model.Confirmadas.Count == 0)
+    {
+        <p class="gf-ayuda">Nadie ha reservado plaza todavía.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Clientes con plaza confirmada</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Reservó el</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Confirmadas)
+                    {
+                        <tr>
+                            <td>@r.Usuario.Nombre @r.Usuario.Apellido1</td>
+                            <td>@r.Usuario.Email</td>
+                            <td>@r.FechaReserva.ToString("dd/MM HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="gf-tarjeta mt-3" aria-labelledby="titulo-espera">
+    <h2 id="titulo-espera">Lista de espera (@Model.EnEspera.Count)</h2>
+    @if (Model.EnEspera.Count == 0)
+    {
+        <p class="gf-ayuda">No hay nadie en lista de espera.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Lista de espera, por orden de llegada</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Posición</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Se apuntó el</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.EnEspera.Count; i++)
+                    {
+                        var r = Model.EnEspera[i];
+                        <tr>
+                            <td><span class="gf-chip gf-chip-espera">@(i + 1)</span></td>
+                            <td>@r.Usuario.Nombre @r.Usuario.Apellido1</td>
+                            <td>@r.Usuario.Email</td>
+                            <td>@r.FechaReserva.ToString("dd/MM HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    <p class="gf-ayuda mt-2">
+        Si alguien con plaza anula, la primera persona de la lista pasa a tener plaza y las demás suben una posición.
+    </p>
+</section>

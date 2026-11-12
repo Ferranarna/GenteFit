@@ -94,5 +94,34 @@ public class SesionesController : Controller
         return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
     }
 
+    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    public IActionResult Reservas(Guid sesionId, DateTime dia, Guid? actividad)
+    {
+        try
+        {
+            var sesion = new SesionRepositorio(_db).ObtenerConDetalle(sesionId);
+            if (sesion == null)
+            {
+                TempData["Error"] = "La sesión no existe.";
+                return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
+            }
+
+            var reservas = new ReservaRepositorio(_db);
+            return View(new ReservasDeSesionViewModel
+            {
+                Sesion = sesion,
+                Confirmadas = reservas.ListarConfirmados(sesionId),
+                EnEspera = reservas.ListarListaEspera(sesionId),
+                Dia = dia,
+                ActividadId = actividad
+            });
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            TempData["Error"] = Errores.ErrorBaseDeDatos;
+            return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
+        }
+    }
+
     private Guid UsuarioActual() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 }
