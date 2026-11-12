@@ -949,3 +949,26 @@ input:-webkit-autofill:focus {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Formularios: ayuda y errores bajo cada campo ===== */
+.gf-campo-ayuda, .gf-campo-error {
+    display: block;
+    font-size: .8rem;
+    margin-top: .35rem;
+}
+
+.gf-campo-ayuda {
+    color: var(--gf-texto-suave);
+}
+
+.gf-campo-error {
+    color: var(--gf-error);
+}
+
+.input-validation-error {
+    border-color: var(--gf-error) !important;
+}
+
+.validation-summary-valid {
+    display: none;
+}

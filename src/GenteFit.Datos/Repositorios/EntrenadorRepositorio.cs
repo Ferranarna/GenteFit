@@ -56,4 +56,11 @@ public class EntrenadorRepositorio : Repositorio<Entrenador>
             .Include(e => e.Usuario)
             .Where(e => e.Usuario.Activo && e.Especialidad == especialidad)
             .ToList();
+
+    public List<Entrenador> ObtenerActivos() =>
+       _db.Entrenadores
+           .Include(e => e.Usuario)
+           .Where(e => e.Usuario.Activo)
+           .OrderBy(e => e.Usuario.Nombre)
+           .ToList();
 }

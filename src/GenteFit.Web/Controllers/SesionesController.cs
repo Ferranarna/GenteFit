@@ -115,6 +115,8 @@ public class SesionesController : Controller
                 Dia = dia,
                 ActividadId = actividad
             });
+
+
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
@@ -124,4 +126,56 @@ public class SesionesController : Controller
     }
 
     private Guid UsuarioActual() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+  [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    public IActionResult Crear(DateTime? dia) =>
+        MostrarFormulario(new SesionFormularioViewModel { Fecha = dia ?? DateTime.Today });
+
+    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    public IActionResult Editar(Guid sesionId, DateTime dia, Guid? actividad)
+    {
+        try
+        {
+            var s = new SesionRepositorio(_db).ObtenerConDetalle(sesionId);
+            if (s == null)
+            {
+                TempData["Error"] = "La sesión no existe.";
+                return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
+            }
+
+            return MostrarFormulario(new SesionFormularioViewModel
+            {
+                SesionId = s.SesionId,
+                ActividadId = s.ActividadId,
+                SalaId = s.SalaId,
+                EntrenadorId = s.EntrenadorId,
+                Fecha = s.Fecha.Date,
+                Hora = s.Fecha.TimeOfDay,
+                Duracion = s.Duracion
+            });
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            TempData["Error"] = Errores.ErrorBaseDeDatos;
+            return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
+        }
+    }
+
+    private IActionResult MostrarFormulario(SesionFormularioViewModel modelo)
+    {
+        try
+        {
+            modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
+                .OrderBy(a => a.NombreActividad).ToList();
+            modelo.Salas = new SalaRepositorio(_db).ObtenerTodos()
+                .OrderBy(s => s.NombreSala).ToList();
+            modelo.Entrenadores = new EntrenadorRepositorio(_db).ObtenerActivos();
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
+        }
+
+        return View("Formulario", modelo);
+    }
 }
