@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using GenteFit.Datos.Validaciones;
 using GenteFit.Modelo.Entidades;
 using GenteFit.Modelo.Enums;
@@ -18,6 +18,19 @@ public class CitaRepositorio : Repositorio<Cita>
             ?? throw new ValidacionException("El entrenador no existe.");
         if (!entrenador.Usuario.Activo || entrenador.Especialidad != Especialidad.EntrenadorPersonal)
             throw new ValidacionException("Las citas solo se pueden pedir con un entrenador personal activo.");
+        if (fecha <= DateTime.Now)
+            throw new ValidacionException("Esa hora ya ha pasado.");
+
+        var cliente = _db.Usuarios.Find(usuarioId)
+            ?? throw new ValidacionException("El cliente no existe.");
+        if (!cliente.Activo)
+            throw new ValidacionException("El cliente está dado de baja.");
+
+        if (_db.Citas.Any(c => c.UsuarioId == usuarioId
+                && c.Estado == EstadoCita.Programada
+                && c.FechaActividad > fecha.AddMinutes(-DuracionCita)
+                && c.FechaActividad < fecha.AddMinutes(DuracionCita)))
+            throw new ValidacionException("El cliente ya tiene una cita a esa hora.");
 
         if (!EstaLibre(entrenadorId, fecha))
             throw new ValidacionException("El entrenador ya tiene una cita a esa hora.");
@@ -40,6 +53,59 @@ public class CitaRepositorio : Repositorio<Cita>
         _db.SaveChanges();
     }
 
+    public Cita AnularDeCliente(Guid usuarioId, Guid citaId) =>
+        AnularSiSePuede(citaId, c => c.UsuarioId == usuarioId);
+
+    public Cita AnularDeEntrenador(Guid entrenadorId, Guid citaId) =>
+        AnularSiSePuede(citaId, c => c.EntrenadorId == entrenadorId);
+
+    private Cita AnularSiSePuede(Guid citaId, Func<Cita, bool> esSuya)
+    {
+        var cita = ObtenerPorId(citaId);
+        if (cita == null || !esSuya(cita))
+            throw new ValidacionException("La cita no existe.");
+        if (cita.Estado == EstadoCita.Cancelada)
+            throw new ValidacionException("La cita ya está cancelada.");
+        if (cita.FechaActividad <= DateTime.Now)
+            throw new ValidacionException("La cita ya ha empezado.");
+
+        Anular(citaId);
+        return cita;
+    }
+    public List<Cita> ListarProximasDeCliente(Guid usuarioId)
+    {
+        var ahora = DateTime.Now;
+        return _db.Citas
+            .Include(c => c.Entrenador).ThenInclude(e => e.Usuario)
+            .Where(c => c.UsuarioId == usuarioId && c.Estado == EstadoCita.Programada && c.FechaActividad > ahora)
+            .OrderBy(c => c.FechaActividad)
+            .ToList();
+    }
+
+    public List<Cita> ListarDeEntrenador(Guid entrenadorId, EstadoCita? estado = null) =>
+        _db.Citas
+            .Include(c => c.Usuario)
+            .Where(c => c.EntrenadorId == entrenadorId && (estado == null || c.Estado == estado))
+            .OrderBy(c => c.FechaActividad)
+            .ToList();
+
+    public List<ClienteDeEntrenador> ListarClientesDeEntrenador(Guid entrenadorId)
+    {
+        var ahora = DateTime.Now;
+        var citas = _db.Citas
+            .Include(c => c.Usuario)
+            .Where(c => c.EntrenadorId == entrenadorId && c.Estado == EstadoCita.Programada)
+            .ToList();
+
+        return citas
+            .GroupBy(c => c.UsuarioId)
+            .Select(g => new ClienteDeEntrenador(
+                g.First().Usuario,
+                g.Where(c => c.FechaActividad > ahora).Min(c => (DateTime?)c.FechaActividad)))
+            .OrderBy(x => x.Cliente.Nombre).ThenBy(x => x.Cliente.Apellido1)
+            .ToList();
+    }
+
     public bool EstaLibre(Guid entrenadorId, DateTime fecha)
     {
         var desde = fecha.AddMinutes(-DuracionCita);
@@ -60,7 +126,7 @@ public class CitaRepositorio : Repositorio<Cita>
         var libres = new List<DateTime>();
         for (var hora = dia.Date.AddHours(9); hora < dia.Date.AddDays(1); hora = hora.AddMinutes(DuracionCita))
         {
-            if (!ocupadas.Any(o => Math.Abs((o - hora).TotalMinutes) < DuracionCita))
+            if (hora > DateTime.Now && !ocupadas.Any(o => Math.Abs((o - hora).TotalMinutes) < DuracionCita))
                 libres.Add(hora);
         }
         return libres;

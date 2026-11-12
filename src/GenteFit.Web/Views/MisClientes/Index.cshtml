@@ -1,0 +1,60 @@
+﻿@using System.Globalization
+@using GenteFit.Datos.Repositorios
+@model List<ClienteDeEntrenador>
+@{
+    ViewData["Title"] = "Mis clientes";
+    var es = new CultureInfo("es-ES");
+}
+
+<div class="gf-cabecera">
+    <h1>Mis clientes</h1>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+
+<div class="gf-tarjeta">
+    @if (Model.Count == 0 && ViewBag.Error == null)
+    {
+        <p class="gf-ayuda">Todavía no tienes clientes. Aparecerán aquí cuando alguien reserve una cita contigo.</p>
+    }
+    else if (Model.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Clientes con citas contigo y su próxima cita</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Teléfono</th>
+                        <th scope="col">Próxima cita</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var fila in Model)
+                    {
+                        var c = fila.Cliente;
+                        <tr>
+                            <td><strong>@c.Nombre @c.Apellido1 @c.Apellido2</strong></td>
+                            <td><a href="mailto:@c.Email">@c.Email</a></td>
+                            <td>
+                                @if (c.Telefono == 0)
+                                {
+                                    @:—
+                                }
+                                else
+                                {
+                                    <a href="tel:@c.Telefono">@c.Telefono</a>
+                                }
+                            </td>
+                            <td>@(fila.ProximaCita is DateTime p ? p.ToString("ddd d MMM · HH:mm", es) : "Sin citas pendientes")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

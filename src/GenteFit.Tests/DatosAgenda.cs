@@ -32,11 +32,12 @@ public static class DatosAgenda
     }
 
     // Un entrenador es un usuario con rol Entrenador más su ficha de entrenador
-    public static Entrenador CrearEntrenador(GenteFitContext db, string prefijo)
+    public static Entrenador CrearEntrenador(GenteFitContext db, string prefijo,
+        Especialidad especialidad = Especialidad.Yoga)
     {
         var usuario = DatosPrueba.CrearUsuario(new UsuarioRepositorio(db),
             email: $"{prefijo}@prueba.com", dni: prefijo, rol: Rol.Entrenador);
-        var entrenador = new Entrenador { EntrenadorId = usuario.UsuarioId, Especialidad = Especialidad.Yoga };
+        var entrenador = new Entrenador { EntrenadorId = usuario.UsuarioId, Especialidad = especialidad };
         db.Entrenadores.Add(entrenador);
         db.SaveChanges();
         return entrenador;
@@ -72,6 +73,23 @@ public static class DatosAgenda
             });
         }
         db.SaveChanges();
+    }
+
+    // Una cita directamente en la tabla (permite fechas pasadas y estados a medida)
+    public static Cita CrearCita(GenteFitContext db, Usuario cliente, Entrenador entrenador,
+        DateTime fecha, EstadoCita estado = EstadoCita.Programada)
+    {
+        var cita = new Cita
+        {
+            UsuarioId = cliente.UsuarioId,
+            EntrenadorId = entrenador.EntrenadorId,
+            FechaActividad = fecha,
+            Duracion = 30,
+            Estado = estado
+        };
+        db.Citas.Add(cita);
+        db.SaveChanges();
+        return cita;
     }
 
     // Una reserva con su fecha de reserva exacta, para fijar el orden de la lista de espera

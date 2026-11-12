@@ -818,3 +818,125 @@ input:-webkit-autofill:focus {
     cursor: default;
     color: var(--gf-texto-suave);
 }
+
+
+/* ===== Mis citas (cliente) ===== */
+.gf-citas {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.gf-titulo-tarjeta {
+    font-size: 1rem;
+    color: var(--gf-acento-claro);
+    margin-bottom: 1rem;
+}
+
+.gf-citas-filtro {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.gf-huecos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+    .gf-huecos legend {
+        width: 100%;
+        margin-bottom: .5rem;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: var(--gf-texto-suave);
+    }
+
+/* El radio no se ve pero sigue siendo enfocable con el teclado; lo que se ve es su label */
+.gf-hueco-radio {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.gf-hueco {
+    padding: .45rem .9rem;
+    border: 1px solid var(--gf-borde);
+    border-radius: 10px;
+    background: #14243a;
+    color: var(--gf-texto);
+    font-weight: 700;
+    font-size: .85rem;
+    cursor: pointer;
+}
+
+.gf-hueco-radio:checked + .gf-hueco {
+    background: linear-gradient(180deg, var(--gf-acento-claro), var(--gf-acento));
+    border-color: var(--gf-acento);
+    color: #04101c;
+}
+
+.gf-hueco-radio:focus-visible + .gf-hueco {
+    outline: 2px solid var(--gf-acento-claro);
+    outline-offset: 2px;
+}
+
+/* Ocupado: apagado y tachado (no solo el color) */
+.gf-hueco-radio:disabled + .gf-hueco {
+    opacity: .35;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.gf-lista-citas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+    .gf-lista-citas li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: .75rem 0;
+        border-bottom: 1px solid rgba(30, 53, 80, .5);
+    }
+
+        .gf-lista-citas li:last-child {
+            border-bottom: 0;
+        }
+
+    .gf-lista-citas strong, .gf-lista-citas small {
+        display: block;
+    }
+
+    .gf-lista-citas small {
+        color: var(--gf-texto-suave);
+    }
+
+/* Variante roja del botón de icono para acciones destructivas */
+.gf-boton-icono-peligro {
+    color: var(--gf-error);
+    border-color: rgba(255, 92, 108, .5);
+}
+
+    .gf-boton-icono-peligro:hover:not(:disabled), .gf-boton-icono-peligro:focus-visible {
+        background: rgba(255, 92, 108, .12);
+        border-color: var(--gf-error);
+    }
+
+@media (max-width: 992px) {
+    .gf-citas, .gf-citas-filtro {
+        grid-template-columns: 1fr;
+    }
+}
