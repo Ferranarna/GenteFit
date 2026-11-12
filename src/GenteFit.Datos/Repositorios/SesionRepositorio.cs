@@ -221,6 +221,21 @@ public class SesionRepositorio : Repositorio<Sesion>
         var fin = sesion.Fecha.AddMinutes(sesion.Duracion);
         if (sesion.Fecha.Hour < HoraApertura || fin > sesion.Fecha.Date.AddDays(1))
             throw new ValidacionException("La sesión debe estar dentro del horario del centro (09:00 - 00:00).");
+        var inicioDia = sesion.Fecha.Date;
+        var finDia = inicioDia.AddDays(1);
+        var choques = _db.Sesiones
+            .Where(s => s.SesionId != sesion.SesionId
+                && s.Estado == EstadoSesion.Programada
+                && s.Fecha >= inicioDia && s.Fecha < finDia
+                && (s.SalaId == sesion.SalaId || s.EntrenadorId == sesion.EntrenadorId))
+            .AsEnumerable()
+            .Where(s => s.Fecha < fin && sesion.Fecha < s.Fecha.AddMinutes(s.Duracion))
+            .ToList();
+
+        if (choques.Any(s => s.SalaId == sesion.SalaId))
+            throw new ValidacionException("La sala ya está ocupada a esa hora.");
+        if (choques.Any(s => s.EntrenadorId == sesion.EntrenadorId))
+            throw new ValidacionException("El entrenador ya tiene otra sesión a esa hora.");
     }
 
     // Estadística: sesiones del mes de la fecha indicada
