@@ -275,4 +275,35 @@ public class SesionRepositorio : Repositorio<Sesion>
         return (delMes.Count(s => s.Estado == EstadoSesion.Programada),
                 delMes.Count(s => s.Estado == EstadoSesion.Cancelada));
     }
+
+    // Informe: sesiones entre dos fechas (las dos incluidas) con sus plazas confirmadas
+    public InformeSesiones Informe(DateTime desde, DateTime hasta, Guid? actividadId = null, EstadoSesion? estado = null)
+    {
+        if (hasta < desde)
+            throw new ValidacionException("La fecha «hasta» no puede ser anterior a «desde».");
+
+        var inicio = desde.Date;
+        var fin = hasta.Date.AddDays(1);
+
+        var sesiones = _db.Sesiones
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
+            .Where(s => s.Fecha >= inicio && s.Fecha < fin
+                && (actividadId == null || s.ActividadId == actividadId)
+                && (estado == null || s.Estado == estado))
+            .OrderBy(s => s.Fecha)
+            .ToList();
+
+        var ids = sesiones.Select(s => s.SesionId).ToList();
+        var confirmadas = _db.Reservas
+            .Where(r => ids.Contains(r.SesionId) && r.Estado == EstadoReserva.Confirmada)
+            .GroupBy(r => r.SesionId)
+            .Select(g => new { SesionId = g.Key, Total = g.Count() })
+            .ToDictionary(x => x.SesionId, x => x.Total);
+
+        return new InformeSesiones(sesiones
+            .Select(s => new SesionDelInforme(s, confirmadas.GetValueOrDefault(s.SesionId)))
+            .ToList());
+    }
 }
