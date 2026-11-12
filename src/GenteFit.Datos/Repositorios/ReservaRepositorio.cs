@@ -81,6 +81,24 @@ public class ReservaRepositorio : Repositorio<Reserva>
         return promovida;
     }
 
+    // Comprueba que es suya, que no estaba ya cancelada y que la sesión no ha empezado;
+    // después usa Anular, que promociona al primero de la lista de espera si se libera una plaza.
+    public Reserva? AnularDeCliente(Guid usuarioId, Guid reservaId)
+    {
+        var reserva = _db.Reservas
+            .Include(r => r.Sesion)
+            .FirstOrDefault(r => r.ReservaId == reservaId);
+
+        if (reserva == null || reserva.UsuarioId != usuarioId)
+            throw new ValidacionException("La reserva no existe.");
+        if (reserva.Estado == EstadoReserva.Cancelada)
+            throw new ValidacionException("La reserva ya está cancelada.");
+        if (reserva.Sesion.Fecha <= DateTime.Now)
+            throw new ValidacionException("La sesión ya ha empezado.");
+
+        return Anular(reservaId);
+    }
+
     public int? ObtenerPosicion(Guid reservaId)
     {
         var reserva = _db.Reservas.Find(reservaId)
@@ -109,6 +127,33 @@ public class ReservaRepositorio : Repositorio<Reserva>
             .Where(r => r.UsuarioId == usuarioId && r.Estado != EstadoReserva.Cancelada)
             .OrderBy(r => r.Sesion.Fecha)
             .ToList();
+
+    public List<MiReserva> ListarDeCliente(Guid usuarioId, EstadoReserva? estado = null)
+    {
+        var reservas = _db.Reservas
+            .Include(r => r.Sesion).ThenInclude(s => s.Actividad)
+            .Include(r => r.Sesion).ThenInclude(s => s.Sala)
+            .Where(r => r.UsuarioId == usuarioId && (estado == null || r.Estado == estado))
+            .OrderBy(r => r.Sesion.Fecha)
+            .ToList();
+
+        var sesionesEnEspera = reservas
+            .Where(r => r.Estado == EstadoReserva.ListaEspera)
+            .Select(r => r.SesionId)
+            .ToList();
+        var colas = _db.Reservas
+            .Where(r => sesionesEnEspera.Contains(r.SesionId) && r.Estado == EstadoReserva.ListaEspera)
+            .Select(r => new { r.SesionId, r.FechaReserva })
+            .ToList();
+
+        return reservas.Select(r =>
+        {
+            int? posicion = r.Estado == EstadoReserva.ListaEspera
+                ? colas.Count(c => c.SesionId == r.SesionId && c.FechaReserva < r.FechaReserva) + 1
+                : null;
+            return new MiReserva(r, posicion);
+        }).ToList();
+    }
 
     public List<Reserva> ListarConfirmados(Guid sesionId) =>
         _db.Reservas

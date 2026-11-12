@@ -1,0 +1,129 @@
+﻿cshtml
+@using System.Globalization
+@using GenteFit.Modelo.Enums
+@model MisReservasViewModel
+@{
+    ViewData["Title"] = "Mis reservas";
+    var es = new CultureInfo("es-ES");
+}
+
+<div class="gf-cabecera">
+    <h1>Mis reservas</h1>
+    <div class="gf-herramientas">
+        <form class="gf-filtro" method="get" asp-action="Index">
+            <label class="gf-etiqueta" for="estado">Mostrar</label>
+            <select class="form-select" id="estado" name="estado" onchange="this.form.submit()">
+                @foreach (var (valor, texto) in MisReservasViewModel.Opciones)
+                {
+                    <option value="@valor" selected="@(valor == Model.Estado)">@texto</option>
+                }
+            </select>
+            <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
+        </form>
+        <button id="boton-anular" class="gf-boton-icono" type="submit" form="form-anular" disabled
+                aria-label="Anular la reserva seleccionada" title="Anular la reserva seleccionada">
+            @Iconos.Ver("baja")
+        </button>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+<form id="form-anular" method="post" asp-action="Anular"
+      onsubmit="return confirm('¿Seguro que quieres anular esta reserva? Si tenías plaza, pasará a la primera persona de la lista de espera.')">
+    <input type="hidden" name="estado" value="@Model.Estado" />
+
+    <div class="gf-tarjeta">
+        @if (Model.Reservas.Count == 0 && ViewBag.Error == null)
+        {
+            <p class="gf-ayuda">
+                No tienes reservas@(Model.Estado == null ? "" : " con este estado").
+                Puedes reservar desde la pestaña <a asp-controller="Sesiones" asp-action="Index">Sesiones</a>.
+            </p>
+        }
+        else if (Model.Reservas.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="gf-tabla gf-tabla-seleccion">
+                    <caption class="visually-hidden">Tus reservas. Elige una fila y pulsa el botón Anular.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                            <th scope="col">Sesión</th>
+                            <th scope="col">Fecha y hora</th>
+                            <th scope="col">Sala</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fila in Model.Reservas)
+                        {
+                            var r = fila.Reserva;
+                            var s = r.Sesion;
+                            var anulable = Model.SePuedeAnular(fila);
+                            var chip = r.Estado switch
+                            {
+                                EstadoReserva.Confirmada => "gf-chip-activo",
+                                EstadoReserva.ListaEspera => "gf-chip-espera",
+                                _ => "gf-chip-baja"
+                            };
+                            <tr class="@(anulable ? "" : "gf-fila-bloqueada")">
+                                <td>
+                                    <input type="radio" name="reservaId" value="@r.ReservaId" disabled="@(!anulable)"
+                                           aria-label="Elegir @s.Actividad.NombreActividad del @s.Fecha.ToString("dddd d 'de' MMMM 'a las' HH:mm", es)" />
+                                </td>
+                                <td><strong>@s.Actividad.NombreActividad</strong></td>
+                                <td>@s.Fecha.ToString("ddd d MMM", es) · @s.Fecha.ToString("HH:mm")–@s.Fecha.AddMinutes(s.Duracion).ToString("HH:mm")</td>
+                                <td>@s.Sala.NombreSala</td>
+                                <td>
+                                    <span class="gf-chip @chip">
+                                        @MisReservasViewModel.TextoEstado(r.Estado)@(fila.Posicion is int p ? $" · posición {p}" : "")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</form>
+
+<div class="gf-aviso gf-aviso-info">
+    Puedes anular una reserva hasta que empiece la sesión. Si tenías plaza, pasa automáticamente a la
+    primera persona de la lista de espera, y si estás en la lista, subes de posición cuando alguien anula.
+</div>
+
+@section Scripts {
+    <script>
+        // Al elegir una fila se activa el botón de anular (guía del equipo: sin columna de acciones)
+        const boton = document.getElementById('boton-anular');
+        const actualizar = () => boton.disabled = !document.querySelector('input[name="reservaId"]:checked');
+
+        document.querySelectorAll('input[name="reservaId"]').forEach(radio =>
+            radio.addEventListener('change', actualizar));
+
+        // Pulsar en cualquier parte de la fila la elige (además del propio radio)
+        document.querySelectorAll('.gf-tabla-seleccion tbody tr').forEach(fila =>
+            fila.addEventListener('click', e => {
+                const radio = fila.querySelector('input[name="reservaId"]');
+                if (radio && !radio.disabled && e.target !== radio) {
+                    radio.checked = true;
+                    actualizar();
+                }
+            }));
+
+        actualizar();   // por si el navegador recuerda una fila elegida al volver atrás
+    </script>
+}

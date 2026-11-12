@@ -73,4 +73,20 @@ public static class DatosAgenda
         }
         db.SaveChanges();
     }
+
+    // Una reserva con su fecha de reserva exacta, para fijar el orden de la lista de espera
+    public static Reserva CrearReserva(GenteFitContext db, Sesion sesion, Usuario cliente,
+        EstadoReserva estado, DateTime fechaReserva)
+    {
+        var reserva = new Reserva
+        {
+            FechaReserva = fechaReserva,
+            Estado = estado,
+            UsuarioId = cliente.UsuarioId,
+            SesionId = sesion.SesionId
+        };
+        db.Reservas.Add(reserva);
+        db.SaveChanges();
+        return reserva;
+    }
 }
