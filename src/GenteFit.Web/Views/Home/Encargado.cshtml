@@ -5,7 +5,7 @@
 <h1>Hola, @User.Identity?.Name</h1>
 <p class="gf-subtitulo">Organiza actividades, salas y sesiones para que el centro funcione cada día.</p>
 <div class="gf-rejilla mt-4">
-    <partial name="_Tarjeta" model='new Tarjeta("actividad", "Actividades", "Gestiona las actividades del centro.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades")' />
     <partial name="_Tarjeta" model='new Tarjeta("puerta", "Salas", "Gestiona las salas del centro.")' />
     <partial name="_Tarjeta" model='new Tarjeta("calendario", "Sesiones", "Gestiona las sesiones y sus reservas.")' />
     <partial name="_Tarjeta" model='new Tarjeta("entrenador", "Entrenadores", "Gestiona los entrenadores del centro.")' />

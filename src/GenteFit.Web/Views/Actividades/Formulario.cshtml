@@ -1,0 +1,83 @@
+@using GenteFit.Modelo.Enums
+@model ActividadFormularioViewModel
+@{
+    var titulo = Model.EsNueva ? "Nueva actividad" : "Modificar actividad";
+    ViewData["Title"] = titulo;
+}
+
+<div class="gf-estrecho">
+    <h1>@titulo</h1>
+    <p class="gf-subtitulo">
+        @(Model.EsNueva ? "Añade una actividad al catálogo del centro."
+                : "Cambia los datos y pulsa Guardar. Las sesiones ya programadas se mantienen.")
+    </p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+    }
+
+    <form class="gf-tarjeta" method="post" asp-action="Guardar">
+        <input type="hidden" asp-for="ActividadId" />
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre</label>
+                <input class="form-control" asp-for="Nombre" placeholder="Ej. Yoga" aria-describedby="ayuda-nombre" />
+                <span class="gf-campo-error" asp-validation-for="Nombre"></span>
+                <small class="gf-campo-ayuda" id="ayuda-nombre">Obligatorio.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Especialidad">Especialidad requerida al entrenador</label>
+                <select class="form-select" asp-for="Especialidad" aria-describedby="ayuda-especialidad">
+                    <option value="">Selecciona una especialidad</option>
+                    @foreach (var e in Enum.GetValues<Especialidad>())
+                    {
+                        <option value="@e">@ActividadesViewModel.TextoEspecialidad(e)</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="Especialidad"></span>
+                <small class="gf-campo-ayuda" id="ayuda-especialidad">Solo podrán impartirla entrenadores con esta especialidad.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Descripcion">Descripción (opcional)</label>
+                <textarea class="form-control" asp-for="Descripcion" rows="3"
+                          placeholder="Describe brevemente la actividad" aria-describedby="ayuda-descripcion"></textarea>
+                <span class="gf-campo-error" asp-validation-for="Descripcion"></span>
+                <small class="gf-campo-ayuda" id="ayuda-descripcion">Se muestra a los clientes en Actividades.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Intensidad">Intensidad</label>
+                <select class="form-select" asp-for="Intensidad" aria-describedby="ayuda-intensidad">
+                    <option value="">Selecciona una intensidad</option>
+                    @foreach (var i in Enum.GetValues<Intensidad>())
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="Intensidad"></span>
+                <small class="gf-campo-ayuda" id="ayuda-intensidad">Se muestra a los clientes en Actividades.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="LimiteUsuarios">Plazas por sesión</label>
+                <input class="form-control" asp-for="LimiteUsuarios" type="number" min="1" max="16" aria-describedby="ayuda-plazas" />
+                <span class="gf-campo-error" asp-validation-for="LimiteUsuarios"></span>
+                <small class="gf-campo-ayuda" id="ayuda-plazas">Máximo 16. Al llenarse, los clientes pasan a la lista de espera.</small>
+            </div>
+        </div>
+
+        <div class="gf-botones mt-3">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -6,7 +6,7 @@
 <p class="gf-subtitulo">Gestiona clientes, actividades y sesiones del centro de forma rápida y sencilla.</p>
 <div class="gf-rejilla mt-4">
     <partial name="_Tarjeta" model='new Tarjeta("usuarios", "Clientes", "Gestiona los clientes del centro.")' />
-    <partial name="_Tarjeta" model='new Tarjeta("actividad", "Actividades", "Consulta las actividades del centro.")' />
+    <partial name="_Tarjeta" model='new Tarjeta("actividad", "Actividades", "Consulta las actividades del centro.", "/Actividades")' />
     <partial name="_Tarjeta" model='new Tarjeta("calendario", "Sesiones", "Consulta las sesiones y su disponibilidad.")' />
 </div>
 @if (ViewBag.Error != null)

@@ -1,0 +1,158 @@
+@model ActividadesViewModel
+@{
+    ViewData["Title"] = "Actividades";
+}
+
+<div class="gf-cabecera">
+    <h1>Actividades</h1>
+
+    @if (Model.PuedeEditar)
+    {
+        <div class="gf-herramientas">
+            <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-actividad" disabled
+                    aria-label="Modificar la actividad elegida" title="Modificar">
+                @Iconos.Ver("modificar")
+            </button>
+            <a class="gf-boton-icono" asp-action="Crear"
+               aria-label="Crear una actividad nueva" title="Crear actividad">@Iconos.Ver("crear")</a>
+            <a class="gf-boton-icono" asp-action="Informe"
+               aria-label="Informe de actividades más reservadas" title="Informe">@Iconos.Ver("informe")</a>
+        </div>
+    }
+
+    @if (!Model.PuedeEditar)
+    {
+        <form class="gf-filtro" method="get" asp-action="Index">
+            <label class="gf-etiqueta" for="orden">Ordenar por</label>
+            <select class="form-select" id="orden" name="orden" onchange="this.form.submit()">
+                @foreach (var (valor, texto) in ActividadesViewModel.Ordenes)
+                {
+                    <option value="@valor" selected="@(valor == Model.Orden)">@texto</option>
+                }
+            </select>
+            <noscript><button class="gf-boton gf-boton-auto" type="submit">Ordenar</button></noscript>
+        </form>
+    }
+</div>
+
+@if (Model.PuedeEditar)
+{
+    <form class="gf-buscador" method="get" asp-action="Index" role="search">
+        <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+               placeholder="Buscar actividad por nombre" aria-label="Buscar actividad por nombre o descripción" />
+        <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
+    </form>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+@if (Model.Actividades.Count == 0 && ViewBag.Error == null)
+{
+    <div class="gf-tarjeta">
+        <p class="gf-ayuda">
+            @(string.IsNullOrWhiteSpace(Model.Buscar)
+                ? "Todavía no hay actividades."
+                : $"No hay ninguna actividad que contenga «{Model.Buscar}».")
+        </p>
+    </div>
+}
+else if (Model.PuedeEditar)
+{
+    @* Encargado: tabla con las columnas del diseño *@
+    <form id="form-actividad" class="gf-tarjeta" method="get" asp-action="Editar">
+        <div class="table-responsive">
+            <table class="gf-tabla gf-tabla-seleccion">
+                <caption class="visually-hidden">Actividades del centro. Elige una fila y pulsa Modificar.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                        <th scope="col">Actividad</th>
+                        <th scope="col">Especialidad requerida</th>
+                        <th scope="col">Intensidad</th>
+                        <th scope="col">Plazas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Actividades)
+                    {
+                        <tr>
+                            <td>
+                                <input type="radio" name="actividadId" value="@a.ActividadId"
+                                       aria-label="Elegir @a.NombreActividad" />
+                            </td>
+                            <td><strong>@a.NombreActividad</strong></td>
+                            <td>@ActividadesViewModel.TextoEspecialidad(a.Especialidad)</td>
+                            <td><span class="gf-chip @ActividadesViewModel.ClaseIntensidad(a.Intensidad)">@a.Intensidad</span></td>
+                            <td>@a.LimiteUsuarios</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+}
+else
+{
+    @* Cliente y recepcionista: tarjetas con imagen, descripción e intensidad *@
+    <div class="gf-actividades">
+        @foreach (var a in Model.Actividades)
+        {
+            <article class="gf-tarjeta gf-actividad">
+                <div class="gf-actividad-imagen">
+                    @if (!string.IsNullOrWhiteSpace(a.UrlImagen))
+                    {
+                        <img src="@Url.Content(a.UrlImagen)" alt="Imagen de la actividad @a.NombreActividad" loading="lazy" />
+                    }
+                    else
+                    {
+                        <span class="gf-icono" aria-hidden="true">@Iconos.Ver("actividad")</span>
+                    }
+                </div>
+                <h2>@a.NombreActividad</h2>
+                <p>@(a.Descripcion ?? "Sin descripción.")</p>
+                <p class="gf-actividad-intensidad">
+                    Intensidad <span class="gf-chip @ActividadesViewModel.ClaseIntensidad(a.Intensidad)">@a.Intensidad</span>
+                </p>
+                <a class="gf-boton gf-boton-borde gf-boton-auto" asp-controller="Sesiones" asp-action="Index"
+                   asp-route-actividad="@a.ActividadId">@Iconos.Ver("calendario") Ver sesiones</a>
+            </article>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Al elegir una fila se activa el botón Modificar (guía del equipo: sin columna de acciones).
+        // Solo existe en la vista del encargado; en las tarjetas no hace nada.
+        const boton = document.getElementById('boton-modificar');
+        if (boton) {
+            const actualizar = () => boton.disabled = !document.querySelector('input[name="actividadId"]:checked');
+
+            document.querySelectorAll('input[name="actividadId"]').forEach(radio =>
+                radio.addEventListener('change', actualizar));
+
+            // Pulsar en cualquier parte de la fila la elige
+            document.querySelectorAll('.gf-tabla-seleccion tbody tr').forEach(fila =>
+                fila.addEventListener('click', e => {
+                    const radio = fila.querySelector('input[name="actividadId"]');
+                    if (radio && e.target !== radio) {
+                        radio.checked = true;
+                        actualizar();
+                    }
+                }));
+
+            actualizar();
+        }
+    </script>
+}

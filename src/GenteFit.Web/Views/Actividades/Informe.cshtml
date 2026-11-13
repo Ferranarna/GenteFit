@@ -1,0 +1,119 @@
+@using System.Globalization
+@model InformeActividadesViewModel
+@{
+    ViewData["Title"] = "Informe de actividades";
+    var es = new CultureInfo("es-ES");
+    var informe = Model.Informe;
+}
+
+<div class="gf-cabecera">
+    <div>
+        <h1>Informe de actividades</h1>
+        <p class="gf-subtitulo">
+            Actividades más reservadas del @Model.Desde.ToString("d 'de' MMMM", es) al @Model.Hasta.ToString("d 'de' MMMM 'de' yyyy", es).
+        </p>
+    </div>
+    <div class="gf-herramientas gf-no-imprimir">
+        <button class="gf-boton-icono" type="button" onclick="window.print()"
+                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("informe")</button>
+        <a class="gf-boton-icono" asp-action="Index"
+           aria-label="Volver a Actividades" title="Volver">@Iconos.Ver("volver")</a>
+    </div>
+</div>
+
+<form class="gf-filtro gf-informe-filtro gf-no-imprimir" method="get" asp-action="Informe">
+    <label class="gf-etiqueta" for="desde">Desde</label>
+    <input class="form-control" type="date" id="desde" name="desde" value="@Model.Desde.ToString("yyyy-MM-dd")" />
+    <label class="gf-etiqueta" for="hasta">Hasta</label>
+    <input class="form-control" type="date" id="hasta" name="hasta" value="@Model.Hasta.ToString("yyyy-MM-dd")" />
+    <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Ver</button>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+
+@if (informe != null)
+{
+    <div class="gf-rejilla mb-4">
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("marcador")</span>
+            <small class="gf-estadistica-titulo">Reservas confirmadas</small>
+            <div class="gf-estadistica-valor">@informe.TotalReservas</div>
+            <div class="gf-estadistica-detalle"><b>@informe.TotalEnEspera</b> en lista de espera</div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("actividad")</span>
+            <small class="gf-estadistica-titulo">Más reservada</small>
+            <div class="gf-estadistica-valor">@(informe.MasReservada?.Actividad.NombreActividad ?? "—")</div>
+            <div class="gf-estadistica-detalle">
+                @if (informe.MasReservada is { } mejor)
+                {
+                    <b>@mejor.Confirmadas</b> @(mejor.Confirmadas == 1 ? "reserva" : "reservas")
+                }
+                else
+                {
+                    @:Sin reservas en el periodo
+                }
+            </div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("calendario")</span>
+            <small class="gf-estadistica-titulo">Ocupación media</small>
+            <div class="gf-estadistica-valor">@(informe.OcupacionMedia is int media ? $"{media}%" : "—")</div>
+            @if (informe.OcupacionMedia is int m)
+            {
+                <div class="gf-barra" aria-hidden="true"><i style="width:@(Math.Min(m, 100))%"></i></div>
+            }
+            <div class="gf-estadistica-detalle">Plazas reservadas sobre plazas ofrecidas</div>
+        </div>
+    </div>
+
+    <div class="gf-tarjeta">
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Actividades ordenadas de más a menos reservas confirmadas</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Actividad</th>
+                        <th scope="col">Sesiones</th>
+                        <th scope="col">Reservas</th>
+                        <th scope="col">Lista de espera</th>
+                        <th scope="col">Ocupación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var posicion = 0; }
+                    @foreach (var f in informe.Filas)
+                    {
+                        posicion++;
+                        <tr>
+                            <td>@posicion</td>
+                            <td><strong>@f.Actividad.NombreActividad</strong></td>
+                            <td>@f.Sesiones</td>
+                            <td>@f.Confirmadas <small class="text-secondary">/ @f.Plazas</small></td>
+                            <td>@f.EnEspera</td>
+                            <td class="gf-informe-ocupacion">
+                                @if (f.Porcentaje is int p)
+                                {
+                                    <div class="gf-barra" aria-hidden="true"><i style="width:@(Math.Min(p, 100))%"></i></div>
+                                    <small>@p%</small>
+                                }
+                                else
+                                {
+                                    <small class="text-secondary">Sin sesiones</small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="gf-aviso gf-aviso-info mt-3">
+        Solo cuentan las sesiones programadas del periodo; las canceladas y las reservas anuladas no suman.
+    </div>
+}

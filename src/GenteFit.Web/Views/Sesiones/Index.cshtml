@@ -15,7 +15,16 @@
     <h1>Sesiones</h1>
     <div class="gf-herramientas">
         <form class="gf-filtro" method="get" asp-action="Index">
-            @* ... deja aquí tu filtro de actividad tal cual estaba (hidden dia, label, select, noscript) ... *@
+                       <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+            <label class="gf-etiqueta" for="actividad">Actividad</label>
+            <select class="form-select" id="actividad" name="actividad" onchange="this.form.submit()">
+                <option value="">Todas</option>
+                @foreach (var a in Model.Actividades)
+                {
+                    <option value="@a.ActividadId" selected="@(a.ActividadId == Model.ActividadId)">@a.NombreActividad</option>
+                }
+            </select>
+            <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
         </form>
 
         @if (Model.PuedeEditar)
