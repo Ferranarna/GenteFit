@@ -13,19 +13,45 @@
 
 <div class="gf-cabecera">
     <h1>Sesiones</h1>
-    <form class="gf-filtro" method="get" asp-action="Index">
-        <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
-        <label class="gf-etiqueta" for="actividad">Actividad</label>
-        <select class="form-select" id="actividad" name="actividad" onchange="this.form.submit()">
-            <option value="">Todas</option>
-            @foreach (var a in Model.Actividades)
-            {
-                <option value="@a.ActividadId" selected="@(a.ActividadId == Model.ActividadId)">@a.NombreActividad</option>
-            }
-        </select>
-        <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
-    </form>
+    <div class="gf-herramientas">
+        <form class="gf-filtro" method="get" asp-action="Index">
+            @* ... deja aquí tu filtro de actividad tal cual estaba (hidden dia, label, select, noscript) ... *@
+        </form>
+
+        @if (Model.PuedeEditar)
+        {
+            <button class="gf-boton-icono" type="submit" form="form-sesion" data-necesita-sesion disabled
+                    asp-action="Reservas" formmethod="get"
+                    aria-label="Ver las reservas de la sesión elegida" title="Ver reservas">
+                @Iconos.Ver("reservas")
+            </button>
+            <button class="gf-boton-icono" type="submit" form="form-sesion" data-necesita-sesion disabled
+                    asp-action="Editar" formmethod="get"
+                    aria-label="Modificar la sesión elegida" title="Modificar">
+                @Iconos.Ver("modificar")
+            </button>
+            <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-sesion" data-necesita-sesion disabled
+                    asp-action="Cancelar"
+                    onclick="return confirm('¿Seguro que quieres cancelar esta sesión? Se anularán todas sus reservas y la lista de espera.')"
+                    aria-label="Cancelar la sesión elegida" title="Cancelar sesión">
+                @Iconos.Ver("baja")
+            </button>
+            <a class="gf-boton-icono" asp-action="Crear" asp-route-dia="@Fecha(Model.Dia)"
+               aria-label="Crear una sesión nueva" title="Crear sesión">@Iconos.Ver("crear")</a>
+            <a class="gf-boton-icono" asp-action="Informe"
+               aria-label="Informe de sesiones del periodo" title="Informe">@Iconos.Ver("informe")</a>
+        }
+    </div>
 </div>
+
+@if (Model.PuedeEditar)
+{
+    @* Formulario vacío: los radios de cada sesión se enlazan a él con form="form-sesion" *@
+    <form id="form-sesion" method="post" asp-action="Cancelar">
+        <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+        <input type="hidden" name="actividad" value="@Model.ActividadId" />
+    </form>
+}
 
 @if (ViewBag.Error != null)
 {
@@ -143,7 +169,41 @@
                         }
                     </div>
                 }
+
+                @if (Model.PuedeEditar)
+                {
+                    <div class="gf-sesion-accion">
+                        <input type="radio" name="sesionId" value="@s.SesionId" form="form-sesion"
+                               aria-label="Elegir @s.Actividad.NombreActividad a las @s.Fecha.ToString("HH:mm")" />
+                    </div>
+                }
             </li>
         }
     </ul>
 </section>
+
+@section Scripts {
+    @if (Model.PuedeEditar)
+    {
+        <script>
+            // Ver, modificar y cancelar solo se activan con una sesión elegida
+            const botones = document.querySelectorAll('[data-necesita-sesion]');
+            const actualizar = () => {
+                const hay = document.querySelector('input[name="sesionId"]:checked') !== null;
+                botones.forEach(b => b.disabled = !hay);
+            };
+
+            document.querySelectorAll('input[name="sesionId"]').forEach(r =>
+                r.addEventListener('change', actualizar));
+
+            // Pulsar en cualquier parte de la fila la elige
+            document.querySelectorAll('.gf-sesion').forEach(fila =>
+                fila.addEventListener('click', e => {
+                    const radio = fila.querySelector('input[name="sesionId"]');
+                    if (radio && e.target !== radio) { radio.checked = true; actualizar(); }
+                }));
+
+            actualizar();
+        </script>
+    }
+}

@@ -1,0 +1,109 @@
+﻿@model SesionFormularioViewModel
+@{
+    var titulo = Model.EsNueva ? "Crear sesión" : "Modificar sesión";
+    ViewData["Title"] = titulo;
+    var plazas = Model.Actividades.FirstOrDefault(a => a.ActividadId == Model.ActividadId)?.LimiteUsuarios;
+}
+
+<div class="gf-estrecho">
+    <h1>@titulo</h1>
+    <p class="gf-subtitulo">
+        @(Model.EsNueva ? "Programa una sesión nueva en el calendario."
+                : "Cambia los datos y pulsa Guardar. Las reservas de la sesión se mantienen.")
+    </p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+    }
+
+    <form class="gf-tarjeta" method="post" asp-action="Guardar">
+        <input type="hidden" asp-for="SesionId" />
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="ActividadId">Actividad</label>
+                <select class="form-select" asp-for="ActividadId" aria-describedby="ayuda-actividad">
+                    <option value="">Elige la actividad</option>
+                    @foreach (var a in Model.Actividades)
+                    {
+                        <option value="@a.ActividadId" data-plazas="@a.LimiteUsuarios">@a.NombreActividad</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="ActividadId"></span>
+                <small class="gf-campo-ayuda" id="ayuda-actividad">Elige la actividad.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="SalaId">Sala</label>
+                <select class="form-select" asp-for="SalaId" aria-describedby="ayuda-sala">
+                    <option value="">Elige la sala</option>
+                    @foreach (var s in Model.Salas)
+                    {
+                        <option value="@s.SalaId">@s.NombreSala</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="SalaId"></span>
+                <small class="gf-campo-ayuda" id="ayuda-sala">No puede estar ocupada a esa hora.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="EntrenadorId">Entrenador</label>
+                <select class="form-select" asp-for="EntrenadorId" aria-describedby="ayuda-entrenador">
+                    <option value="">Elige el entrenador</option>
+                    @foreach (var e in Model.Entrenadores)
+                    {
+                        <option value="@e.EntrenadorId">@e.Usuario.Nombre @e.Usuario.Apellido1 (@e.Especialidad)</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="EntrenadorId"></span>
+                <small class="gf-campo-ayuda" id="ayuda-entrenador">Su especialidad debe coincidir con la de la actividad.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Fecha">Fecha</label>
+                <input class="form-control" asp-for="Fecha" aria-describedby="ayuda-fecha" />
+                <span class="gf-campo-error" asp-validation-for="Fecha"></span>
+                <small class="gf-campo-ayuda" id="ayuda-fecha">Elige la fecha.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Hora">Hora de inicio</label>
+                <input class="form-control" asp-for="Hora" type="time" aria-describedby="ayuda-hora" />
+                <span class="gf-campo-error" asp-validation-for="Hora"></span>
+                <small class="gf-campo-ayuda" id="ayuda-hora">Entre las 09:00 y las 00:00.</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Duracion">Duración (min)</label>
+                <input class="form-control" asp-for="Duracion" type="number" min="15" max="180" step="5" aria-describedby="ayuda-duracion" />
+                <span class="gf-campo-error" asp-validation-for="Duracion"></span>
+                <small class="gf-campo-ayuda" id="ayuda-duracion">Introduce la duración en minutos.</small>
+            </div>
+        </div>
+
+        <div class="gf-aviso gf-aviso-info mt-3" id="aforo" aria-live="polite">
+            @(plazas is int p ? $"Aforo máximo: {p} participantes." : "Elige una actividad para ver su aforo.")
+        </div>
+
+        <div class="gf-botones mt-3">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-action="Index"
+               asp-route-dia="@Model.Fecha?.ToString("yyyy-MM-dd")">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Al cambiar de actividad, el aviso azul muestra su aforo
+        const actividad = document.getElementById('ActividadId');
+        const aforo = document.getElementById('aforo');
+        actividad.addEventListener('change', () => {
+            const plazas = actividad.selectedOptions[0]?.dataset.plazas;
+            aforo.textContent = plazas ? `Aforo máximo: ${plazas} participantes.` : 'Elige una actividad para ver su aforo.';
+        });
+    </script>
+}

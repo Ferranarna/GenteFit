@@ -25,6 +25,33 @@ public class SesionRepositorio : Repositorio<Sesion>
         base.Actualizar(sesion);
     }
 
+    public Sesion Programar(Sesion sesion, DateTime ahora)
+    {
+        if (sesion.Fecha <= ahora)
+            throw new ValidacionException("No se puede programar una sesión en el pasado.");
+        return Crear(sesion);
+    }
+
+    public void Modificar(Sesion cambios, DateTime ahora)
+    {
+        var sesion = _db.Sesiones.Find(cambios.SesionId)
+            ?? throw new ValidacionException("La sesión no existe.");
+
+        if (sesion.Estado == EstadoSesion.Cancelada)
+            throw new ValidacionException("No se puede modificar una sesión cancelada.");
+        if (sesion.Fecha <= ahora)
+            throw new ValidacionException("No se puede modificar una sesión que ya ha empezado.");
+        if (cambios.Fecha <= ahora)
+            throw new ValidacionException("La nueva fecha y hora ya han pasado.");
+
+        sesion.ActividadId = cambios.ActividadId;
+        sesion.SalaId = cambios.SalaId;
+        sesion.EntrenadorId = cambios.EntrenadorId;
+        sesion.Fecha = cambios.Fecha;
+        sesion.Duracion = cambios.Duracion;
+        Actualizar(sesion);
+    }
+
     public List<Sesion> Buscar(Guid? actividadId, DateTime dia)
     {
         var consulta = _db.Sesiones
@@ -38,6 +65,13 @@ public class SesionRepositorio : Repositorio<Sesion>
 
         return consulta.OrderBy(s => s.Fecha).ToList();
     }
+
+    public Sesion? ObtenerConDetalle(Guid sesionId) =>
+       _db.Sesiones
+           .Include(s => s.Actividad)
+           .Include(s => s.Sala)
+           .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
+           .FirstOrDefault(s => s.SesionId == sesionId);
 
     public List<SesionDelDia> ListarDelDia(DateTime dia, Guid? actividadId = null, Guid? usuarioId = null)
     {
@@ -106,12 +140,18 @@ public class SesionRepositorio : Repositorio<Sesion>
         return Math.Max(0, sesion.Actividad.LimiteUsuarios - confirmadas);
     }
 
-    public List<Usuario> Cancelar(Guid sesionId)
+    public List<Usuario> Cancelar(Guid sesionId, DateTime ahora)
     {
         var sesion = _db.Sesiones
             .Include(s => s.Reservas).ThenInclude(r => r.Usuario)
             .FirstOrDefault(s => s.SesionId == sesionId)
             ?? throw new ValidacionException("La sesión no existe.");
+
+        if (sesion.Estado == EstadoSesion.Cancelada)
+            throw new ValidacionException("Esta sesión ya estaba cancelada.");
+
+        if (sesion.Fecha <= ahora)
+            throw new ValidacionException("No se puede cancelar una sesión que ya ha empezado.");
 
         sesion.Estado = EstadoSesion.Cancelada;
 
@@ -208,6 +248,21 @@ public class SesionRepositorio : Repositorio<Sesion>
         var fin = sesion.Fecha.AddMinutes(sesion.Duracion);
         if (sesion.Fecha.Hour < HoraApertura || fin > sesion.Fecha.Date.AddDays(1))
             throw new ValidacionException("La sesión debe estar dentro del horario del centro (09:00 - 00:00).");
+        var inicioDia = sesion.Fecha.Date;
+        var finDia = inicioDia.AddDays(1);
+        var choques = _db.Sesiones
+            .Where(s => s.SesionId != sesion.SesionId
+                && s.Estado == EstadoSesion.Programada
+                && s.Fecha >= inicioDia && s.Fecha < finDia
+                && (s.SalaId == sesion.SalaId || s.EntrenadorId == sesion.EntrenadorId))
+            .AsEnumerable()
+            .Where(s => s.Fecha < fin && sesion.Fecha < s.Fecha.AddMinutes(s.Duracion))
+            .ToList();
+
+        if (choques.Any(s => s.SalaId == sesion.SalaId))
+            throw new ValidacionException("La sala ya está ocupada a esa hora.");
+        if (choques.Any(s => s.EntrenadorId == sesion.EntrenadorId))
+            throw new ValidacionException("El entrenador ya tiene otra sesión a esa hora.");
     }
 
     // Estadística: sesiones del mes de la fecha indicada
@@ -219,5 +274,36 @@ public class SesionRepositorio : Repositorio<Sesion>
 
         return (delMes.Count(s => s.Estado == EstadoSesion.Programada),
                 delMes.Count(s => s.Estado == EstadoSesion.Cancelada));
+    }
+
+    // Informe: sesiones entre dos fechas (las dos incluidas) con sus plazas confirmadas
+    public InformeSesiones Informe(DateTime desde, DateTime hasta, Guid? actividadId = null, EstadoSesion? estado = null)
+    {
+        if (hasta < desde)
+            throw new ValidacionException("La fecha «hasta» no puede ser anterior a «desde».");
+
+        var inicio = desde.Date;
+        var fin = hasta.Date.AddDays(1);
+
+        var sesiones = _db.Sesiones
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
+            .Where(s => s.Fecha >= inicio && s.Fecha < fin
+                && (actividadId == null || s.ActividadId == actividadId)
+                && (estado == null || s.Estado == estado))
+            .OrderBy(s => s.Fecha)
+            .ToList();
+
+        var ids = sesiones.Select(s => s.SesionId).ToList();
+        var confirmadas = _db.Reservas
+            .Where(r => ids.Contains(r.SesionId) && r.Estado == EstadoReserva.Confirmada)
+            .GroupBy(r => r.SesionId)
+            .Select(g => new { SesionId = g.Key, Total = g.Count() })
+            .ToDictionary(x => x.SesionId, x => x.Total);
+
+        return new InformeSesiones(sesiones
+            .Select(s => new SesionDelInforme(s, confirmadas.GetValueOrDefault(s.SesionId)))
+            .ToList());
     }
 }

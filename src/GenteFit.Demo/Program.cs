@@ -111,7 +111,7 @@ foreach (var enEspera in reservas.ListarListaEspera(sesionDemo.SesionId))
 Console.WriteLine($"  Posición de la reserva anulada: {reservas.ObtenerPosicion(primera.ReservaId)?.ToString() ?? "ninguna"}");
 
 Titulo("7. Cancelar la sesión");
-var afectados = sesiones.Cancelar(sesionDemo.SesionId);
+var afectados = sesiones.Cancelar(sesionDemo.SesionId, DateTime.Now);
 Ok($"Sesión cancelada. Clientes a avisar por correo: {afectados.Count}");
 
 Titulo("8. Citas con entrenador personal");
