@@ -27,4 +27,10 @@ public class EjercicioRepositorio : Repositorio<Ejercicio>
             .Where(e => e.GrupoMuscular != null && e.GrupoMuscular.Contains(grupo))
             .OrderBy(e => e.NombreEjercicio)
             .ToList();
+    // El encargado busca por nombre o por grupo muscular
+    public List<Ejercicio> Buscar(string texto) =>
+        _db.Ejercicios
+            .Where(e => e.NombreEjercicio.Contains(texto) || (e.GrupoMuscular != null && e.GrupoMuscular.Contains(texto)))
+            .OrderBy(e => e.NombreEjercicio)
+            .ToList();
 }

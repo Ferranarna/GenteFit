@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+﻿﻿using System.Security.Claims;
 
 namespace GenteFit.Web.Helpers;
 
@@ -10,7 +10,7 @@ public static class Menus
         ["Cliente"] =
         [
             new("actividad", "Actividades", "Conoce las actividades del centro.", "/Actividades"),
-            new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
+            new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles.", "/Ejercicios"),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("marcador", "Mis reservas", "Consulta tus reservas.", "/MisReservas"),
             new("lista", "Mis rutinas", "Personaliza tus rutinas de entrenamiento."),
@@ -18,11 +18,11 @@ public static class Menus
         ],
         ["Encargado"] =
         [
-            new("actividad", "Actividades", "Gestiona las actividades del centro.",  "/Actividades"),
+            new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
             new("puerta", "Salas", "Gestiona las salas del centro."),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro."),
-            new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.")
+            new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios")
         ],
         ["Recepcionista"] =
         [
@@ -38,7 +38,7 @@ public static class Menus
         ["Entrenador"] =
         [
             new("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas."),
-            new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
+            new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles.", "/Ejercicios"),
             new("reloj", "Mis citas", "Organiza tus citas con tus clientes.", "/MisCitas"),
             new("usuarios", "Mis clientes", "Consulta los clientes que entrenas.", "/MisClientes")
         ]

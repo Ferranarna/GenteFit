@@ -1073,3 +1073,14 @@ input:-webkit-autofill:focus {
         color: #000 !important;
     }
 }
+
+
+/* ===== Pantalla Ejercicios ===== */
+.gf-chip-grupo {
+    color: var(--gf-acento-claro);
+    background: rgba(77, 184, 255, .15);
+}
+
+.gf-texto-suave {
+    color: var(--gf-texto-suave);
+}
