@@ -9,7 +9,7 @@ public static class Menus
     {
         ["Cliente"] =
         [
-            new("actividad", "Actividades", "Conoce las actividades del centro."),
+            new("actividad", "Actividades", "Conoce las actividades del centro.", "/Actividades"),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles."),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("marcador", "Mis reservas", "Consulta tus reservas.", "/MisReservas"),
@@ -18,7 +18,7 @@ public static class Menus
         ],
         ["Encargado"] =
         [
-            new("actividad", "Actividades", "Gestiona las actividades del centro."),
+            new("actividad", "Actividades", "Gestiona las actividades del centro.",  "/Actividades"),
             new("puerta", "Salas", "Gestiona las salas del centro."),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro."),
@@ -27,7 +27,7 @@ public static class Menus
         ["Recepcionista"] =
         [
             new("usuarios", "Clientes", "Gestiona los clientes del centro."),
-            new("actividad", "Actividades", "Consulta las actividades del centro."),
+            new("actividad", "Actividades", "Consulta las actividades del centro.", "/Actividades"),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones")
         ],
         ["Administrador"] =

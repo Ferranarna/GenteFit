@@ -42,6 +42,46 @@ public class ActividadRepositorio : Repositorio<Actividad>
 
         return mejor == null ? null : (mejor.Nombre, mejor.Reservas);
     }
+    // Informe: actividades más reservadas entre dos fechas (las dos incluidas).
+    // Cuenta solo las sesiones programadas (las canceladas no tienen reservas válidas).
+    public InformeActividades Informe(DateTime desde, DateTime hasta)
+    {
+        if (hasta < desde)
+            throw new ValidacionException("La fecha «hasta» no puede ser anterior a «desde».");
+
+        var inicio = desde.Date;
+        var fin = hasta.Date.AddDays(1);
+
+        var sesiones = _db.Sesiones
+            .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin)
+            .Select(s => new { s.SesionId, s.ActividadId })
+            .ToList();
+
+        var ids = sesiones.Select(s => s.SesionId).ToList();
+        var actividadDeSesion = sesiones.ToDictionary(s => s.SesionId, s => s.ActividadId);
+
+        var reservas = _db.Reservas
+            .Where(r => ids.Contains(r.SesionId) && r.Estado != EstadoReserva.Cancelada)
+            .Select(r => new { r.SesionId, r.Estado })
+            .ToList();
+
+        var filas = _db.Actividades.ToList()
+            .Select(a =>
+            {
+                var suyas = reservas.Where(r => actividadDeSesion[r.SesionId] == a.ActividadId).ToList();
+                return new ActividadDelInforme(
+                    a,
+                    sesiones.Count(s => s.ActividadId == a.ActividadId),
+                    suyas.Count(r => r.Estado == EstadoReserva.Confirmada),
+                    suyas.Count(r => r.Estado == EstadoReserva.ListaEspera));
+            })
+            .OrderByDescending(f => f.Confirmadas)
+            .ThenBy(f => f.Actividad.NombreActividad)
+            .ToList();
+
+        return new InformeActividades(filas);
+    }
+
     private static void Validar(Actividad actividad)
     {
         Validador.Obligatorio(actividad.NombreActividad, "nombre de la actividad");
