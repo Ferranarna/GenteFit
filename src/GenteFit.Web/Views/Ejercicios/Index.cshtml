@@ -1,0 +1,153 @@
+@model EjerciciosViewModel
+@{
+    ViewData["Title"] = "Ejercicios";
+}
+
+<div class="gf-cabecera">
+    <h1>Ejercicios</h1>
+
+    @if (Model.PuedeEditar)
+    {
+        <div class="gf-herramientas">
+            <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-ejercicio" disabled
+                    aria-label="Modificar el ejercicio elegido" title="Modificar">
+                @Iconos.Ver("modificar")
+            </button>
+            <a class="gf-boton-icono" asp-action="Crear"
+               aria-label="Crear un ejercicio nuevo" title="Crear ejercicio">@Iconos.Ver("crear")</a>
+        </div>
+    }
+
+    @if (!Model.PuedeEditar)
+    {
+        <form class="gf-filtro" method="get" asp-action="Index">
+            <label class="gf-etiqueta" for="grupo">Grupo muscular</label>
+            <select class="form-select" id="grupo" name="grupo" onchange="this.form.submit()">
+                <option value="">Todos</option>
+                @foreach (var g in EjerciciosViewModel.Grupos)
+                {
+                    <option value="@g" selected="@(g == Model.Grupo)">@g</option>
+                }
+            </select>
+            <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
+        </form>
+    }
+</div>
+
+@if (Model.PuedeEditar)
+{
+    <form class="gf-buscador" method="get" asp-action="Index" role="search">
+        <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+               placeholder="Buscar ejercicio por nombre o grupo muscular" aria-label="Buscar ejercicio por nombre o grupo muscular" />
+        <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
+    </form>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+@if (Model.Ejercicios.Count == 0 && ViewBag.Error == null)
+{
+    <div class="gf-tarjeta">
+        <p class="gf-ayuda">
+            @(!string.IsNullOrWhiteSpace(Model.Buscar)
+                ? $"No hay ningún ejercicio que contenga «{Model.Buscar}»."
+                : Model.Grupo != null ? $"No hay ejercicios de {Model.Grupo}." : "Todavía no hay ejercicios.")
+        </p>
+    </div>
+}
+else if (Model.PuedeEditar)
+{
+    @* Encargado: tabla con las columnas del diseño *@
+    <form id="form-ejercicio" class="gf-tarjeta" method="get" asp-action="Editar">
+        <div class="table-responsive">
+            <table class="gf-tabla gf-tabla-seleccion">
+                <caption class="visually-hidden">Catálogo de ejercicios. Elige una fila y pulsa Modificar.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                        <th scope="col">Ejercicio</th>
+                        <th scope="col">Grupo muscular</th>
+                        <th scope="col">Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.Ejercicios)
+                    {
+                        <tr>
+                            <td>
+                                <input type="radio" name="ejercicioId" value="@e.EjercicioId"
+                                       aria-label="Elegir @e.NombreEjercicio" />
+                            </td>
+                            <td><strong>@e.NombreEjercicio</strong></td>
+                            <td><span class="gf-chip gf-chip-grupo">@(e.GrupoMuscular ?? "—")</span></td>
+                            <td class="gf-texto-suave">@(e.Descripcion ?? "—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+}
+else
+{
+    @* Cliente y entrenador: tarjetas con imagen, grupo muscular y descripción *@
+    <div class="gf-actividades">
+        @foreach (var e in Model.Ejercicios)
+        {
+            <article class="gf-tarjeta gf-actividad">
+                <div class="gf-actividad-imagen">
+                    @if (!string.IsNullOrWhiteSpace(e.UrlImagen))
+                    {
+                        <img src="@Url.Content(e.UrlImagen)" alt="Imagen del ejercicio @e.NombreEjercicio" loading="lazy" />
+                    }
+                    else
+                    {
+                        <span class="gf-icono" aria-hidden="true">@Iconos.Ver("mancuerna")</span>
+                    }
+                </div>
+                <h2>@e.NombreEjercicio</h2>
+                <p class="gf-actividad-intensidad">
+                    Grupo muscular <span class="gf-chip gf-chip-grupo">@(e.GrupoMuscular ?? "—")</span>
+                </p>
+                <p>@(e.Descripcion ?? "Sin descripción.")</p>
+            </article>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Al elegir una fila se activa el botón Modificar (guía del equipo: sin columna de acciones).
+        // Solo existe en la vista del encargado; en las tarjetas no hace nada.
+        const boton = document.getElementById('boton-modificar');
+        if (boton) {
+            const actualizar = () => boton.disabled = !document.querySelector('input[name="ejercicioId"]:checked');
+
+            document.querySelectorAll('input[name="ejercicioId"]').forEach(radio =>
+                radio.addEventListener('change', actualizar));
+
+            // Pulsar en cualquier parte de la fila la elige
+            document.querySelectorAll('.gf-tabla-seleccion tbody tr').forEach(fila =>
+                fila.addEventListener('click', e => {
+                    const radio = fila.querySelector('input[name="ejercicioId"]');
+                    if (radio && e.target !== radio) {
+                        radio.checked = true;
+                        actualizar();
+                    }
+                }));
+
+            actualizar();
+        }
+    </script>
+}

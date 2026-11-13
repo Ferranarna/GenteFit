@@ -1,0 +1,62 @@
+@model EjercicioFormularioViewModel
+@{
+    var titulo = Model.EsNuevo ? "Crear ejercicio" : "Modificar ejercicio";
+    ViewData["Title"] = titulo;
+}
+
+<div class="gf-estrecho">
+    <h1>@titulo</h1>
+    <p class="gf-subtitulo">
+        @(Model.EsNuevo ? "Añade un ejercicio al catálogo. Los clientes podrán usarlo en sus rutinas."
+                : "Cambia los datos y pulsa Guardar. Las rutinas que ya lo usan se mantienen.")
+    </p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+    }
+
+    <form class="gf-tarjeta" method="post" asp-action="Guardar">
+        <input type="hidden" asp-for="EjercicioId" />
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre del ejercicio</label>
+                <input class="form-control" asp-for="Nombre" placeholder="Ej. Zancada" aria-describedby="ayuda-nombre" />
+                <span class="gf-campo-error" asp-validation-for="Nombre"></span>
+                <small class="gf-campo-ayuda" id="ayuda-nombre">Obligatorio.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="GrupoMuscular">Grupo muscular</label>
+                <select class="form-select" asp-for="GrupoMuscular" aria-describedby="ayuda-grupo">
+                    <option value="">Selecciona un grupo</option>
+                    @foreach (var g in EjerciciosViewModel.Grupos)
+                    {
+                        <option value="@g">@g</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="GrupoMuscular"></span>
+                <small class="gf-campo-ayuda" id="ayuda-grupo">Sirve para filtrar el catálogo.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Descripcion">Descripción (opcional)</label>
+                <textarea class="form-control" asp-for="Descripcion" rows="3"
+                          placeholder="Explica cómo se realiza el ejercicio" aria-describedby="ayuda-descripcion"></textarea>
+                <span class="gf-campo-error" asp-validation-for="Descripcion"></span>
+                <small class="gf-campo-ayuda" id="ayuda-descripcion">Se muestra a clientes y entrenadores.</small>
+            </div>
+        </div>
+
+        <div class="gf-botones mt-3">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
