@@ -1,0 +1,86 @@
+@using GenteFit.Datos.Repositorios
+@model List<RolDelInforme>
+@{
+    ViewData["Title"] = "Usuarios por rol";
+    var total = Model.Sum(f => f.Total);
+    var activos = Model.Sum(f => f.Activos);
+    var bajas = Model.Sum(f => f.DeBaja);
+    int Porcentaje(int n) => total == 0 ? 0 : (int)Math.Round(n * 100.0 / total);
+}
+
+<div class="gf-cabecera">
+    <div>
+        <h1>Usuarios por rol</h1>
+        <p class="gf-subtitulo">Cuántas personas hay de cada rol, a fecha de hoy (@DateTime.Today.ToString("dd/MM/yyyy")).</p>
+    </div>
+    <div class="gf-herramientas gf-no-imprimir">
+        <button class="gf-boton-icono" type="button" onclick="window.print()"
+                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("informe")</button>
+        <a class="gf-boton-icono" asp-action="Index"
+           aria-label="Volver a Usuarios" title="Volver">@Iconos.Ver("volver")</a>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+else
+{
+    <div class="gf-rejilla mb-4">
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("usuarios")</span>
+            <small class="gf-estadistica-titulo">Usuarios</small>
+            <div class="gf-estadistica-valor">@total</div>
+            <div class="gf-estadistica-detalle"><b>@activos</b> activos y <b>@bajas</b> de baja</div>
+        </div>
+        @{ var mayor = Model.OrderByDescending(f => f.Activos).FirstOrDefault(f => f.Activos > 0); }
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("marcador")</span>
+            <small class="gf-estadistica-titulo">Rol con más usuarios</small>
+            <div class="gf-estadistica-valor">@(mayor?.Rol.ToString() ?? "—")</div>
+            <div class="gf-estadistica-detalle">@(mayor == null ? "Sin usuarios activos" : $"{mayor.Activos} activos")</div>
+        </div>
+    </div>
+
+    <div class="gf-tarjeta">
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Número de usuarios de cada rol</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Activos</th>
+                        <th scope="col">De baja</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Parte del total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Model)
+                    {
+                        <tr>
+                            <td><strong>@f.Rol</strong></td>
+                            <td>@f.Activos</td>
+                            <td>@f.DeBaja</td>
+                            <td>@f.Total</td>
+                            <td class="gf-informe-ocupacion">
+                                <div class="gf-barra" aria-hidden="true"><i style="width:@Porcentaje(f.Total)%"></i></div>
+                                <small>@Porcentaje(f.Total)%</small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th scope="row">Total</th>
+                        <td>@activos</td>
+                        <td>@bajas</td>
+                        <td>@total</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}

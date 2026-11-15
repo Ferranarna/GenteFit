@@ -3,6 +3,7 @@ using GenteFit.Datos.Seguridad;
 using GenteFit.Datos.Validaciones;
 using GenteFit.Modelo.Entidades;
 using GenteFit.Modelo.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace GenteFit.Datos.Repositorios;
 
@@ -70,13 +71,83 @@ public class UsuarioRepositorio : Repositorio<Usuario>
     public void CambiarRol(Guid usuarioId, Rol rol)
     {
         var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+        ComprobarCambioDeRol(usuario.Rol, rol);
         usuario.Rol = rol;
+        _db.SaveChanges();
+    }
+
+    // Un entrenador tiene además su ficha (especialidad, sesiones y citas), así que no se cambia de rol:
+    // se da de baja y se crea el usuario nuevo. Por eso tampoco se puede convertir a nadie en entrenador.
+    private static void ComprobarCambioDeRol(Rol actual, Rol nuevo)
+    {
+        if (actual == nuevo)
+            return;
+        if (actual == Rol.Entrenador)
+            throw new ValidacionException("Un entrenador no puede cambiar de rol. Dalo de baja y crea un usuario nuevo.");
+        if (nuevo == Rol.Entrenador)
+            throw new ValidacionException("Para tener un entrenador hay que crearlo nuevo con su especialidad.");
+    }
+
+    // Gestión de usuarios: el personal modifica los datos de otro usuario (y el administrador, su rol).
+    // Todo se comprueba antes de guardar, así un error no deja nada a medias.
+    public Usuario Modificar(Guid usuarioId, Usuario datos, Especialidad? especialidad = null)
+    {
+        var usuario = _db.Usuarios.Include(u => u.Entrenador).FirstOrDefault(u => u.UsuarioId == usuarioId)
+            ?? throw new ValidacionException("El usuario no existe.");
+
+        datos.UsuarioId = usuarioId;
+        Validar(datos);
+        ComprobarCambioDeRol(usuario.Rol, datos.Rol);
+
+        if (usuario.Entrenador != null && especialidad != null && especialidad != usuario.Entrenador.Especialidad)
+        {
+            var otra = _db.Sesiones
+                .Where(s => s.EntrenadorId == usuarioId && s.Estado == EstadoSesion.Programada
+                    && s.Fecha > DateTime.Now && s.Actividad.Especialidad != especialidad)
+                .Select(s => s.Actividad.NombreActividad)
+                .FirstOrDefault();
+            if (otra != null)
+                throw new ValidacionException($"Tiene sesiones de {otra} programadas. Cámbialas de entrenador antes de cambiar su especialidad.");
+
+            usuario.Entrenador.Especialidad = especialidad.Value;
+        }
+
+        usuario.Nombre = datos.Nombre.Trim();
+        usuario.Apellido1 = datos.Apellido1.Trim();
+        usuario.Apellido2 = string.IsNullOrWhiteSpace(datos.Apellido2) ? null : datos.Apellido2.Trim();
+        usuario.Dni = datos.Dni.Trim().ToUpperInvariant();
+        usuario.Email = datos.Email.Trim();
+        usuario.Telefono = datos.Telefono;
+        usuario.Rol = datos.Rol;
+
+        _db.SaveChanges();
+        return usuario;
+    }
+
+    // Vuelve a dar de alta a un usuario que estaba de baja (puede iniciar sesión otra vez)
+    public void Reactivar(Guid usuarioId)
+    {
+        var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+        if (usuario.Activo)
+            throw new ValidacionException("El usuario ya está activo.");
+        usuario.Activo = true;
         _db.SaveChanges();
     }
 
     public void DarDeBaja(Guid usuarioId)
     {
         var usuario = ObtenerPorId(usuarioId) ?? throw new ValidacionException("El usuario no existe.");
+        if (!usuario.Activo)
+            throw new ValidacionException("El usuario ya está de baja.");
+
+        // Un entrenador con clases por delante no se puede ir sin más: alguien tiene que darlas
+        if (usuario.Rol == Rol.Entrenador)
+        {
+            var pendientes = _db.Sesiones.Count(s => s.EntrenadorId == usuarioId
+                && s.Estado == EstadoSesion.Programada && s.Fecha > DateTime.Now);
+            if (pendientes > 0)
+                throw new ValidacionException($"Tiene {pendientes} {(pendientes == 1 ? "sesión programada" : "sesiones programadas")}. Cámbialas de entrenador o cancélalas antes de darlo de baja.");
+        }
 
         using var transaccion = _db.Database.BeginTransaction();
         AnularReservasYCitas(usuarioId);
@@ -97,7 +168,7 @@ public class UsuarioRepositorio : Repositorio<Usuario>
             reservas.Anular(reserva.ReservaId);
 
         var citasFuturas = _db.Citas
-            .Where(c => c.UsuarioId == usuarioId
+            .Where(c => (c.UsuarioId == usuarioId || c.EntrenadorId == usuarioId)
                 && c.Estado == EstadoCita.Programada
                 && c.FechaActividad > DateTime.Now)
             .ToList();
@@ -133,6 +204,18 @@ public class UsuarioRepositorio : Repositorio<Usuario>
     public (int Activos, int DeBaja) ContarClientesActivosYDeBaja() =>
         (_db.Usuarios.Count(u => u.Rol == Rol.Cliente && u.Activo),
          _db.Usuarios.Count(u => u.Rol == Rol.Cliente && !u.Activo));
+    // Informe del administrador: cuántos usuarios hay de cada rol, activos y de baja.
+    // Salen todos los roles, también los que no tienen a nadie.
+    public List<RolDelInforme> InformePorRol()
+    {
+        var usuarios = _db.Usuarios.Select(u => new { u.Rol, u.Activo }).ToList();
+        return Enum.GetValues<Rol>()
+            .Select(rol => new RolDelInforme(rol,
+                usuarios.Count(u => u.Rol == rol && u.Activo),
+                usuarios.Count(u => u.Rol == rol && !u.Activo)))
+            .ToList();
+    }
+
     private void Validar(Usuario usuario)
     {
         Validador.Obligatorio(usuario.Nombre, "nombre");

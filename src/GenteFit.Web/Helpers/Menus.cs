@@ -21,18 +21,18 @@ public static class Menus
             new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
             new("puerta", "Salas", "Gestiona las salas del centro.", "/Salas"),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
-            new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro."),
+            new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro.", "/Usuarios"),
             new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios")
         ],
         ["Recepcionista"] =
         [
-            new("usuarios", "Clientes", "Gestiona los clientes del centro."),
+            new("usuarios", "Clientes", "Gestiona los clientes del centro.", "/Usuarios"),
             new("actividad", "Actividades", "Consulta las actividades del centro.", "/Actividades"),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones")
         ],
         ["Administrador"] =
         [
-            new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles."),
+            new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles.", "/Usuarios"),
             new("casa", "Centro de mando", "Accede a todas las funciones del centro.")
         ],
         ["Entrenador"] =

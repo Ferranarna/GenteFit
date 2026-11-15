@@ -1,0 +1,120 @@
+@using System.Globalization
+@model InformeEntrenadoresViewModel
+@{
+    ViewData["Title"] = "Carga de entrenadores";
+    var es = new CultureInfo("es-ES");
+    var informe = Model.Informe;
+    string Horas(double h) => h.ToString("0.#", es) + " h";
+}
+
+<div class="gf-cabecera">
+    <div>
+        <h1>Carga de entrenadores</h1>
+        <p class="gf-subtitulo">
+            Del @Model.Desde.ToString("d 'de' MMMM", es) al @Model.Hasta.ToString("d 'de' MMMM 'de' yyyy", es).
+            Horas de sesiones programadas y de citas de cada entrenador activo.
+        </p>
+    </div>
+    <div class="gf-herramientas gf-no-imprimir">
+        <button class="gf-boton-icono" type="button" onclick="window.print()"
+                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("informe")</button>
+        <a class="gf-boton-icono" asp-action="Index"
+           aria-label="Volver a Entrenadores" title="Volver">@Iconos.Ver("volver")</a>
+    </div>
+</div>
+
+<form class="gf-filtro gf-informe-filtro gf-no-imprimir" method="get" asp-action="InformeEntrenadores">
+    <label class="gf-etiqueta" for="desde">Desde</label>
+    <input class="form-control" type="date" id="desde" name="desde" value="@Model.Desde.ToString("yyyy-MM-dd")" />
+    <label class="gf-etiqueta" for="hasta">Hasta</label>
+    <input class="form-control" type="date" id="hasta" name="hasta" value="@Model.Hasta.ToString("yyyy-MM-dd")" />
+    <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Ver</button>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+
+@if (informe != null)
+{
+    <div class="gf-rejilla mb-4">
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("reloj")</span>
+            <small class="gf-estadistica-titulo">Horas de trabajo</small>
+            <div class="gf-estadistica-valor">@Horas(informe.TotalHoras)</div>
+            <div class="gf-estadistica-detalle"><b>@Horas(informe.MediaHoras)</b> de media por entrenador</div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("entrenador")</span>
+            <small class="gf-estadistica-titulo">Con más carga</small>
+            <div class="gf-estadistica-valor">@(informe.MasCargado is { } mas ? TextosUsuarios.NombreCompleto(mas.Entrenador.Usuario) : "—")</div>
+            <div class="gf-estadistica-detalle">
+                @if (informe.MasCargado is { } m)
+                {
+                    <b>@Horas(m.Horas)</b> @: en el periodo
+                }
+                else
+                {
+                    @:Nadie ha trabajado en el periodo
+                }
+            </div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("alerta")</span>
+            <small class="gf-estadistica-titulo">Sin actividad</small>
+            <div class="gf-estadistica-valor">@informe.SinActividad</div>
+            <div class="gf-estadistica-detalle">de @informe.Filas.Count entrenadores activos</div>
+        </div>
+    </div>
+
+    <div class="gf-tarjeta">
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Entrenadores ordenados de más a menos horas de trabajo</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Entrenador</th>
+                        <th scope="col">Especialidad</th>
+                        <th scope="col">Sesiones</th>
+                        <th scope="col">Citas</th>
+                        <th scope="col">Horas</th>
+                        <th scope="col">Ocupación de sus sesiones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var posicion = 0; }
+                    @foreach (var f in informe.Filas)
+                    {
+                        posicion++;
+                        <tr>
+                            <td>@posicion</td>
+                            <td><strong>@TextosUsuarios.NombreCompleto(f.Entrenador.Usuario)</strong></td>
+                            <td>@ActividadesViewModel.TextoEspecialidad(f.Entrenador.Especialidad)</td>
+                            <td>@f.Sesiones</td>
+                            <td>@f.Citas</td>
+                            <td>@Horas(f.Horas)</td>
+                            <td class="gf-informe-ocupacion">
+                                @if (f.Ocupacion is int p)
+                                {
+                                    <div class="gf-barra" aria-hidden="true"><i style="width:@(Math.Min(p, 100))%"></i></div>
+                                    <small>@p%</small>
+                                }
+                                else
+                                {
+                                    <small>—</small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="gf-aviso gf-aviso-info mt-3">
+        Cuentan las sesiones programadas y las citas no canceladas del periodo. Cada cita dura 30 minutos.
+        La ocupación son las plazas confirmadas de sus sesiones frente a las plazas que ofrecían.
+    </div>
+}

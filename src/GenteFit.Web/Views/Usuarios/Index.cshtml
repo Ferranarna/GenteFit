@@ -1,0 +1,187 @@
+@using GenteFit.Modelo.Enums
+@model UsuariosViewModel
+@{
+    var g = Model.Gestion;
+    var titulo = TextosUsuarios.Titulo(g);
+    var tipo = TextosUsuarios.Singular(g);
+    ViewData["Title"] = titulo;
+}
+
+<div class="gf-cabecera">
+    <h1>@titulo</h1>
+    <div class="gf-herramientas">
+        @* Los radios de la tabla se enlazan a este formulario con form="form-usuario" *@
+        <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-usuario" disabled
+                asp-action="Editar" formmethod="get"
+                aria-label="Modificar el @tipo elegido" title="Modificar">
+            @Iconos.Ver("modificar")
+        </button>
+        <button id="boton-baja" class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-usuario" disabled
+                asp-action="DarDeBaja" formmethod="post"
+                onclick="return confirm('¿Seguro que quieres dar de baja a este @tipo? Se anularán sus reservas y citas pendientes.')"
+                aria-label="Dar de baja al @tipo elegido" title="Dar de baja">
+            @Iconos.Ver("baja")
+        </button>
+        <button id="boton-reactivar" class="gf-boton-icono" type="submit" form="form-usuario" disabled
+                asp-action="Reactivar" formmethod="post"
+                aria-label="Volver a dar de alta al @tipo elegido" title="Reactivar">
+            @Iconos.Ver("reactivar")
+        </button>
+        <a class="gf-boton-icono" asp-action="Crear"
+           aria-label="Dar de alta un @tipo nuevo" title="Nuevo @tipo">@Iconos.Ver("crear")</a>
+        @if (Model.TieneInforme)
+        {
+            <a class="gf-boton-icono" asp-action="Informe"
+               aria-label="Ver el informe" title="Informe">@Iconos.Ver("informe")</a>
+        }
+    </div>
+</div>
+
+<form class="gf-buscador" method="get" asp-action="Index" role="search">
+    <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+           placeholder="@TextosUsuarios.Buscador(g)" aria-label="@TextosUsuarios.Buscador(g)" />
+    @if (g == Gestion.Usuarios)
+    {
+        <select class="form-select gf-filtro-rol" name="rol" aria-label="Filtrar por rol">
+            <option value="">Todos los roles</option>
+            @foreach (var r in Enum.GetValues<Rol>())
+            {
+                <option value="@r" selected="@(Model.Rol == r)">@r</option>
+            }
+        </select>
+    }
+    <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+@if (Model.Filas.Count == 0 && ViewBag.Error == null)
+{
+    <div class="gf-tarjeta">
+        <p class="gf-ayuda">
+            @(string.IsNullOrWhiteSpace(Model.Buscar) && Model.Rol == null
+                ? $"Todavía no hay {titulo.ToLower()}."
+                : "No hay nadie que coincida con la búsqueda.")
+        </p>
+    </div>
+}
+else if (Model.Filas.Count > 0)
+{
+    <form id="form-usuario" class="gf-tarjeta" method="post" asp-action="DarDeBaja">
+        <div class="table-responsive">
+            <table class="gf-tabla gf-tabla-seleccion">
+                <caption class="visually-hidden">@titulo del centro. Elige una fila y pulsa un botón de arriba.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                        <th scope="col">Nombre</th>
+                        @if (g == Gestion.Clientes)
+                        {
+                            <th scope="col">DNI</th>
+                        }
+                        @if (g == Gestion.Entrenadores)
+                        {
+                            <th scope="col">Especialidad</th>
+                        }
+                        <th scope="col">Email</th>
+                        @if (g == Gestion.Clientes)
+                        {
+                            <th scope="col">Teléfono</th>
+                        }
+                        @if (g == Gestion.Usuarios)
+                        {
+                            <th scope="col">Rol</th>
+                        }
+                        <th scope="col">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Model.Filas)
+                    {
+                        var u = f.Usuario;
+                        var nombre = TextosUsuarios.NombreCompleto(u);
+                        var soyYo = u.UsuarioId == Model.UsuarioActual;
+                        <tr>
+                            <td>
+                                <input type="radio" name="usuarioId" value="@u.UsuarioId"
+                                       data-activo="@(u.Activo ? "si" : "no")" data-yo="@(soyYo ? "si" : "no")"
+                                       aria-label="Elegir @nombre" />
+                            </td>
+                            <td><strong>@nombre</strong>@if (soyYo) {<small class="gf-texto-suave"> (tú)</small>}</td>
+                            @if (g == Gestion.Clientes)
+                            {
+                                <td>@u.Dni</td>
+                            }
+                            @if (g == Gestion.Entrenadores)
+                            {
+                                <td>@(f.Especialidad is { } e ? ActividadesViewModel.TextoEspecialidad(e) : "—")</td>
+                            }
+                            <td>@u.Email</td>
+                            @if (g == Gestion.Clientes)
+                            {
+                                <td>@u.Telefono</td>
+                            }
+                            @if (g == Gestion.Usuarios)
+                            {
+                                <td>
+                                    @u.Rol
+                                    @if (f.Especialidad is { } esp)
+                                    {
+                                        <small class="gf-texto-suave">· @ActividadesViewModel.TextoEspecialidad(esp)</small>
+                                    }
+                                </td>
+                            }
+                            <td>
+                                <span class="gf-chip @(u.Activo ? "gf-chip-activo" : "gf-chip-baja")">@(u.Activo ? "Activo" : "De baja")</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <script>
+        // Al elegir una fila se activan los botones que tienen sentido para ella:
+        // Baja si está activo (y no eres tú), Reactivar si está de baja.
+        const modificar = document.getElementById('boton-modificar');
+        const baja = document.getElementById('boton-baja');
+        const reactivar = document.getElementById('boton-reactivar');
+
+        const actualizar = () => {
+            const elegido = document.querySelector('input[name="usuarioId"]:checked');
+            const activo = elegido?.dataset.activo === 'si';
+            const yo = elegido?.dataset.yo === 'si';
+            modificar.disabled = !elegido;
+            baja.disabled = !elegido || !activo || yo;
+            reactivar.disabled = !elegido || activo;
+        };
+
+        document.querySelectorAll('input[name="usuarioId"]').forEach(radio =>
+            radio.addEventListener('change', actualizar));
+
+        document.querySelectorAll('.gf-tabla-seleccion tbody tr').forEach(fila =>
+            fila.addEventListener('click', e => {
+                const radio = fila.querySelector('input[name="usuarioId"]');
+                if (radio && e.target !== radio) {
+                    radio.checked = true;
+                    actualizar();
+                }
+            }));
+
+        actualizar();
+    </script>
+}

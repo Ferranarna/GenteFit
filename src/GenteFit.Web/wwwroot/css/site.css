@@ -1151,3 +1151,16 @@ input:-webkit-autofill:focus {
         grid-template-columns: 1fr;
     }
 }
+/* ===== Gestión de usuarios (Clientes / Entrenadores / Usuarios) ===== */
+.gf-filtro-rol {
+    flex: 0 0 12rem;
+    width: auto;
+}
+@media (max-width: 576px) {
+    .gf-buscador:has(.gf-filtro-rol) {
+        flex-wrap: wrap;
+    }
+    .gf-filtro-rol {
+        flex: 1 1 100%;
+    }
+}
