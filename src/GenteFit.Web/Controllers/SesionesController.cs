@@ -205,6 +205,37 @@ public class SesionesController : Controller
         return MostrarFormulario(modelo);
     }
 
+    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    public IActionResult Informe(DateTime? desde, DateTime? hasta, Guid? actividad, EstadoSesion? estado)
+    {
+        // Sin fechas en la URL, el informe sale de este mes (como en la maqueta)
+        var esteMes = InformeSesionesViewModel.Atajos(DateTime.Today)[0];
+        var modelo = new InformeSesionesViewModel
+        {
+            Desde = (desde ?? esteMes.Desde).Date,
+            Hasta = (hasta ?? esteMes.Hasta).Date,
+            ActividadId = actividad,
+            Estado = estado
+        };
+
+        try
+        {
+            modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
+                .OrderBy(a => a.NombreActividad).ToList();
+            modelo.Informe = new SesionRepositorio(_db).Informe(modelo.Desde, modelo.Hasta, actividad, estado);
+        }
+        catch (ValidacionException ex)
+        {
+            ViewBag.Error = ex.Message;
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
+        }
+
+        return View(modelo);
+    }
+
     private IActionResult MostrarFormulario(SesionFormularioViewModel modelo)
     {
         try

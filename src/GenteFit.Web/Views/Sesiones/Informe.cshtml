@@ -1,0 +1,163 @@
+﻿@using System.Globalization
+@using GenteFit.Modelo.Enums
+@model InformeSesionesViewModel
+@{
+    ViewData["Title"] = "Informe de sesiones";
+    var es = new CultureInfo("es-ES");
+    string Fecha(DateTime d) => d.ToString("yyyy-MM-dd");
+    var atajos = InformeSesionesViewModel.Atajos(DateTime.Today);
+    var nombreActividad = Model.Actividades.FirstOrDefault(a => a.ActividadId == Model.ActividadId)?.NombreActividad ?? "Todas";
+    var nombreEstado = InformeSesionesViewModel.Estados.First(e => e.Valor == Model.Estado).Texto;
+    var informe = Model.Informe;
+}
+
+<div class="gf-cabecera">
+    <div>
+        <h1>Informe: sesiones del periodo</h1>
+        <p class="gf-subtitulo">Todas las sesiones con su entrenador, estado y ocupación.</p>
+    </div>
+    <a class="gf-boton-icono gf-no-imprimir" asp-action="Index"
+       aria-label="Volver a sesiones" title="Volver">@Iconos.Ver("volver")</a>
+</div>
+
+@* Solo en papel: qué se ha filtrado y cuándo *@
+<p class="gf-solo-impresion">
+    Periodo: @Model.Desde.ToString("dd/MM/yyyy") – @Model.Hasta.ToString("dd/MM/yyyy")
+    · Actividad: @nombreActividad · Estado: @nombreEstado
+    · Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+</p>
+
+<form class="gf-tarjeta gf-no-imprimir mb-3" method="get" asp-action="Informe" aria-label="Filtros del informe">
+    <div class="row g-3 align-items-end">
+        <div class="col-sm-6 col-lg-3">
+            <label class="gf-etiqueta" for="desde">Desde</label>
+            <input class="form-control" type="date" id="desde" name="desde" value="@Fecha(Model.Desde)" required />
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <label class="gf-etiqueta" for="hasta">Hasta</label>
+            <input class="form-control" type="date" id="hasta" name="hasta" value="@Fecha(Model.Hasta)" required />
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <label class="gf-etiqueta" for="actividad">Actividad</label>
+            <select class="form-select" id="actividad" name="actividad">
+                <option value="">Todas</option>
+                @foreach (var a in Model.Actividades)
+                {
+                    <option value="@a.ActividadId" selected="@(a.ActividadId == Model.ActividadId)">@a.NombreActividad</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <label class="gf-etiqueta" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado">
+                @foreach (var e in InformeSesionesViewModel.Estados)
+                {
+                    <option value="@e.Valor" selected="@(e.Valor == Model.Estado)">@e.Texto</option>
+                }
+            </select>
+        </div>
+        <div class="col-12">
+            <button class="gf-boton gf-boton-auto" type="submit">Filtrar</button>
+        </div>
+    </div>
+
+    <nav class="gf-atajos" aria-label="Atajos de periodo">
+        <span class="gf-etiqueta m-0">Atajos</span>
+        @foreach (var a in atajos)
+        {
+            var activo = a.Desde == Model.Desde && a.Hasta == Model.Hasta;
+            <a class="gf-atajo @(activo ? "gf-atajo-activo" : "")" aria-current="@(activo ? "true" : null)"
+               asp-action="Informe" asp-route-desde="@Fecha(a.Desde)" asp-route-hasta="@Fecha(a.Hasta)"
+               asp-route-actividad="@Model.ActividadId" asp-route-estado="@Model.Estado">@a.Texto</a>
+        }
+    </nav>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+
+@if (informe != null)
+{
+    <div class="gf-rejilla mb-3">
+        <div class="gf-tarjeta gf-estadistica">
+            <small class="gf-estadistica-titulo">Programadas</small>
+            <div class="gf-estadistica-valor">@informe.Programadas</div>
+            <div class="gf-estadistica-detalle">en el periodo</div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <small class="gf-estadistica-titulo">Canceladas</small>
+            <div class="gf-estadistica-valor">@informe.Canceladas</div>
+            <div class="gf-estadistica-detalle">en el periodo</div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <small class="gf-estadistica-titulo">Ocupación media</small>
+            <div class="gf-estadistica-valor">@(informe.OcupacionMedia is int m ? $"{m} %" : "—")</div>
+            <div class="gf-estadistica-detalle">de las programadas</div>
+        </div>
+    </div>
+
+    <section class="gf-tarjeta" aria-labelledby="titulo-tabla">
+        <div class="gf-tabla-cabecera">
+            <h2 id="titulo-tabla" class="gf-estadistica-detalle m-0">
+                <b>@informe.Filas.Count</b> @(informe.Filas.Count == 1 ? "sesión" : "sesiones")
+            </h2>
+            <button class="gf-boton gf-boton-borde gf-boton-auto gf-no-imprimir" type="button" onclick="window.print()">
+                @Iconos.Ver("imprimir") Imprimir
+            </button>
+        </div>
+
+        @if (informe.Filas.Count == 0)
+        {
+            <p class="gf-ayuda">No hay sesiones con estos filtros. Prueba con otro periodo.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="gf-tabla">
+                    <caption class="visually-hidden">Sesiones del periodo con su estado y ocupación</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col">Actividad</th>
+                            <th scope="col">Sala</th>
+                            <th scope="col">Entrenador</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col">Ocupación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in informe.Filas)
+                        {
+                            var s = f.Sesion;
+                            var cancelada = s.Estado == EstadoSesion.Cancelada;
+                            <tr>
+                                <td>@s.Fecha.ToString("dd/MM HH:mm")</td>
+                                <td>@s.Actividad.NombreActividad</td>
+                                <td>@s.Sala.NombreSala</td>
+                                <td>@s.Entrenador.Usuario.Nombre @s.Entrenador.Usuario.Apellido1</td>
+                                <td>
+                                    <span class="gf-chip @(cancelada ? "gf-chip-baja" : "gf-chip-activo")">
+                                        @(cancelada ? "Cancelada" : "Programada")
+                                    </span>
+                                </td>
+                                <td class="gf-ocupacion">
+                                    @if (f.Porcentaje is int p)
+                                    {
+                                        <div class="gf-barra" aria-hidden="true"><i style="width:@(Math.Min(100, p))%"></i></div>
+                                        <small>@p % <span class="visually-hidden">(@f.Confirmadas de @f.Plazas plazas)</span></small>
+                                    }
+                                    else
+                                    {
+                                        <small>—</small>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
