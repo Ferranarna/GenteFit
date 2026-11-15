@@ -121,6 +121,11 @@ else
                     Grupo muscular <span class="gf-chip gf-chip-grupo">@(e.GrupoMuscular ?? "—")</span>
                 </p>
                 <p>@(e.Descripcion ?? "Sin descripción.")</p>
+                @if (Model.PuedeAnadirARutina)
+                {
+                    <a class="gf-boton gf-boton-borde gf-boton-auto" asp-controller="MisRutinas" asp-action="AnadirDesdeCatalogo"
+                       asp-route-ejercicioId="@e.EjercicioId">@Iconos.Ver("crear") Añadir a rutina</a>
+                }
             </article>
         }
     </div>

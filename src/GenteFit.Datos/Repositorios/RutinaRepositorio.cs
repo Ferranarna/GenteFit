@@ -86,8 +86,36 @@ public class RutinaRepositorio : Repositorio<Rutina>
     {
         var detalle = _db.DetallesRutina.Find(detalleId) ?? throw new ValidacionException("El ejercicio no está en la rutina.");
         _db.DetallesRutina.Remove(detalle);
+
+        // Los que quedan se vuelven a numerar 1, 2, 3... para que no queden huecos en el orden
+        var resto = _db.DetallesRutina
+            .Where(d => d.RutinaId == detalle.RutinaId && d.DetalleRutinaId != detalleId)
+            .OrderBy(d => d.Orden)
+            .ToList();
+        for (var i = 0; i < resto.Count; i++)
+            resto[i].Orden = i + 1;
+
         _db.SaveChanges();
     }
+
+    // Una rutina con sus ejercicios, solo si es de ese cliente (null si no existe o es de otro).
+    // Así un cliente no puede ver la rutina de otro cambiando el id en la dirección.
+    public Rutina? ObtenerDeCliente(Guid rutinaId, Guid usuarioId) =>
+        _db.Rutinas
+            .Include(r => r.Detalles).ThenInclude(d => d.Ejercicio)
+            .FirstOrDefault(r => r.RutinaId == rutinaId && r.UsuarioId == usuarioId);
+
+    // ¿La rutina es de este cliente?
+    public bool EsDeCliente(Guid rutinaId, Guid usuarioId) =>
+        _db.Rutinas.Any(r => r.RutinaId == rutinaId && r.UsuarioId == usuarioId);
+
+    // ¿Este ejercicio de rutina (detalle) pertenece a una rutina de este cliente?
+    public bool DetalleEsDeCliente(Guid detalleId, Guid usuarioId) =>
+        _db.DetallesRutina.Any(d => d.DetalleRutinaId == detalleId && d.Rutina.UsuarioId == usuarioId);
+
+    // Posición que le toca a un ejercicio nuevo: al final de la rutina
+    public int SiguienteOrden(Guid rutinaId) =>
+        (_db.DetallesRutina.Where(d => d.RutinaId == rutinaId).Max(d => (int?)d.Orden) ?? 0) + 1;
 
     private static void ValidarConfiguracion(int series, int repeticiones)
     {

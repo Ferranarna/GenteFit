@@ -14,6 +14,9 @@ public class EjerciciosViewModel
     // El encargado ve la tabla con los botones de gestión; el resto, las tarjetas
     public bool PuedeEditar { get; set; }
 
+    // Solo el cliente ve el botón "Añadir a rutina" en las tarjetas
+    public bool PuedeAnadirARutina { get; set; }
+
     public List<Ejercicio> Ejercicios { get; set; } = [];
 
     // Grupos musculares que se ofrecen en el filtro y en el formulario

@@ -1084,3 +1084,70 @@ input:-webkit-autofill:focus {
 .gf-texto-suave {
     color: var(--gf-texto-suave);
 }
+
+
+/* ===== Mis rutinas ===== */
+.gf-rutinas {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.gf-rutina {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    min-height: 110px;
+    text-align: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    transition: border-color .15s;
+}
+
+    .gf-rutina small {
+        color: var(--gf-texto-suave);
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    .gf-rutina:hover {
+        border-color: var(--gf-acento);
+    }
+
+    .gf-rutina:has(input:checked) {
+        border-color: var(--gf-acento);
+        box-shadow: 0 0 0 2px rgba(77, 184, 255, .35);
+    }
+
+    .gf-rutina:has(input:focus-visible) {
+        outline: 2px solid var(--gf-acento-claro);
+    }
+
+.gf-rutina-detalle {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+}
+
+.gf-rutina-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.gf-numero {
+    width: 90px;
+}
+
+@media (max-width: 900px) {
+    .gf-rutina-detalle {
+        grid-template-columns: 1fr;
+    }
+}

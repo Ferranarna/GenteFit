@@ -1,0 +1,78 @@
+@model MisRutinasViewModel
+@{
+    ViewData["Title"] = "Mis rutinas";
+}
+
+<div class="gf-cabecera">
+    <h1>Mis rutinas</h1>
+    <div class="gf-herramientas">
+        <button class="gf-boton-icono" type="submit" form="form-rutina" data-necesita-rutina disabled
+                asp-action="Detalle" formmethod="get"
+                aria-label="Abrir la rutina elegida" title="Abrir y modificar">
+            @Iconos.Ver("modificar")
+        </button>
+        <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-rutina" data-necesita-rutina disabled
+                asp-action="Eliminar"
+                onclick="return confirm('¿Seguro que quieres eliminar esta rutina? Se borrarán también sus ejercicios.')"
+                aria-label="Eliminar la rutina elegida" title="Eliminar">
+            @Iconos.Ver("baja")
+        </button>
+        <a class="gf-boton-icono" asp-action="Crear" aria-label="Crear una rutina nueva" title="Crear rutina">@Iconos.Ver("crear")</a>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+@* Las tarjetas son radios de este formulario: al elegir una se activan Abrir y Eliminar *@
+<form id="form-rutina" method="post" asp-action="Eliminar">
+    @if (Model.Rutinas.Count == 0 && ViewBag.Error == null)
+    {
+        <div class="gf-tarjeta">
+            <p class="gf-ayuda">
+                Todavía no tienes rutinas. Pulsa <strong>+</strong> para crear la primera, o añade ejercicios
+                desde la pestaña <a asp-controller="Ejercicios" asp-action="Index">Ejercicios</a>.
+            </p>
+        </div>
+    }
+    else
+    {
+        <fieldset class="gf-rutinas">
+            <legend class="visually-hidden">Elige una rutina y pulsa Abrir o Eliminar. Doble clic para abrirla.</legend>
+            @foreach (var r in Model.Rutinas)
+            {
+                var n = r.Detalles.Count;
+                <label class="gf-tarjeta gf-rutina" data-detalle="@Url.Action("Detalle", new { rutinaId = r.RutinaId })">
+                    <input class="visually-hidden" type="radio" name="rutinaId" value="@r.RutinaId" />
+                    <strong>@r.NombreRutina</strong>
+                    <small>@n @(n == 1 ? "ejercicio" : "ejercicios")</small>
+                </label>
+            }
+        </fieldset>
+    }
+</form>
+
+@section Scripts {
+    <script>
+        // Al elegir una rutina se activan los botones; doble clic la abre
+        const botones = document.querySelectorAll('[data-necesita-rutina]');
+        const actualizar = () => {
+            const elegida = !!document.querySelector('input[name="rutinaId"]:checked');
+            botones.forEach(b => b.disabled = !elegida);
+        };
+        document.querySelectorAll('input[name="rutinaId"]').forEach(r => r.addEventListener('change', actualizar));
+        document.querySelectorAll('.gf-rutina').forEach(t =>
+            t.addEventListener('dblclick', () => window.location = t.dataset.detalle));
+        actualizar();
+    </script>
+}
