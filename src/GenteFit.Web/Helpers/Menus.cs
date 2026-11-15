@@ -1,4 +1,4 @@
-﻿﻿﻿using System.Security.Claims;
+﻿﻿﻿﻿using System.Security.Claims;
 
 namespace GenteFit.Web.Helpers;
 
@@ -19,7 +19,7 @@ public static class Menus
         ["Encargado"] =
         [
             new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
-            new("puerta", "Salas", "Gestiona las salas del centro."),
+            new("puerta", "Salas", "Gestiona las salas del centro.", "/Salas"),
             new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
             new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro."),
             new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios")
