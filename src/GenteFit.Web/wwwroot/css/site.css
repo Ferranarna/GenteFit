@@ -248,6 +248,11 @@ a.gf-tarjeta {
     gap: .65rem;
 }
 
+a.gf-estadistica {
+    justify-content: flex-start;
+    min-height: 0;
+}
+
 .gf-estadistica-titulo {
     color: var(--gf-acento-claro);
     font-size: .93rem;
@@ -256,9 +261,9 @@ a.gf-tarjeta {
 
 .gf-estadistica-valor {
     color: #fff;
-    font-size: 2.27rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    line-height: 1.05;
+    line-height: 1.3;
 }
 
 .gf-estadistica-detalle {
@@ -268,22 +273,6 @@ a.gf-tarjeta {
 
     .gf-estadistica-detalle b {
         color: var(--gf-acento);
-    }
-
-.gf-estadistica-enlace {
-    margin-top: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    font-size: .93rem;
-    font-weight: 700;
-    text-decoration: none;
-    color: var(--gf-acento);
-}
-
-    .gf-estadistica-enlace .gf-ico {
-        width: 16px;
-        height: 16px;
     }
 
 .gf-barra {
@@ -344,12 +333,13 @@ label.gf-etiqueta {
 .gf-boton {
     display: inline-block;
     width: 100%;
-    padding: .75rem 1rem;
+    padding: .5rem 1.1rem;
     border: 0;
     border-radius: 10px;
+    font-size: .8rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .08em;
+    letter-spacing: .05em;
     color: #04101c;
     cursor: pointer;
     background: linear-gradient(180deg, var(--gf-acento-claro), var(--gf-acento));
@@ -472,7 +462,7 @@ label.gf-etiqueta {
 
 .gf-boton-auto {
     width: auto;
-    padding: .7rem 1.6rem;
+    padding: .5rem 1.1rem;
     text-decoration: none;
     text-align: center;
 }
@@ -727,6 +717,12 @@ input:-webkit-autofill:focus {
 
 .gf-sesion-accion {
     text-align: right;
+}
+
+.gf-sesion-accion .gf-chip {
+    padding: .5rem 1.1rem;
+    font-size: .8rem;
+    letter-spacing: .05em;
 }
 
 .gf-barra-llena > i {
@@ -1128,6 +1124,14 @@ input:-webkit-autofill:focus {
     align-items: center;
     gap: .4rem;
     margin-top: auto;
+}
+
+.gf-actividad p:last-of-type {
+    margin-bottom: .4rem;
+}
+
+.gf-actividad {
+    padding-bottom: 1.6rem;
 }
 
 

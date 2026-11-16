@@ -127,6 +127,7 @@
             var s = fila.Sesion;
             var porcentaje = fila.Plazas == 0 ? 0 : Math.Min(100, fila.Confirmadas * 100 / fila.Plazas);
             var empezada = s.Fecha <= ahora;
+            var terminada = s.Fecha.AddMinutes(s.Duracion) <= ahora;
             <li class="gf-sesion">
                 <span class="gf-sesion-hora">@s.Fecha.ToString("HH:mm")–@s.Fecha.AddMinutes(s.Duracion).ToString("HH:mm")</span>
 
@@ -152,17 +153,21 @@
                 @if (Model.PuedeReservar)
                 {
                     <div class="gf-sesion-accion">
-                        @if (fila.MiEstado == EstadoReserva.Confirmada)
+                        @if (terminada)
+                        {
+                            <span class="gf-chip gf-chip-apagado">Finalizada</span>
+                        }
+                        else if (empezada)
+                        {
+                            <span class="gf-chip gf-chip-apagado">En curso</span>
+                        }
+                        else if (fila.MiEstado == EstadoReserva.Confirmada)
                         {
                             <span class="gf-chip gf-chip-activo">Reservada</span>
                         }
                         else if (fila.MiEstado == EstadoReserva.ListaEspera)
                         {
                             <span class="gf-chip gf-chip-espera">En espera · posición @fila.MiPosicion</span>
-                        }
-                        else if (empezada)
-                        {
-                            <span class="gf-chip gf-chip-apagado">Ya ha empezado</span>
                         }
                         else
                         {
