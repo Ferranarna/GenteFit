@@ -14,6 +14,7 @@ public static class Iconos
         ["crear"] = """<path d="M12 5v14M5 12h14"/>""",
         ["quitar"] = """<path d="M5 12h14"/>""",
         ["informe"] = """<path d="M6 20V12M12 20V4M18 20V12M2 20h20"/>""",
+        ["imprimir"] = """<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v7H6z"/>""",
         ["alerta"] = """<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5h.01"/>""",
         ["flecha"] = """<path d="M5 12h14M13 6l6 6-6 6"/>""",
         ["reactivar"] = """<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>""",
@@ -37,7 +38,8 @@ public static class Iconos
         ["casa"] = """<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>""",
         ["marcador"] = """<path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4-7 4V4.5a1 1 0 0 1 1-1z"/><path d="M9 10l2 2 4-4"/>""",
         ["lista"] = """<path d="M8 6h12M8 12h12M8 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>""",
-        ["reloj"] = """<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>"""
+        ["reloj"] = """<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>""",
+        ["intercambio"] = """<path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/>"""
     };
 
     public static IHtmlContent Ver(string nombre)

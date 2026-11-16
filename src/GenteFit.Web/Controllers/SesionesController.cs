@@ -30,7 +30,7 @@ public class SesionesController : Controller
             Dia = (dia ?? DateTime.Today).Date,
             ActividadId = actividad,
             PuedeReservar = User.IsInRole(nameof(Rol.Cliente)),
-            PuedeEditar = User.IsInRole(nameof(Rol.Encargado))
+            PuedeEditar = Permisos.PuedeGestionar(User)
         };
 
         try
@@ -73,7 +73,7 @@ public class SesionesController : Controller
         return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
     }
 
-    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Cancelar(Guid sesionId, DateTime dia, Guid? actividad)
     {
         try
@@ -95,7 +95,7 @@ public class SesionesController : Controller
         return RedirectToAction(nameof(Index), new { dia = dia.ToString("yyyy-MM-dd"), actividad });
     }
 
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Reservas(Guid sesionId, DateTime dia, Guid? actividad)
     {
         try
@@ -128,11 +128,11 @@ public class SesionesController : Controller
 
     private Guid UsuarioActual() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-  [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+  [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Crear(DateTime? dia) =>
         MostrarFormulario(new SesionFormularioViewModel { Fecha = dia ?? DateTime.Today });
 
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Editar(Guid sesionId, DateTime dia, Guid? actividad)
     {
         try
@@ -162,7 +162,7 @@ public class SesionesController : Controller
         }
     }
 
-    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Guardar(SesionFormularioViewModel modelo)
     {
         if (!ModelState.IsValid)
@@ -203,6 +203,37 @@ public class SesionesController : Controller
         }
 
         return MostrarFormulario(modelo);
+    }
+
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
+    public IActionResult Informe(DateTime? desde, DateTime? hasta, Guid? actividad, EstadoSesion? estado)
+    {
+        // Sin fechas en la URL, el informe sale de este mes (como en la maqueta)
+        var esteMes = InformeSesionesViewModel.Atajos(DateTime.Today)[0];
+        var modelo = new InformeSesionesViewModel
+        {
+            Desde = (desde ?? esteMes.Desde).Date,
+            Hasta = (hasta ?? esteMes.Hasta).Date,
+            ActividadId = actividad,
+            Estado = estado
+        };
+
+        try
+        {
+            modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
+                .OrderBy(a => a.NombreActividad).ToList();
+            modelo.Informe = new SesionRepositorio(_db).Informe(modelo.Desde, modelo.Hasta, actividad, estado);
+        }
+        catch (ValidacionException ex)
+        {
+            ViewBag.Error = ex.Message;
+        }
+        catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
+        {
+            ViewBag.Error = Errores.ErrorBaseDeDatos;
+        }
+
+        return View(modelo);
     }
 
     private IActionResult MostrarFormulario(SesionFormularioViewModel modelo)

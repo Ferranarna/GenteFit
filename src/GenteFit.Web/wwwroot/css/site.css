@@ -973,6 +973,103 @@ input:-webkit-autofill:focus {
     display: none;
 }
 
+/* ===== Informes (sesiones, salas, actividades...): atajos y tabla ===== */
+.gf-atajos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: 1rem;
+}
+
+.gf-atajo {
+    padding: .3rem .9rem;
+    border: 1px solid var(--gf-borde);
+    border-radius: 999px;
+    color: var(--gf-texto-suave);
+    font-size: .85rem;
+    text-decoration: none;
+}
+
+    .gf-atajo:hover, .gf-atajo:focus-visible {
+        border-color: var(--gf-acento);
+        color: var(--gf-texto);
+    }
+
+.gf-atajo-activo {
+    border-color: var(--gf-acento);
+    background: rgba(77, 184, 255, .15);
+    color: #fff;
+    font-weight: 600;
+}
+
+.gf-tabla-cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.gf-ocupacion {
+    min-width: 8rem;
+}
+
+/* ===== Impresión (botón Imprimir de los informes) ===== */
+.gf-solo-impresion {
+    display: none;
+}
+
+@media print {
+    @page {
+        margin: 1.5cm;
+    }
+
+    /* Papel: fondo blanco y texto negro en todo */
+    * {
+        color: #000 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    header, .gf-no-imprimir, .gf-barra {
+        display: none !important;
+    }
+
+    .gf-solo-impresion {
+        display: block;
+        margin-bottom: 1rem;
+        font-size: .9rem;
+    }
+
+    .gf-contenido {
+        padding: 0 !important;
+    }
+
+    .gf-tarjeta {
+        border: 1px solid #999 !important;
+    }
+
+    .gf-estadistica {
+        break-inside: avoid;
+    }
+
+    .gf-tabla thead {
+        display: table-header-group; /* la cabecera se repite en cada página */
+    }
+
+    .gf-tabla tr {
+        break-inside: avoid; /* una fila nunca se parte entre dos páginas */
+    }
+
+    .gf-chip {
+        border: 1px solid #000;
+    }
+}
+}
+
 /* ===== Pantalla Actividades ===== */
 .gf-buscador {
     display: flex;
@@ -1163,4 +1260,39 @@ input:-webkit-autofill:focus {
     .gf-filtro-rol {
         flex: 1 1 100%;
     }
+}
+
+
+/* ===== Pantalla Odoo ===== */
+.gf-estado-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .85rem 0;
+    border-bottom: 1px solid rgba(30, 53, 80, .5);
+}
+
+    .gf-estado-fila:last-child {
+        border-bottom: none;
+    }
+
+    .gf-estado-fila small {
+        display: block;
+        color: var(--gf-texto-suave);
+    }
+
+.gf-odoo-acciones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem 0;
+}
+
+/* Botones desactivados: que se note que no se pueden pulsar */
+.gf-boton:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    box-shadow: none;
 }

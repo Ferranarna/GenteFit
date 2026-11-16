@@ -28,7 +28,7 @@ public class EjerciciosController : Controller
         {
             Buscar = buscar,
             Grupo = string.IsNullOrWhiteSpace(grupo) ? null : grupo,
-            PuedeEditar = User.IsInRole(nameof(Rol.Encargado)),
+            PuedeEditar = Permisos.PuedeGestionar(User),
             PuedeAnadirARutina = User.IsInRole(nameof(Rol.Cliente))
         };
 
@@ -50,10 +50,10 @@ public class EjerciciosController : Controller
         return View(modelo);
     }
 
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Crear() => View("Formulario", new EjercicioFormularioViewModel());
 
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Editar(Guid ejercicioId)
     {
         try
@@ -80,7 +80,7 @@ public class EjerciciosController : Controller
         }
     }
 
-    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Guardar(EjercicioFormularioViewModel modelo)
     {
         // Si falta algún dato obligatorio, se vuelve al formulario con los mensajes en rojo

@@ -28,7 +28,7 @@ public class ActividadesController : Controller
         {
             Buscar = buscar,
             Orden = orden == "intensidad" ? "intensidad" : "nombre",
-            PuedeEditar = User.IsInRole(nameof(Rol.Encargado))
+            PuedeEditar = Permisos.PuedeGestionar(User)
         };
 
         try
@@ -50,10 +50,10 @@ public class ActividadesController : Controller
 
         return View(modelo);
     }
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Crear() => View("Formulario", new ActividadFormularioViewModel());
 
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Editar(Guid actividadId)
     {
         try
@@ -82,7 +82,7 @@ public class ActividadesController : Controller
         }
     }
 
-    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpPost, ValidateAntiForgeryToken, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Guardar(ActividadFormularioViewModel modelo)
     {
         // Si falta algún dato obligatorio, se vuelve al formulario con los mensajes en rojo
@@ -138,7 +138,7 @@ public class ActividadesController : Controller
         return View("Formulario", modelo);
     }
     // Informe de actividades más reservadas. Por defecto, el mes actual.
-    [HttpGet, Authorize(Roles = nameof(Rol.Encargado))]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Informe(DateTime? desde, DateTime? hasta)
     {
         var hoy = DateTime.Today;
