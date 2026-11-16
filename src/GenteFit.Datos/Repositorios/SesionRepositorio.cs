@@ -73,7 +73,7 @@ public class SesionRepositorio : Repositorio<Sesion>
            .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
            .FirstOrDefault(s => s.SesionId == sesionId);
 
-    public List<SesionDelDia> ListarDelDia(DateTime dia, Guid? actividadId = null, Guid? usuarioId = null)
+    public List<SesionDelDia> ListarDelDia(DateTime dia, Guid? actividadId = null, Guid? usuarioId = null, Guid? entrenadorId = null)
     {
         var inicio = dia.Date;
         var fin = inicio.AddDays(1);
@@ -83,7 +83,8 @@ public class SesionRepositorio : Repositorio<Sesion>
             .Include(s => s.Sala)
             .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
             .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin
-                && (actividadId == null || s.ActividadId == actividadId))
+                && (actividadId == null || s.ActividadId == actividadId)
+                && (entrenadorId == null || s.EntrenadorId == entrenadorId))
             .OrderBy(s => s.Fecha)
             .ToList();
 
@@ -109,14 +110,15 @@ public class SesionRepositorio : Repositorio<Sesion>
         }).ToList();
     }
 
-    public HashSet<int> DiasConSesiones(int anio, int mes, Guid? actividadId = null)
+    public HashSet<int> DiasConSesiones(int anio, int mes, Guid? actividadId = null, Guid? entrenadorId = null)
     {
         var inicio = new DateTime(anio, mes, 1);
         var fin = inicio.AddMonths(1);
 
         return _db.Sesiones
             .Where(s => s.Estado == EstadoSesion.Programada && s.Fecha >= inicio && s.Fecha < fin
-                && (actividadId == null || s.ActividadId == actividadId))
+                && (actividadId == null || s.ActividadId == actividadId)
+                && (entrenadorId == null || s.EntrenadorId == entrenadorId))
             .Select(s => s.Fecha)
             .AsEnumerable()
             .Select(f => f.Day)

@@ -11,8 +11,8 @@ using System.Security.Claims;
 
 namespace GenteFit.Web.Controllers;
 
-// Es la misma para todos los roles; solo el cliente ve los botones para reservar.
-[Authorize(Roles = "Cliente,Recepcionista,Encargado,Administrador")]
+// Es la misma para todos los roles; solo el cliente ve los botones para reservar y el entrenador solo ve sus sesiones.
+[Authorize(Roles = "Cliente,Recepcionista,Encargado,Administrador,Entrenador")]
 public class SesionesController : Controller
 {
     private readonly GenteFitContext _db;
@@ -33,14 +33,16 @@ public class SesionesController : Controller
             PuedeEditar = Permisos.PuedeGestionar(User)
         };
 
+        Guid? entrenadorId = User.IsInRole(nameof(Rol.Entrenador)) ? UsuarioActual() : null;
+
         try
         {
             var sesiones = new SesionRepositorio(_db);
             modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
                 .OrderBy(a => a.NombreActividad).ToList();
-            modelo.DiasConSesiones = sesiones.DiasConSesiones(modelo.Dia.Year, modelo.Dia.Month, actividad);
+            modelo.DiasConSesiones = sesiones.DiasConSesiones(modelo.Dia.Year, modelo.Dia.Month, actividad, entrenadorId);
             modelo.Sesiones = sesiones.ListarDelDia(modelo.Dia, actividad,
-                modelo.PuedeReservar ? UsuarioActual() : null);
+                modelo.PuedeReservar ? UsuarioActual() : null, entrenadorId);
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {

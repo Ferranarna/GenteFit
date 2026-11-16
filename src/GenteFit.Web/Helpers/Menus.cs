@@ -37,7 +37,7 @@ public static class Menus
         ],
         ["Entrenador"] =
         [
-            new("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas."),
+            new("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas.", "/Sesiones"),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles.", "/Ejercicios"),
             new("reloj", "Mis citas", "Organiza tus citas con tus clientes.", "/MisCitas"),
             new("usuarios", "Mis clientes", "Consulta los clientes que entrenas.", "/MisClientes")
