@@ -1,0 +1,38 @@
+@model AnadirARutinaViewModel
+@{
+    ViewData["Title"] = "Añadir a rutina";
+}
+
+<div class="gf-estrecho">
+    <h1>Añadir a rutina</h1>
+    <p class="gf-subtitulo">Elige en qué rutina quieres añadir <strong>@Model.Ejercicio.NombreEjercicio</strong>.</p>
+
+    @if (Model.Rutinas.Count == 0)
+    {
+        <div class="gf-tarjeta">
+            <p class="gf-ayuda">
+                Todavía no tienes rutinas.
+                <a asp-action="Crear">Crea una</a> y después vuelve a añadir el ejercicio.
+            </p>
+        </div>
+    }
+    else
+    {
+        <form class="gf-tarjeta" method="post" asp-action="AnadirDesdeCatalogo">
+            <input type="hidden" name="ejercicioId" value="@Model.Ejercicio.EjercicioId" />
+            <label class="gf-etiqueta" for="rutinaId">Rutina</label>
+            <select class="form-select" id="rutinaId" name="rutinaId" required>
+                @foreach (var r in Model.Rutinas)
+                {
+                    <option value="@r.RutinaId">@r.NombreRutina (@r.Detalles.Count ejercicios)</option>
+                }
+            </select>
+            <small class="gf-campo-ayuda">Se añade al final con 3 series de 10; luego puedes cambiarlas en la rutina.</small>
+
+            <div class="gf-botones mt-3">
+                <button class="gf-boton gf-boton-auto" type="submit">Añadir</button>
+                <a class="gf-boton gf-boton-borde gf-boton-auto" asp-controller="Ejercicios" asp-action="Index">Cancelar</a>
+            </div>
+        </form>
+    }
+</div>
