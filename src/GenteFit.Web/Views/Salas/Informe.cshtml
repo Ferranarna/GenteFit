@@ -1,0 +1,113 @@
+@using System.Globalization
+@using GenteFit.Datos.Repositorios
+@model InformeSalasViewModel
+@{
+    ViewData["Title"] = "Informe de salas";
+    var es = new CultureInfo("es-ES");
+    var informe = Model.Informe;
+    string Horas(double h) => h.ToString("0.#", es) + " h";
+}
+
+<div class="gf-cabecera">
+    <div>
+        <h1>Informe de uso de salas</h1>
+        <p class="gf-subtitulo">
+            Del @Model.Desde.ToString("d 'de' MMMM", es) al @Model.Hasta.ToString("d 'de' MMMM 'de' yyyy", es).
+            La ocupación se calcula sobre la jornada del centro (@SalaRepositorio.HorasJornada h al día).
+        </p>
+    </div>
+    <div class="gf-herramientas gf-no-imprimir">
+        <button class="gf-boton-icono" type="button" onclick="window.print()"
+                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("informe")</button>
+        <a class="gf-boton-icono" asp-action="Index"
+           aria-label="Volver a Salas" title="Volver">@Iconos.Ver("volver")</a>
+    </div>
+</div>
+
+<form class="gf-filtro gf-informe-filtro gf-no-imprimir" method="get" asp-action="Informe">
+    <label class="gf-etiqueta" for="desde">Desde</label>
+    <input class="form-control" type="date" id="desde" name="desde" value="@Model.Desde.ToString("yyyy-MM-dd")" />
+    <label class="gf-etiqueta" for="hasta">Hasta</label>
+    <input class="form-control" type="date" id="hasta" name="hasta" value="@Model.Hasta.ToString("yyyy-MM-dd")" />
+    <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Ver</button>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+
+@if (informe != null)
+{
+    <div class="gf-rejilla mb-4">
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("calendario")</span>
+            <small class="gf-estadistica-titulo">Sesiones programadas</small>
+            <div class="gf-estadistica-valor">@informe.TotalSesiones</div>
+            <div class="gf-estadistica-detalle"><b>@Horas(informe.TotalHoras)</b> de uso en total</div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("puerta")</span>
+            <small class="gf-estadistica-titulo">Sala más usada</small>
+            <div class="gf-estadistica-valor">@(informe.MasUsada?.Sala.NombreSala ?? "—")</div>
+            <div class="gf-estadistica-detalle">
+                @if (informe.MasUsada is { } mas)
+                {
+                    <b>@Horas(mas.Horas)</b> @: en @mas.Sesiones @(mas.Sesiones == 1 ? "sesión" : "sesiones")
+                }
+                else
+                {
+                    @:Sin sesiones en el periodo
+                }
+            </div>
+        </div>
+        <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("alerta")</span>
+            <small class="gf-estadistica-titulo">Salas sin uso</small>
+            <div class="gf-estadistica-valor">@informe.SinUso</div>
+            <div class="gf-estadistica-detalle">de @informe.Filas.Count salas en @informe.Dias días</div>
+        </div>
+    </div>
+
+    <div class="gf-tarjeta">
+        <div class="table-responsive">
+            <table class="gf-tabla">
+                <caption class="visually-hidden">Salas ordenadas de más a menos horas de uso</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Sala</th>
+                        <th scope="col">Ubicación</th>
+                        <th scope="col">Sesiones</th>
+                        <th scope="col">Horas</th>
+                        <th scope="col">Asistentes por sesión</th>
+                        <th scope="col">Ocupación de la jornada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var posicion = 0; }
+                    @foreach (var f in informe.Filas)
+                    {
+                        posicion++;
+                        <tr>
+                            <td>@posicion</td>
+                            <td><strong>@f.Sala.NombreSala</strong></td>
+                            <td>@SalasViewModel.TextoUbicacion(f.Sala.Ubicacion)</td>
+                            <td>@f.Sesiones</td>
+                            <td>@Horas(f.Horas)</td>
+                            <td>@(f.MediaAsistentes is double m ? m.ToString("0.#", es) : "—")</td>
+                            <td class="gf-informe-ocupacion">
+                                <div class="gf-barra" aria-hidden="true"><i style="width:@(Math.Min(f.Porcentaje, 100))%"></i></div>
+                                <small>@f.Porcentaje%</small>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="gf-aviso gf-aviso-info mt-3">
+        Solo cuentan las sesiones programadas del periodo: una sesión cancelada deja la sala libre.
+    </div>
+}

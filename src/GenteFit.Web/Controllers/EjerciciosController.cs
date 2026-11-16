@@ -28,7 +28,8 @@ public class EjerciciosController : Controller
         {
             Buscar = buscar,
             Grupo = string.IsNullOrWhiteSpace(grupo) ? null : grupo,
-            PuedeEditar = Permisos.PuedeGestionar(User)
+            PuedeEditar = Permisos.PuedeGestionar(User),
+            PuedeAnadirARutina = User.IsInRole(nameof(Rol.Cliente))
         };
 
         try

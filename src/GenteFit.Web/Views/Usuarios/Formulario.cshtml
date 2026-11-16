@@ -1,0 +1,129 @@
+@using GenteFit.Modelo.Enums
+@model UsuarioFormularioViewModel
+@{
+    var g = Model.Gestion;
+    var tipo = TextosUsuarios.Singular(g);
+    var titulo = Model.EsNueva ? $"Dar de alta {tipo}" : $"Modificar {tipo}";
+    ViewData["Title"] = titulo;
+
+    // Especialidad: siempre en Entrenadores; en Usuarios solo si el rol elegido es Entrenador
+    var verEspecialidad = g == Gestion.Entrenadores || Model.Rol == Rol.Entrenador;
+    // Un entrenador no cambia de rol, y nadie se convierte en entrenador al modificarlo (ver UsuarioRepositorio)
+    var rolFijo = !Model.EsNueva && Model.Rol == Rol.Entrenador;
+}
+
+<div class="gf-estrecho">
+    <h1>@titulo</h1>
+    <p class="gf-subtitulo">
+        @(Model.EsNueva ? "Rellena los datos. Los campos marcados con * son obligatorios."
+                : "Cambia los datos y pulsa Guardar.")
+    </p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+    }
+
+    <form class="gf-tarjeta" method="post" asp-action="Guardar">
+        <input type="hidden" asp-for="UsuarioId" />
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre *</label>
+                <input class="form-control" asp-for="Nombre" autocomplete="off" />
+                <span class="gf-campo-error" asp-validation-for="Nombre"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Apellido1">Primer apellido *</label>
+                <input class="form-control" asp-for="Apellido1" autocomplete="off" />
+                <span class="gf-campo-error" asp-validation-for="Apellido1"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Apellido2">Segundo apellido</label>
+                <input class="form-control" asp-for="Apellido2" autocomplete="off" />
+                <span class="gf-campo-error" asp-validation-for="Apellido2"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Dni">DNI *</label>
+                <input class="form-control" asp-for="Dni" placeholder="12345678A" autocomplete="off" />
+                <span class="gf-campo-error" asp-validation-for="Dni"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Telefono">Teléfono *</label>
+                <input class="form-control" asp-for="Telefono" type="tel" inputmode="numeric" placeholder="600123456" />
+                <span class="gf-campo-error" asp-validation-for="Telefono"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="gf-etiqueta" asp-for="Email">Email *</label>
+                <input class="form-control" asp-for="Email" placeholder="nombre@correo.com" />
+                <span class="gf-campo-error" asp-validation-for="Email"></span>
+            </div>
+
+            @if (g == Gestion.Usuarios)
+            {
+                <div class="col-md-6">
+                    <label class="gf-etiqueta" asp-for="Rol">Rol *</label>
+                    @if (rolFijo)
+                    {
+                        <input type="hidden" asp-for="Rol" />
+                        <input class="form-control" id="Rol-texto" value="Entrenador" disabled aria-describedby="ayuda-rol" />
+                        <small class="gf-campo-ayuda" id="ayuda-rol">Un entrenador no puede cambiar de rol.</small>
+                    }
+                    else
+                    {
+                        <select class="form-select" asp-for="Rol" id="Rol">
+                            @foreach (var r in Enum.GetValues<Rol>())
+                            {
+                                // Al modificar no se puede convertir a alguien en entrenador
+                                if (r == Rol.Entrenador && !Model.EsNueva) continue;
+                                <option value="@r">@r</option>
+                            }
+                        </select>
+                    }
+                </div>
+            }
+
+            <div class="col-md-6" id="bloque-especialidad" hidden="@(!verEspecialidad)">
+                <label class="gf-etiqueta" asp-for="Especialidad">Especialidad *</label>
+                <select class="form-select" asp-for="Especialidad" aria-describedby="ayuda-especialidad">
+                    <option value="">Selecciona una especialidad</option>
+                    @foreach (var e in Enum.GetValues<Especialidad>())
+                    {
+                        <option value="@e">@ActividadesViewModel.TextoEspecialidad(e)</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="Especialidad"></span>
+                <small class="gf-campo-ayuda" id="ayuda-especialidad">Debe coincidir con la de las actividades que imparte.</small>
+            </div>
+
+            @if (Model.EsNueva)
+            {
+                <div class="col-12">
+                    <label class="gf-etiqueta" asp-for="Contrasena">Contraseña inicial *</label>
+                    <input class="form-control" asp-for="Contrasena" type="password" autocomplete="new-password"
+                           aria-describedby="ayuda-contrasena" />
+                    <span class="gf-campo-error" asp-validation-for="Contrasena"></span>
+                    <small class="gf-campo-ayuda" id="ayuda-contrasena">Solo en el alta. Después la podrá cambiar desde su menú.</small>
+                </div>
+            }
+        </div>
+
+        <div class="gf-botones mt-3">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Administrador: la especialidad solo aparece si el rol elegido es Entrenador
+        const rol = document.querySelector('select#Rol');
+        const bloque = document.getElementById('bloque-especialidad');
+        if (rol && bloque) {
+            rol.addEventListener('change', () => bloque.hidden = rol.value !== 'Entrenador');
+        }
+    </script>
+}

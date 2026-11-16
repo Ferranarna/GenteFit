@@ -1,0 +1,31 @@
+@model NuevaRutinaViewModel
+@{
+    ViewData["Title"] = "Nueva rutina";
+}
+
+<div class="gf-estrecho">
+    <h1>Nueva rutina</h1>
+    <p class="gf-subtitulo">Ponle un nombre. Después podrás añadirle ejercicios.</p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+    }
+
+    <form class="gf-tarjeta" method="post" asp-action="Crear">
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <label class="gf-etiqueta" asp-for="Nombre">Nombre de la rutina</label>
+        <input class="form-control" asp-for="Nombre" placeholder="Ej. Pierna y glúteo" autofocus />
+        <span class="gf-campo-error" asp-validation-for="Nombre"></span>
+
+        <div class="gf-botones mt-3">
+            <button class="gf-boton gf-boton-auto" type="submit">Crear</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

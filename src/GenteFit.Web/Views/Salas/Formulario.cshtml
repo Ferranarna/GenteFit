@@ -1,0 +1,55 @@
+@using GenteFit.Modelo.Enums
+@model SalaFormularioViewModel
+@{
+    var titulo = Model.EsNueva ? "Nueva sala" : "Modificar sala";
+    ViewData["Title"] = titulo;
+}
+
+<div class="gf-estrecho">
+    <h1>@titulo</h1>
+    <p class="gf-subtitulo">
+        @(Model.EsNueva ? "Añade una sala al centro. Todas las salas admiten hasta 16 participantes."
+                : "Cambia los datos y pulsa Guardar. Las sesiones ya programadas en la sala se mantienen.")
+    </p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+    }
+
+    <form class="gf-tarjeta" method="post" asp-action="Guardar">
+        <input type="hidden" asp-for="SalaId" />
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre de la sala</label>
+                <input class="form-control" asp-for="Nombre" placeholder="Ej. Sala Delta" aria-describedby="ayuda-nombre" />
+                <span class="gf-campo-error" asp-validation-for="Nombre"></span>
+                <small class="gf-campo-ayuda" id="ayuda-nombre">Obligatorio. No puede repetirse.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="gf-etiqueta" asp-for="Ubicacion">Ubicación</label>
+                <select class="form-select" asp-for="Ubicacion" aria-describedby="ayuda-ubicacion">
+                    <option value="">Selecciona una planta</option>
+                    @foreach (var u in Enum.GetValues<Ubicacion>())
+                    {
+                        <option value="@u">@SalasViewModel.TextoUbicacion(u)</option>
+                    }
+                </select>
+                <span class="gf-campo-error" asp-validation-for="Ubicacion"></span>
+                <small class="gf-campo-ayuda" id="ayuda-ubicacion">Planta del centro donde está la sala.</small>
+            </div>
+        </div>
+
+        <div class="gf-botones mt-3">
+            <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+            <a class="gf-boton gf-boton-borde gf-boton-auto" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
