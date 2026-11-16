@@ -33,7 +33,7 @@ public static class Menus
         ["Administrador"] =
         [
             new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles."),
-            new("casa", "Centro de mando", "Accede a todas las funciones del centro.")
+            new("intercambio", "Odoo", "Intercambia datos con el ERP Odoo.")
         ],
         ["Entrenador"] =
         [
@@ -43,6 +43,19 @@ public static class Menus
             new("usuarios", "Mis clientes", "Consulta los clientes que entrenas.", "/MisClientes")
         ]
     };
+
+    // Tarjetas del Centro de mando (Inicio del administrador): acceso a todas las pantallas.
+    public static readonly Tarjeta[] CentroDeMando =
+    [
+        new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles."),
+        new("usuario", "Clientes", "Gestiona los clientes del centro."),
+        new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
+        new("puerta", "Salas", "Gestiona las salas del centro."),
+        new("calendario", "Sesiones", "Gestiona las sesiones y sus reservas.", "/Sesiones"),
+        new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro."),
+        new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios"),
+        new("intercambio", "Odoo", "Intercambia datos con el ERP Odoo.")
+    ];
 
     // Pantallas del usuario que ha iniciado sesión (según su rol)
     public static IReadOnlyList<Tarjeta> De(ClaimsPrincipal usuario)

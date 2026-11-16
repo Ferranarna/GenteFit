@@ -1,12 +1,14 @@
 ﻿@model List<Estadistica>
 @{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Centro de mando";
 }
-<h1>Hola, @User.Identity?.Name</h1>
-<p class="gf-subtitulo">Controla usuarios y todo el centro desde un solo lugar.</p>
+<h1>Centro de mando</h1>
+<p class="gf-subtitulo">Hola, @User.Identity?.Name. Desde aquí accedes a todas las funciones del centro.</p>
 <div class="gf-rejilla mt-4">
-    <partial name="_Tarjeta" model='new Tarjeta("usuarios", "Usuarios", "Gestiona los usuarios y sus roles.")' />
-    <partial name="_Tarjeta" model='new Tarjeta("casa", "Centro de mando", "Accede a todas las funciones del centro.")' />
+    @foreach (var tarjeta in Menus.CentroDeMando)
+    {
+        <partial name="_Tarjeta" model="tarjeta" />
+    }
 </div>
 @if (ViewBag.Error != null)
 {

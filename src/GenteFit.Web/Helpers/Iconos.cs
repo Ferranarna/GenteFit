@@ -37,7 +37,8 @@ public static class Iconos
         ["casa"] = """<path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>""",
         ["marcador"] = """<path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4-7 4V4.5a1 1 0 0 1 1-1z"/><path d="M9 10l2 2 4-4"/>""",
         ["lista"] = """<path d="M8 6h12M8 12h12M8 18h12"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>""",
-        ["reloj"] = """<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>"""
+        ["reloj"] = """<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>""",
+        ["intercambio"] = """<path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/>"""
     };
 
     public static IHtmlContent Ver(string nombre)
