@@ -1261,3 +1261,38 @@ input:-webkit-autofill:focus {
         flex: 1 1 100%;
     }
 }
+
+
+/* ===== Pantalla Odoo ===== */
+.gf-estado-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .85rem 0;
+    border-bottom: 1px solid rgba(30, 53, 80, .5);
+}
+
+    .gf-estado-fila:last-child {
+        border-bottom: none;
+    }
+
+    .gf-estado-fila small {
+        display: block;
+        color: var(--gf-texto-suave);
+    }
+
+.gf-odoo-acciones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+    padding: .5rem 0;
+}
+
+/* Botones desactivados: que se note que no se pueden pulsar */
+.gf-boton:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
