@@ -755,6 +755,8 @@ th[aria-sort="descending"] .gf-ordenar::after {
 
 .gf-desplegable .dropdown-menu {
     min-width: 100%;
+    max-height: min(50vh, 20rem);
+    overflow-y: auto;
     margin-top: 8px;
     padding: .5rem;
     background: var(--gf-tarjeta);
@@ -762,6 +764,30 @@ th[aria-sort="descending"] .gf-ordenar::after {
     border-radius: var(--gf-radio);
     box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
 }
+
+/* Barras de desplazamiento de toda la web, a juego con el tema oscuro */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gf-borde) transparent;
+}
+
+    *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: var(--gf-borde);
+        border-radius: 8px;
+    }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: var(--gf-acento);
+        }
 
 /* ===== Pantalla Sesiones: calendario ===== */
 .gf-calendario-mes {
@@ -1269,6 +1295,23 @@ th[aria-sort="descending"] .gf-ordenar::after {
     .gf-aviso {
         border-color: #999 !important;
     }
+
+    /* Cada rutina impresa cabe entera en una página, no se parte */
+    .gf-solo-impresion .gf-tarjeta {
+        break-inside: avoid;
+    }
+}
+
+
+/* Hoja de una rutina: invisible en pantalla; al imprimir sale solo la que tiene la clase gf-imprimiendo */
+.gf-impresion-rutina {
+    display: none;
+}
+
+@media print {
+    .gf-impresion-rutina.gf-imprimiendo {
+        display: block;
+    }
 }
 
 
@@ -1393,9 +1436,6 @@ th[aria-sort="descending"] .gf-ordenar::after {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    border: 0;
-    padding: 0;
-    margin: 0;
 }
 
 .gf-rutina {
@@ -1405,11 +1445,11 @@ th[aria-sort="descending"] .gf-ordenar::after {
     justify-content: center;
     gap: .35rem;
     min-height: 110px;
+    width: 100%;
+    font: inherit;
+    color: inherit;
     text-align: center;
     cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    transition: border-color .15s;
 }
 
     .gf-rutina small {
@@ -1422,37 +1462,30 @@ th[aria-sort="descending"] .gf-ordenar::after {
         border-color: var(--gf-acento);
     }
 
-    .gf-rutina:has(input:checked) {
+    .gf-rutina[aria-expanded="true"] {
         border-color: var(--gf-acento);
         box-shadow: 0 0 0 2px rgba(77, 184, 255, .35);
     }
 
-    .gf-rutina:has(input:focus-visible) {
+    .gf-rutina:focus-visible {
         outline: 2px solid var(--gf-acento-claro);
     }
-
-.gf-rutina-detalle {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: 2fr 1fr;
-    align-items: start;
-}
-
-.gf-rutina-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
 
 .gf-numero {
     width: 90px;
 }
 
-@media (max-width: 900px) {
-    .gf-rutina-detalle {
-        grid-template-columns: 1fr;
-    }
+.gf-asa {
+    cursor: grab;
+    color: var(--gf-texto-suave);
+    user-select: none;
+    white-space: nowrap;
 }
+
+.gf-arrastrando {
+    opacity: .4;
+}
+
 
 /* ===== Pantalla Odoo ===== */
 .gf-estado-fila {

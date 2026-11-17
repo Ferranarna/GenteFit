@@ -122,6 +122,10 @@
             });
 
             caja.append(boton, lista);
+            // El menú flota por encima de todo (así una tabla con scroll no lo recorta) y se abre hacia arriba si abajo no cabe
+            new bootstrap.Dropdown(boton, { popperConfig: { strategy: 'fixed' } });
+            // Flotando, el "100%" sería el de la pantalla; por eso se le da el ancho del botón al abrirlo
+            boton.addEventListener('show.bs.dropdown', () => lista.style.minWidth = boton.offsetWidth + 'px');
             select.classList.add('gf-select-oculto');
             select.after(caja);
             pintar();

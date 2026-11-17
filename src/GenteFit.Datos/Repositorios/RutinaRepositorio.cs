@@ -82,6 +82,17 @@ public class RutinaRepositorio : Repositorio<Rutina>
         _db.SaveChanges();
     }
 
+    // El orden de los ejercicios de una rutina: el primero de la lista pasa a ser el 1, el segundo el 2...
+    public void Ordenar(IList<Guid> detalleIds)
+    {
+        for (var i = 0; i < detalleIds.Count; i++)
+        {
+            var detalle = _db.DetallesRutina.Find(detalleIds[i]) ?? throw new ValidacionException("El ejercicio no está en la rutina.");
+            detalle.Orden = i + 1;
+        }
+        _db.SaveChanges();
+    }
+
     public void QuitarEjercicio(Guid detalleId)
     {
         var detalle = _db.DetallesRutina.Find(detalleId) ?? throw new ValidacionException("El ejercicio no está en la rutina.");
@@ -117,9 +128,17 @@ public class RutinaRepositorio : Repositorio<Rutina>
     public int SiguienteOrden(Guid rutinaId) =>
         (_db.DetallesRutina.Where(d => d.RutinaId == rutinaId).Max(d => (int?)d.Orden) ?? 0) + 1;
 
-    private static void ValidarConfiguracion(int series, int repeticiones)
+    // Límites razonables de una rutina (también los usa la pantalla Mis rutinas)
+    public const int MaxSeries = 20;
+    public const int MaxRepeticiones = 100;
+
+    public static void ValidarConfiguracion(int series, int repeticiones)
     {
         Validador.MayorQueCero(series, "series");
         Validador.MayorQueCero(repeticiones, "repeticiones");
+        if (series > MaxSeries)
+            throw new ValidacionException($"Las series no pueden ser más de {MaxSeries}.");
+        if (repeticiones > MaxRepeticiones)
+            throw new ValidacionException($"Las repeticiones no pueden ser más de {MaxRepeticiones}.");
     }
 }

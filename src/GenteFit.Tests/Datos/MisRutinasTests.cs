@@ -119,4 +119,16 @@ public class MisRutinasTests : IDisposable
     {
         Assert.Throws<ValidacionException>(() => _repo.Crear(_ana.UsuarioId, "  "));
     }
+
+    [Fact]
+    public void Configurar_con_demasiadas_series_lanza_ValidacionException()
+    {
+        var rutina = _repo.Crear(_ana.UsuarioId, "Pierna");
+        var detalle = Anadir(rutina, _sentadilla);
+
+        var ex = Assert.Throws<ValidacionException>(
+            () => _repo.ConfigurarEjercicio(detalle.DetalleRutinaId, RutinaRepositorio.MaxSeries + 1, 10));
+
+        Assert.Equal($"Las series no pueden ser más de {RutinaRepositorio.MaxSeries}.", ex.Message);
+    }
 }
