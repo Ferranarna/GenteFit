@@ -89,6 +89,13 @@ public class CitaRepositorio : Repositorio<Cita>
             .OrderBy(c => c.FechaActividad)
             .ToList();
 
+    public List<Cita> ListarDeCliente(Guid usuarioId, EstadoCita? estado = null) =>
+    _db.Citas
+        .Include(c => c.Entrenador).ThenInclude(e => e.Usuario)
+        .Where(c => c.UsuarioId == usuarioId && (estado == null || c.Estado == estado))
+        .OrderBy(c => c.FechaActividad)
+        .ToList();
+
     public List<ClienteDeEntrenador> ListarClientesDeEntrenador(Guid entrenadorId)
     {
         var ahora = DateTime.Now;
@@ -105,6 +112,11 @@ public class CitaRepositorio : Repositorio<Cita>
             .OrderBy(x => x.Cliente.Nombre).ThenBy(x => x.Cliente.Apellido1)
             .ToList();
     }
+
+    public bool EsClienteDe(Guid entrenadorId, Guid clienteId) =>
+        _db.Citas.Any(c => c.EntrenadorId == entrenadorId
+            && c.UsuarioId == clienteId
+            && c.Estado == EstadoCita.Programada);
 
     public bool EstaLibre(Guid entrenadorId, DateTime fecha)
     {

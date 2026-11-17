@@ -167,6 +167,23 @@
             });
         });
     </script>
+
+    <script>
+        const errorBaseDeDatos = @Html.Raw(Json.Serialize(Errores.ErrorBaseDeDatos));
+        document.querySelectorAll('.gf-aviso-ok, .gf-aviso-error').forEach(aviso => {
+            const esOk = aviso.classList.contains('gf-aviso-ok');
+            if (!esOk && (aviso.closest('form') || aviso.textContent.trim() === errorBaseDeDatos)) return;
+
+            setTimeout(() => {
+                aviso.classList.add('gf-aviso-saliendo');
+                aviso.addEventListener('transitionend', () => {
+                    const contenedor = aviso.parentElement;
+                    aviso.remove();
+                    if (contenedor.id === 'avisos' && contenedor.children.length === 0) contenedor.remove();
+                }, { once: true });
+            }, esOk ? 4000 : 7000);
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

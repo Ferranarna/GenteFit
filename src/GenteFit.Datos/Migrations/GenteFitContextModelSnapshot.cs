@@ -200,6 +200,12 @@ namespace GenteFit.Datos.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("EntrenadorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("NombreRutina")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -209,6 +215,8 @@ namespace GenteFit.Datos.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("RutinaId");
+
+                    b.HasIndex("EntrenadorId");
 
                     b.HasIndex("UsuarioId");
 
@@ -400,11 +408,18 @@ namespace GenteFit.Datos.Migrations
 
             modelBuilder.Entity("GenteFit.Modelo.Entidades.Rutina", b =>
                 {
+                    b.HasOne("Entrenador", "Entrenador")
+                        .WithMany()
+                        .HasForeignKey("EntrenadorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GenteFit.Modelo.Entidades.Usuario", "Usuario")
                         .WithMany("Rutinas")
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Entrenador");
 
                     b.Navigation("Usuario");
                 });

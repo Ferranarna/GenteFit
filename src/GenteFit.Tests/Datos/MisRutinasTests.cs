@@ -131,4 +131,52 @@ public class MisRutinasTests : IDisposable
 
         Assert.Equal($"Las series no pueden ser más de {RutinaRepositorio.MaxSeries}.", ex.Message);
     }
+
+
+    // David (entrenador personal) con una cita con Ana, para poder crearle rutinas
+    private Entrenador DavidConCitaDeAna()
+    {
+        var david = DatosAgenda.CrearEntrenador(_bd.Contexto, "david", Especialidad.EntrenadorPersonal);
+        new CitaRepositorio(_bd.Contexto).Reservar(_ana.UsuarioId, david.EntrenadorId, DateTime.Today.AddDays(1).AddHours(10));
+        return david;
+    }
+
+    [Fact]
+    public void La_rutina_creada_por_un_entrenador_guarda_quien_la_creo_y_la_fecha()
+    {
+        var david = DavidConCitaDeAna();
+
+        var deDavid = _repo.CrearParaCliente(david.EntrenadorId, _ana.UsuarioId, "Plan de fuerza");
+        var deAna = _repo.Crear(_ana.UsuarioId, "Mi rutina");
+
+        Assert.Equal(david.EntrenadorId, deDavid.EntrenadorId);
+        Assert.Null(deAna.EntrenadorId);
+        Assert.True(deDavid.FechaCreacion > DateTime.Now.AddMinutes(-1));
+    }
+
+    [Fact]
+    public void Un_entrenador_solo_ve_y_modifica_las_rutinas_que_creo()
+    {
+        var david = DavidConCitaDeAna();
+        var deDavid = _repo.CrearParaCliente(david.EntrenadorId, _ana.UsuarioId, "Plan de fuerza");
+        var deAna = _repo.Crear(_ana.UsuarioId, "Mi rutina");
+
+        Assert.Equal(deDavid.RutinaId, _repo.ObtenerDeEntrenador(david.EntrenadorId, _ana.UsuarioId).Single().RutinaId);
+        Assert.Equal(2, _repo.ObtenerDeCliente(_ana.UsuarioId).Count);
+
+        Assert.True(_repo.EsDeCliente(deDavid.RutinaId, _ana.UsuarioId, david.EntrenadorId));
+        Assert.False(_repo.EsDeCliente(deAna.RutinaId, _ana.UsuarioId, david.EntrenadorId));   // la de Ana no es de David
+        Assert.False(_repo.EsDeCliente(deDavid.RutinaId, _ana.UsuarioId));                     // y Ana no modifica la de David
+    }
+
+
+    [Fact]
+    public void PerteneceACliente_da_true_tambien_para_las_que_creo_su_entrenador()
+    {
+        var david = DavidConCitaDeAna();
+        var deDavid = _repo.CrearParaCliente(david.EntrenadorId, _ana.UsuarioId, "Plan de fuerza");
+
+        Assert.True(_repo.PerteneceACliente(deDavid.RutinaId, _ana.UsuarioId));
+        Assert.False(_repo.PerteneceACliente(deDavid.RutinaId, _luis.UsuarioId));
+    }
 }

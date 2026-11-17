@@ -133,7 +133,7 @@
             var porcentaje = fila.Plazas == 0 ? 0 : Math.Min(100, fila.Confirmadas * 100 / fila.Plazas);
             var empezada = s.Fecha <= ahora;
             var terminada = s.Fecha.AddMinutes(s.Duracion) <= ahora;
-            <li class="gf-sesion">
+            <li class="gf-sesion @(Model.PuedeReservar ? "gf-sesion-reserva" : "")">
                 <span class="gf-sesion-hora">@s.Fecha.ToString("HH:mm")–@s.Fecha.AddMinutes(s.Duracion).ToString("HH:mm")</span>
 
                 <div class="gf-sesion-datos">

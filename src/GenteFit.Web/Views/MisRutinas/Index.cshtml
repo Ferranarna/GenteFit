@@ -1,16 +1,29 @@
 @using GenteFit.Datos.Repositorios
+@using GenteFit.Modelo.Entidades
 @using System.Globalization
 @model MisRutinasViewModel
 @{
-    ViewData["Title"] = "Mis rutinas";
+    var cliente = Model.Cliente;   // solo cuando es un entrenador viendo las rutinas de un cliente suyo
+    var nombreCliente = cliente == null ? "" : $"{cliente.Nombre} {cliente.Apellido1} {cliente.Apellido2}".Trim();
+    ViewData["Title"] = cliente == null ? "Mis rutinas" : $"Rutinas de {nombreCliente}";
     var error = TempData["Error"] as string;
     var ok = TempData["Ok"] as string;
     var es = new CultureInfo("es-ES");
+
+    // Quién creó la rutina (el entrenador, o el propio cliente), la fecha, y el título (con ★ si la hizo un entrenador)
+    string Autor(Rutina r) { var u = r.Entrenador?.Usuario ?? r.Usuario; return $"{u.Nombre} {u.Apellido1}"; }
+    string Fecha(Rutina r) => r.FechaCreacion.ToString("d MMM yyyy", es);
+    string Titulo(Rutina r) => (r.EntrenadorId != null ? "★ " : "") + r.NombreRutina;
 }
 
 <div class="gf-cabecera gf-no-imprimir">
-    <h1>Mis rutinas</h1>
+    <h1>@(cliente == null ? "Mis rutinas" : $"Rutinas de {nombreCliente}")</h1>
     <div class="gf-herramientas">
+        @if (cliente != null)
+        {
+            <a class="gf-boton-icono" asp-controller="MisClientes" asp-action="Index"
+               aria-label="Volver a Mis clientes" title="Volver">@Iconos.Ver("volver")</a>
+        }
         <button id="boton-nueva" class="gf-boton-icono" type="button" aria-label="Crear una rutina nueva" title="Crear rutina">@Iconos.Ver("crear")</button>
     </div>
 </div>
@@ -25,10 +38,17 @@
     @if (Model.Rutinas.Count == 0 && ViewBag.Error == null)
     {
         <div class="gf-tarjeta">
-            <p class="gf-ayuda">
-                Todavía no tienes rutinas. Pulsa <strong>+</strong> para crear la primera, o añade ejercicios
-                desde la pestaña <a asp-controller="Ejercicios" asp-action="Index">Ejercicios</a>.
-            </p>
+            @if (cliente == null)
+            {
+                <p class="gf-ayuda">
+                    Todavía no tienes rutinas. Pulsa <strong>+</strong> para crear la primera, o añade ejercicios
+                    desde la pestaña <a asp-controller="Ejercicios" asp-action="Index">Ejercicios</a>.
+                </p>
+            }
+            else
+            {
+                <p class="gf-ayuda">Todavía no le has creado ninguna rutina a este cliente. Pulsa <strong>+</strong> para crear la primera.</p>
+            }
         </div>
     }
     else
@@ -39,7 +59,7 @@
                 var n = r.Detalles.Count;
                 <button type="button" class="gf-tarjeta gf-rutina" data-panel="panel-@r.RutinaId"
                         aria-expanded="@(r.RutinaId == Model.Abierta ? "true" : "false")" aria-controls="panel-@r.RutinaId">
-                    <strong>@r.NombreRutina</strong>
+                    <strong>@Titulo(r)</strong>
                     <small>@n @(n == 1 ? "ejercicio" : "ejercicios")</small>
                 </button>
             }
@@ -49,6 +69,7 @@
     <section id="panel-nueva" class="gf-tarjeta mt-3" hidden="@(!Model.Nueva)" aria-label="Nueva rutina">
         <h2 class="gf-titulo-tarjeta">Nueva rutina</h2>
         <form method="post" asp-action="Crear">
+            <input type="hidden" name="clienteId" value="@cliente?.UsuarioId" />
             <label class="gf-etiqueta" for="nombre-nueva">Nombre de la rutina</label>
             <input class="form-control" id="nombre-nueva" name="nombre" maxlength="100" placeholder="Ej. Pierna y glúteo" />
 
@@ -63,19 +84,30 @@
     {
         var abierta = r.RutinaId == Model.Abierta;
         var detalles = r.Detalles.OrderBy(d => d.Orden).ToList();
+        var delEntrenador = r.EntrenadorId != null;
+        var soloLectura = cliente == null && delEntrenador;   // el cliente no modifica lo que le ha creado su entrenador (sí lo puede eliminar)
 
-        <section id="panel-@r.RutinaId" class="gf-tarjeta mt-3" hidden="@(!abierta)" aria-label="Editar @r.NombreRutina">
+        <section id="panel-@r.RutinaId" class="gf-tarjeta mt-3" hidden="@(!abierta)" aria-label="Rutina @r.NombreRutina">
             @* Formularios vacíos: los botones de abajo se enlazan a ellos con el atributo form *@
-            <form id="quitar-@r.RutinaId" method="post" asp-action="Quitar">
-                <input type="hidden" name="rutinaId" value="@r.RutinaId" />
-            </form>
+            @if (!soloLectura)
+            {
+                <form id="quitar-@r.RutinaId" method="post" asp-action="Quitar">
+                    <input type="hidden" name="rutinaId" value="@r.RutinaId" />
+                    <input type="hidden" name="clienteId" value="@cliente?.UsuarioId" />
+                </form>
+            }
             <form id="eliminar-@r.RutinaId" method="post" asp-action="Eliminar">
                 <input type="hidden" name="rutinaId" value="@r.RutinaId" />
+                <input type="hidden" name="clienteId" value="@cliente?.UsuarioId" />
             </form>
 
             <div class="gf-cabecera mb-2">
-                <h2 class="gf-titulo-tarjeta">@r.NombreRutina</h2>
+                <div class="d-flex flex-wrap align-items-baseline gap-2">
+                    <h2 class="gf-titulo-tarjeta mb-0">@Titulo(r)</h2>
+                    <small class="gf-texto-suave">Creada por @Autor(r)</small>
+                </div>
                 <div class="gf-herramientas">
+                    <span class="gf-texto-suave">@Fecha(r)</span>
                     <button class="gf-boton-icono" type="button" onclick="imprimirRutina('impresion-@r.RutinaId')"
                             aria-label="Imprimir la rutina @r.NombreRutina" title="Imprimir rutina">
                         @Iconos.Ver("imprimir")
@@ -83,93 +115,101 @@
                     <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="eliminar-@r.RutinaId"
                             onclick="return confirm('¿Seguro que quieres eliminar esta rutina? Se borrarán también sus ejercicios.')"
                             aria-label="Eliminar la rutina @r.NombreRutina" title="Eliminar rutina">
-                        @Iconos.Ver("baja")
+                        @Iconos.Ver("eliminar")
                     </button>
                 </div>
             </div>
 
-            <form method="post" asp-action="GuardarSeries" novalidate>
-                <input type="hidden" name="rutinaId" value="@r.RutinaId" />
+            @if (soloLectura)
+            {
+                <partial name="_TablaEjercicios" model="r" />
+            }
+            else
+            {
+                <form method="post" asp-action="GuardarSeries" novalidate>
+                    <input type="hidden" name="rutinaId" value="@r.RutinaId" />
+                    <input type="hidden" name="clienteId" value="@cliente?.UsuarioId" />
 
-                <label class="gf-etiqueta" for="nombre-@r.RutinaId">Nombre de la rutina</label>
-                <input class="form-control mb-3" id="nombre-@r.RutinaId" name="nombre" value="@r.NombreRutina" maxlength="100" />
+                    <label class="gf-etiqueta" for="nombre-@r.RutinaId">Nombre de la rutina</label>
+                    <input class="form-control mb-3" id="nombre-@r.RutinaId" name="nombre" value="@r.NombreRutina" maxlength="100" />
 
-                <div class="table-responsive">
-                    <table class="gf-tabla">
-                        <caption class="visually-hidden">Ejercicios de @r.NombreRutina con sus series y repeticiones</caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">Orden</th>
-                                <th scope="col">Ejercicio</th>
-                                <th scope="col">Series</th>
-                                <th scope="col">Repeticiones</th>
-                                <th scope="col"><span class="visually-hidden">Acciones</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (var i = 0; i < detalles.Count; i++)
-                            {
-                                var d = detalles[i];
-                                <tr data-detalle>
-                                    <td class="gf-asa" draggable="true" title="Arrastra para cambiar el orden">☰ <span class="gf-orden">@d.Orden</span></td>
-                                    <td><strong>@d.Ejercicio.NombreEjercicio</strong></td>
+                    <div class="table-responsive">
+                        <table class="gf-tabla">
+                            <caption class="visually-hidden">Ejercicios de @r.NombreRutina con sus series y repeticiones</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Orden</th>
+                                    <th scope="col">Ejercicio</th>
+                                    <th scope="col">Series</th>
+                                    <th scope="col">Repeticiones</th>
+                                    <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < detalles.Count; i++)
+                                {
+                                    var d = detalles[i];
+                                    <tr data-detalle>
+                                        <td class="gf-asa" draggable="true" title="Arrastra para cambiar el orden">☰ <span class="gf-orden">@d.Orden</span></td>
+                                        <td><strong>@d.Ejercicio.NombreEjercicio</strong></td>
+                                        <td>
+                                            <input type="hidden" name="filas[@i].DetalleId" value="@d.DetalleRutinaId" />
+                                            <input class="form-control gf-numero" type="number" min="1" max="@RutinaRepositorio.MaxSeries"
+                                                   name="filas[@i].Series" value="@d.Series"
+                                                   aria-label="Series de @d.Ejercicio.NombreEjercicio" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control gf-numero" type="number" min="1" max="@RutinaRepositorio.MaxRepeticiones"
+                                                   name="filas[@i].Repeticiones" value="@d.Repeticiones"
+                                                   aria-label="Repeticiones de @d.Ejercicio.NombreEjercicio" />
+                                        </td>
+                                        <td>
+                                            <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="quitar-@r.RutinaId"
+                                                    name="detalleId" value="@d.DetalleRutinaId"
+                                                    onclick="return confirm('¿Quitar este ejercicio de la rutina?')"
+                                                    aria-label="Quitar @d.Ejercicio.NombreEjercicio" title="Quitar ejercicio">
+                                                @Iconos.Ver("eliminar")
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td></td>
                                     <td>
-                                        <input type="hidden" name="filas[@i].DetalleId" value="@d.DetalleRutinaId" />
+                                        <select class="form-select" name="ejercicioId" aria-label="Ejercicio que quieres añadir">
+                                            <option value="">Añadir ejercicio</option>
+                                            @foreach (var e in Model.Catalogo)
+                                            {
+                                                <option value="@e.EjercicioId">@e.NombreEjercicio (@(e.GrupoMuscular ?? "sin grupo"))</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
                                         <input class="form-control gf-numero" type="number" min="1" max="@RutinaRepositorio.MaxSeries"
-                                               name="filas[@i].Series" value="@d.Series"
-                                               aria-label="Series de @d.Ejercicio.NombreEjercicio" />
+                                               name="series" value="3"
+                                               aria-label="Series del ejercicio nuevo" />
                                     </td>
                                     <td>
                                         <input class="form-control gf-numero" type="number" min="1" max="@RutinaRepositorio.MaxRepeticiones"
-                                               name="filas[@i].Repeticiones" value="@d.Repeticiones"
-                                               aria-label="Repeticiones de @d.Ejercicio.NombreEjercicio" />
+                                               name="repeticiones" value="10"
+                                               aria-label="Repeticiones del ejercicio nuevo" />
                                     </td>
                                     <td>
-                                        <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="quitar-@r.RutinaId"
-                                                name="detalleId" value="@d.DetalleRutinaId"
-                                                onclick="return confirm('¿Quitar este ejercicio de la rutina?')"
-                                                aria-label="Quitar @d.Ejercicio.NombreEjercicio" title="Quitar ejercicio">
-                                            @Iconos.Ver("quitar")
+                                        <button class="gf-boton-icono" type="submit"
+                                                aria-label="Añadir el ejercicio elegido y guardar" title="Añadir ejercicio">
+                                            @Iconos.Ver("crear")
                                         </button>
                                     </td>
                                 </tr>
-                            }
-                            <tr>
-                                <td></td>
-                                <td>
-                                    <select class="form-select" name="ejercicioId" aria-label="Ejercicio que quieres añadir">
-                                        <option value="">Añadir ejercicio</option>
-                                        @foreach (var e in Model.Catalogo)
-                                        {
-                                            <option value="@e.EjercicioId">@e.NombreEjercicio (@(e.GrupoMuscular ?? "sin grupo"))</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td>
-                                    <input class="form-control gf-numero" type="number" min="1" max="@RutinaRepositorio.MaxSeries"
-                                           name="series" value="3"
-                                           aria-label="Series del ejercicio nuevo" />
-                                </td>
-                                <td>
-                                    <input class="form-control gf-numero" type="number" min="1" max="@RutinaRepositorio.MaxRepeticiones"
-                                           name="repeticiones" value="10"
-                                           aria-label="Repeticiones del ejercicio nuevo" />
-                                </td>
-                                <td>
-                                    <button class="gf-boton-icono" type="submit"
-                                            aria-label="Añadir el ejercicio elegido y guardar" title="Añadir ejercicio">
-                                        @Iconos.Ver("crear")
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div class="gf-botones mt-3">
-                    <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
-                </div>
-            </form>
+                    <div class="gf-botones mt-3">
+                        <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>
+                    </div>
+                </form>
+            }
         </section>
     }
 
@@ -194,35 +234,12 @@
 {
     <div id="impresion-@r.RutinaId" class="gf-impresion-rutina">
         <h1>@r.NombreRutina</h1>
-        <p>Impresa el @DateTime.Now.ToString("d 'de' MMMM 'de' yyyy", es)</p>
-        @if (r.Detalles.Count == 0)
+        @if (cliente != null)
         {
-            <p>Esta rutina todavía no tiene ejercicios.</p>
+            <p>Cliente: @nombreCliente</p>
         }
-        else
-        {
-            <table class="gf-tabla">
-                <thead>
-                    <tr>
-                        <th scope="col">Orden</th>
-                        <th scope="col">Ejercicio</th>
-                        <th scope="col">Series</th>
-                        <th scope="col">Repeticiones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var d in r.Detalles.OrderBy(d => d.Orden))
-                    {
-                        <tr>
-                            <td>@d.Orden</td>
-                            <td>@d.Ejercicio.NombreEjercicio</td>
-                            <td>@d.Series</td>
-                            <td>@d.Repeticiones</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+        <p>Creada por @Autor(r) el @Fecha(r)</p>
+        <partial name="_TablaEjercicios" model="r" />
     </div>
 }
 

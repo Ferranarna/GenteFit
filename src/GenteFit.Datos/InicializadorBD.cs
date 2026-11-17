@@ -63,43 +63,43 @@ public static class InicializadorBD
 
         // ---------------------------------------------------------------- Personal del centro
         db.Usuarios.AddRange(
-            NuevoUsuario("Admin", "GenteFit", "00000000A", "admin@gentefit.com", Rol.Administrador, 611000000, hash),
-            NuevoUsuario("Rosa", "Martín", "00000001B", "recepcion@gentefit.com", Rol.Recepcionista, 611000001, hash),
-            NuevoUsuario("Pablo", "Navarro", "00000003D", "recepcion2@gentefit.com", Rol.Recepcionista, 611000003, hash),
-            NuevoUsuario("Jordi", "Serra", "00000002C", "encargado@gentefit.com", Rol.Encargado, 611000002, hash),
-            NuevoUsuario("Carmen", "Vega", "00000004E", "encargada2@gentefit.com", Rol.Encargado, 611000004, hash));
+            NuevoUsuario("Lidia", "Cano", "00000000A", "administrador_lidia@gentefit.com", Rol.Administrador, 611000000, hash),
+            NuevoUsuario("Hugo", "Ramos", "00000005F", "administrador_hugo@gentefit.com", Rol.Administrador, 611000005, hash),
+            NuevoUsuario("Rosa", "Martín", "00000001B", "recepcionista_rosa@gentefit.com", Rol.Recepcionista, 611000001, hash),
+            NuevoUsuario("Pablo", "Navarro", "00000003D", "recepcionista_pablo@gentefit.com", Rol.Recepcionista, 611000003, hash),
+            NuevoUsuario("Jordi", "Serra", "00000002C", "encargado_jordi@gentefit.com", Rol.Encargado, 611000002, hash),
+            NuevoUsuario("Carmen", "Vega", "00000004E", "encargado_carmen@gentefit.com", Rol.Encargado, 611000004, hash));
 
         // ---------------------------------------------------------------- Entrenadores
         // Cada uno es un usuario con rol Entrenador (inicia sesión con su email).
         Entrenador NuevoEntrenador(string nombre, string apellido, string dni, string email, int telefono, Especialidad especialidad, bool activo = true) =>
             new Entrenador { Usuario = NuevoUsuario(nombre, apellido, dni, email, Rol.Entrenador, telefono, hash, activo), Especialidad = especialidad };
 
-        var laura = NuevoEntrenador("Laura", "Gómez", "44444441D", "laura@gentefit.com", 600111222, Especialidad.Yoga);
-        var elena = NuevoEntrenador("Elena", "Mora", "44444446J", "elena@gentefit.com", 600666777, Especialidad.Pilates);
-        var marc = NuevoEntrenador("Marc", "Puig", "44444442E", "marc@gentefit.com", 600222333, Especialidad.Spinning);
-        var sara = NuevoEntrenador("Sara", "Ruiz", "44444443F", "sara@gentefit.com", 600333444, Especialidad.Zumba);
-        var pau = NuevoEntrenador("Pau", "Vidal", "44444444G", "pau@gentefit.com", 600444555, Especialidad.Bodypump);
-        var ines = NuevoEntrenador("Inés", "Ortega", "44444447K", "ines@gentefit.com", 600777888, Especialidad.BodyCombat);
-        var nuria = NuevoEntrenador("Nuria", "Campos", "44444448L", "nuria@gentefit.com", 600888999, Especialidad.Core);
-        var david = NuevoEntrenador("David", "López", "44444445H", "david@gentefit.com", 600555666, Especialidad.EntrenadorPersonal);
-        var raul = NuevoEntrenador("Raúl", "Nieto", "44444449M", "raul@gentefit.com", 600999000, Especialidad.EntrenadorPersonal);
-        // Entrenador de baja, para probar los filtros y los informes
-        var tomas = NuevoEntrenador("Tomás", "Gil", "44444450N", "tomas@gentefit.com", 600000111, Especialidad.Zumba, activo: false);
+        var laura = NuevoEntrenador("Laura", "Gómez", "44444441D", "entrenador_laura@gentefit.com", 600111222, Especialidad.Yoga);
+        var elena = NuevoEntrenador("Elena", "Mora", "44444446J", "entrenador_elena@gentefit.com", 600666777, Especialidad.Pilates);
+        var marc = NuevoEntrenador("Marc", "Puig", "44444442E", "entrenador_marc@gentefit.com", 600222333, Especialidad.Spinning);
+        var sara = NuevoEntrenador("Sara", "Ruiz", "44444443F", "entrenador_sara@gentefit.com", 600333444, Especialidad.Zumba);
+        var pau = NuevoEntrenador("Pau", "Vidal", "44444444G", "entrenador_pau@gentefit.com", 600444555, Especialidad.Bodypump);
+        var ines = NuevoEntrenador("Inés", "Ortega", "44444447K", "entrenador_ines@gentefit.com", 600777888, Especialidad.BodyCombat);
+        var nuria = NuevoEntrenador("Nuria", "Campos", "44444448L", "entrenador_nuria@gentefit.com", 600888999, Especialidad.Core);
+        var david = NuevoEntrenador("David", "López", "44444445H", "entrenador_david@gentefit.com", 600555666, Especialidad.EntrenadorPersonal);
+        var raul = NuevoEntrenador("Raúl", "Nieto", "44444449M", "entrenador_raul@gentefit.com", 600999000, Especialidad.EntrenadorPersonal);
+        var tomas = NuevoEntrenador("Tomás", "Gil", "44444450N", "entrenador_tomas@gentefit.com", 600000111, Especialidad.Zumba, activo: false);        
         db.Entrenadores.AddRange(laura, elena, marc, sara, pau, ines, nuria, david, raul, tomas);
 
         // ---------------------------------------------------------------- Clientes (12, dos de baja)
-        var ana = NuevoUsuario("Ana", "García", "11111111A", "ana@correo.com", Rol.Cliente, 622000001, hash);
-        var luis = NuevoUsuario("Luis", "Pérez", "22222222B", "luis@correo.com", Rol.Cliente, 622000002, hash);
-        var marta = NuevoUsuario("Marta", "Soler", "33333333C", "marta@correo.com", Rol.Cliente, 622000003, hash);
-        var pedro = NuevoUsuario("Pedro", "Molina", "55555501A", "pedro@correo.com", Rol.Cliente, 622000004, hash);
-        var lucia = NuevoUsuario("Lucía", "Ferrer", "55555502B", "lucia@correo.com", Rol.Cliente, 622000005, hash);
-        var sergio = NuevoUsuario("Sergio", "Ibáñez", "55555503C", "sergio@correo.com", Rol.Cliente, 622000006, hash);
-        var paula = NuevoUsuario("Paula", "Roca", "55555504D", "paula@correo.com", Rol.Cliente, 622000007, hash);
-        var alvaro = NuevoUsuario("Álvaro", "Prat", "55555505E", "alvaro@correo.com", Rol.Cliente, 622000008, hash);
-        var irene = NuevoUsuario("Irene", "Costa", "55555506F", "irene@correo.com", Rol.Cliente, 622000009, hash);
-        var raquel = NuevoUsuario("Raquel", "Bosch", "55555507G", "raquel@correo.com", Rol.Cliente, 622000010, hash);
-        var daniel = NuevoUsuario("Daniel", "Font", "55555508H", "daniel@correo.com", Rol.Cliente, 622000011, hash, activo: false);
-        var clara = NuevoUsuario("Clara", "Mas", "55555509J", "clara@correo.com", Rol.Cliente, 622000012, hash, activo: false);
+        var ana = NuevoUsuario("Ana", "García", "11111111A", "cliente_ana@correo.com", Rol.Cliente, 622000001, hash);
+        var luis = NuevoUsuario("Luis", "Pérez", "22222222B", "cliente_luis@correo.com", Rol.Cliente, 622000002, hash);
+        var marta = NuevoUsuario("Marta", "Soler", "33333333C", "cliente_marta@correo.com", Rol.Cliente, 622000003, hash);
+        var pedro = NuevoUsuario("Pedro", "Molina", "55555501A", "cliente_pedro@correo.com", Rol.Cliente, 622000004, hash);
+        var lucia = NuevoUsuario("Lucía", "Ferrer", "55555502B", "cliente_lucia@correo.com", Rol.Cliente, 622000005, hash);
+        var sergio = NuevoUsuario("Sergio", "Ibáñez", "55555503C", "cliente_sergio@correo.com", Rol.Cliente, 622000006, hash);
+        var paula = NuevoUsuario("Paula", "Roca", "55555504D", "cliente_paula@correo.com", Rol.Cliente, 622000007, hash);
+        var alvaro = NuevoUsuario("Álvaro", "Prat", "55555505E", "cliente_alvaro@correo.com", Rol.Cliente, 622000008, hash);
+        var irene = NuevoUsuario("Irene", "Costa", "55555506F", "cliente_irene@correo.com", Rol.Cliente, 622000009, hash);
+        var raquel = NuevoUsuario("Raquel", "Bosch", "55555507G", "cliente_raquel@correo.com", Rol.Cliente, 622000010, hash);
+        var daniel = NuevoUsuario("Daniel", "Font", "55555508H", "cliente_daniel@correo.com", Rol.Cliente, 622000011, hash, activo: false);
+        var clara = NuevoUsuario("Clara", "Mas", "55555509J", "cliente_clara@correo.com", Rol.Cliente, 622000012, hash, activo: false);
         db.Usuarios.AddRange(ana, luis, marta, pedro, lucia, sergio, paula, alvaro, irene, raquel, daniel, clara);
 
         var todosLosClientes = new List<Usuario> { ana, luis, marta, pedro, lucia, sergio, paula, alvaro, irene, raquel, daniel, clara };
@@ -246,22 +246,24 @@ public static class InicializadorBD
         db.Citas.AddRange(citas);
 
         // ---------------------------------------------------------------- Rutinas
-        Rutina NuevaRutina(string nombre, Usuario cliente, params (Ejercicio Ejercicio, int Series, int Repeticiones)[] filas)
+        // creador: el entrenador que se la hizo al cliente (null si se la hizo él); haceDias: cuándo se creó
+        Rutina NuevaRutina(string nombre, Usuario cliente, int haceDias, Entrenador? creador, params (Ejercicio Ejercicio, int Series, int Repeticiones)[] filas)
         {
-            var rutina = new Rutina { NombreRutina = nombre, Usuario = cliente };
+            var rutina = new Rutina { NombreRutina = nombre, Usuario = cliente, Entrenador = creador, FechaCreacion = hoy.AddDays(-haceDias).AddHours(10) };
             for (int i = 0; i < filas.Length; i++)
                 rutina.Detalles.Add(new DetalleRutina { Orden = i + 1, Series = filas[i].Series, Repeticiones = filas[i].Repeticiones, Ejercicio = filas[i].Ejercicio });
             return rutina;
         }
 
         db.Rutinas.AddRange(
-            NuevaRutina("Pierna y core", ana, (sentadilla, 4, 12), (zancada, 3, 10), (plancha, 3, 30)),
-            NuevaRutina("Torso", ana, (pressBanca, 4, 8), (remoBarra, 4, 10), (pressMilitar, 3, 10), (curlBiceps, 3, 12)),
-            NuevaRutina("Fuerza", luis, (pesoMuerto, 4, 6), (sentadilla, 4, 8), (dominadas, 3, 6)),
-            NuevaRutina("Cardio y core", marta, (flexiones, 3, 15), (crunch, 3, 20), (plancha, 3, 40)),
-            NuevaRutina("Brazos", pedro, (curlBiceps, 4, 12), (fondosBanco, 3, 12)),
-            NuevaRutina("Glúteos", lucia, (puenteGluteo, 4, 15), (pesoMuerto, 3, 10), (zancada, 3, 12)),
-            NuevaRutina("Hombros", sergio, (pressMilitar, 4, 10), (elevacionesLaterales, 3, 15)));
+            NuevaRutina("Pierna y core", ana, 20, null, (sentadilla, 4, 12), (zancada, 3, 10), (plancha, 3, 30)),
+            NuevaRutina("Torso", ana, 12, null, (pressBanca, 4, 8), (remoBarra, 4, 10), (pressMilitar, 3, 10), (curlBiceps, 3, 12)),
+            NuevaRutina("Plan de fuerza", ana, 5, david, (sentadilla, 3, 10), (pressBanca, 3, 8), (plancha, 3, 30)),
+            NuevaRutina("Fuerza", luis, 15, null, (pesoMuerto, 4, 6), (sentadilla, 4, 8), (dominadas, 3, 6)),
+            NuevaRutina("Cardio y core", marta, 9, null, (flexiones, 3, 15), (crunch, 3, 20), (plancha, 3, 40)),
+            NuevaRutina("Brazos", pedro, 7, null, (curlBiceps, 4, 12), (fondosBanco, 3, 12)),
+            NuevaRutina("Glúteos", lucia, 4, null, (puenteGluteo, 4, 15), (pesoMuerto, 3, 10), (zancada, 3, 12)),
+            NuevaRutina("Hombros", sergio, 2, null, (pressMilitar, 4, 10), (elevacionesLaterales, 3, 15)));
 
         db.SaveChanges();
     }

@@ -415,6 +415,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     background: rgba(77, 184, 255, .1);
 }
 
+/* Los carteles de resultado desaparecen con un fundido */
+.gf-aviso-saliendo {
+    opacity: 0;
+    transition: opacity .5s;
+}
+
 /* ===== Tablas ===== */
 .gf-tabla {
     width: 100%;
@@ -438,6 +444,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 .gf-chip {
     display: inline-block;
+    white-space: nowrap;
     padding: .15rem .7rem;
     border-radius: 999px;
     font-size: .72rem;
@@ -906,6 +913,11 @@ th[aria-sort="descending"] .gf-ordenar::after {
         border-bottom: 0;
     }
 
+
+.gf-sesion-reserva {
+    grid-template-columns: 8rem 1fr 1fr 16rem;
+}
+
 .gf-sesion-hora {
     font-weight: 700;
     color: var(--gf-acento-claro);
@@ -1005,12 +1017,34 @@ th[aria-sort="descending"] .gf-ordenar::after {
         cursor: not-allowed;
     }
 
-/* ===== Tablas con fila seleccionable (Mis reservas y otras pantallas con edición) ===== */
+/* ===== Filas seleccionables: se elige pulsando la fila, sin círculo ===== */
+/* El radio sigue ahí (teclado y lectores de pantalla) pero no se ve; la fila elegida se tiñe y lleva una barra azul a la izquierda */
+.gf-tabla-seleccion input[type="radio"],
+.gf-sesion input[name="sesionId"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+/* La columna del radio no ocupa sitio; la barra de la fila elegida cuelga de ella */
+.gf-tabla-seleccion th:first-child,
+.gf-tabla-seleccion td:first-child {
+    position: relative;
+    width: 0;
+    padding: 0;
+}
+
+.gf-tabla-seleccion th:nth-child(2),
+.gf-tabla-seleccion td:nth-child(2) {
+    padding-left: 1rem;
+}
+
 .gf-tabla-seleccion tbody tr {
     cursor: pointer;
 }
 
-    .gf-tabla-seleccion tbody tr:hover {
+    .gf-tabla-seleccion tbody tr:hover:where(:not(.gf-fila-bloqueada)) {
         background: rgba(77, 184, 255, .06);
     }
 
@@ -1018,25 +1052,65 @@ th[aria-sort="descending"] .gf-ordenar::after {
         background: rgba(77, 184, 255, .15);
     }
 
-/* Sesiones (encargado): fila elegida */
-.gf-sesion:has(input[name="sesionId"]) {
-    cursor: pointer;
+    .gf-tabla-seleccion tbody tr:has(input:focus-visible) {
+        outline: 2px solid var(--gf-acento-claro);
+        outline-offset: -2px;
+    }
+
+.gf-tabla-seleccion tbody td:first-child::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--gf-acento);
+    opacity: 0;
 }
 
-.gf-sesion:has(input[name="sesionId"]:checked) {
-    background: rgba(77, 184, 255, .15);
+.gf-tabla-seleccion tbody tr:has(input:checked) td:first-child::before {
+    opacity: 1;
 }
 
-.gf-tabla-seleccion input[type="radio"] {
-    width: 1.1rem;
-    height: 1.1rem;
-    accent-color: var(--gf-acento);
-}
-
+/* Filas que no se pueden elegir (por ejemplo, reservas ya finalizadas) */
 .gf-tabla-seleccion tbody tr.gf-fila-bloqueada {
     cursor: default;
     color: var(--gf-texto-suave);
 }
+
+/* Sesiones (encargado): la lista se elige igual */
+.gf-sesion:has(input[name="sesionId"]) {
+    position: relative;
+    cursor: pointer;
+}
+
+    .gf-sesion:has(input[name="sesionId"]):hover {
+        background: rgba(77, 184, 255, .06);
+    }
+
+.gf-sesion:has(input[name="sesionId"]:checked) {
+    background: rgba(77, 184, 255, .15);
+    box-shadow: inset 3px 0 0 var(--gf-acento);
+}
+
+.gf-sesion:has(input[name="sesionId"]:focus-visible) {
+    outline: 2px solid var(--gf-acento-claro);
+    outline-offset: -2px;
+}
+
+/* El hueco del radio desaparece (no ocupa una columna) */
+.gf-sesion-accion:has(> input[name="sesionId"]) {
+    display: contents;
+}
+
+@media (min-width: 769px) {
+    .gf-sesion:has(input[name="sesionId"]) {
+        grid-template-columns: 8rem 1fr 1fr;
+        padding-left: .9rem;
+        padding-right: .9rem;
+    }
+}
+
 
 
 /* ===== Mis citas (cliente) ===== */

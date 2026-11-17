@@ -2,7 +2,7 @@ using GenteFit.Modelo.Entidades;
 
 namespace GenteFit.Web.Models;
 
-// Pantalla "Mis rutinas": las tarjetas de las rutinas del cliente y el editor de la que está abierta
+// Pantalla "Mis rutinas": las tarjetas de las rutinas y el editor de la que está abierta
 public class MisRutinasViewModel
 {
     public List<Rutina> Rutinas { get; set; } = [];
@@ -15,6 +15,9 @@ public class MisRutinasViewModel
 
     // Catálogo completo para el desplegable "Añadir ejercicio"
     public List<Ejercicio> Catalogo { get; set; } = [];
+
+    // El cliente del que un entrenador está viendo las rutinas; null cuando son las del propio cliente
+    public Usuario? Cliente { get; set; }
 }
 
 // Una fila de la tabla de series y repeticiones al pulsar "Guardar"

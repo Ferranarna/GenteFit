@@ -14,7 +14,7 @@
 </div>
 
 <section class="gf-tarjeta" aria-label="Datos de la sesión">
-    <h2>@s.Actividad.NombreActividad</h2>
+    <h2 class="gf-titulo-tarjeta">@s.Actividad.NombreActividad</h2>
     <p>
         @s.Fecha.ToString("dddd d 'de' MMMM", es) · @s.Fecha.ToString("HH:mm")–@s.Fecha.AddMinutes(s.Duracion).ToString("HH:mm")
         · @s.Sala.NombreSala · @s.Entrenador.Usuario.Nombre @s.Entrenador.Usuario.Apellido1
@@ -26,7 +26,7 @@
 </section>
 
 <section class="gf-tarjeta mt-3" aria-labelledby="titulo-confirmadas">
-    <h2 id="titulo-confirmadas">Con plaza (@Model.Confirmadas.Count)</h2>
+    <h2 id="titulo-confirmadas" class="gf-titulo-tarjeta">Con plaza (@Model.Confirmadas.Count)</h2>
     @if (Model.Confirmadas.Count == 0)
     {
         <p class="gf-ayuda">Nadie ha reservado plaza todavía.</p>
@@ -59,7 +59,7 @@
 </section>
 
 <section class="gf-tarjeta mt-3" aria-labelledby="titulo-espera">
-    <h2 id="titulo-espera">Lista de espera (@Model.EnEspera.Count)</h2>
+    <h2 id="titulo-espera" class="gf-titulo-tarjeta">Lista de espera (@Model.EnEspera.Count)</h2>
     @if (Model.EnEspera.Count == 0)
     {
         <p class="gf-ayuda">No hay nadie en lista de espera.</p>

@@ -63,6 +63,13 @@ public static class Menus
     public static IReadOnlyList<Tarjeta> De(ClaimsPrincipal usuario)
     {
         var rol = usuario.FindFirstValue(ClaimTypes.Role) ?? "";
-        return PorRol.TryGetValue(rol, out var pantallas) ? pantallas : [];
+        if (!PorRol.TryGetValue(rol, out var pantallas))
+            return [];
+
+        // Mis citas y Mis clientes solo son para el entrenador personal (así lo dice el diseño del Producto 1)
+        if (rol == "Entrenador" && !Permisos.EsEntrenadorPersonal(usuario))
+            return pantallas.Where(p => p.Url is not ("/MisCitas" or "/MisClientes")).ToList();
+
+        return pantallas;
     }
 }
