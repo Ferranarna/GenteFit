@@ -22,6 +22,10 @@ public class MisClientesController : Controller
     [HttpGet]
     public IActionResult Index()
     {
+        // Mis clientes es solo para el entrenador personal
+        if (!Permisos.EsEntrenadorPersonal(User))
+            return RedirectToAction("Index", "Home");
+
         List<ClienteDeEntrenador> clientes = [];
         try
         {

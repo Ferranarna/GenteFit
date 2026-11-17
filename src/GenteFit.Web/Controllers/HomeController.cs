@@ -23,7 +23,10 @@ public class HomeController : Controller
         var rol = User.FindFirstValue(ClaimTypes.Role)!;
         try
         {
-            return View(rol, EstadisticasDe(rol));
+            var estadisticas = EstadisticasDe(rol)
+                .Select(e => e with { Enlace = Destino(rol, e.TextoEnlace) })
+                .ToList();
+            return View(rol, estadisticas);
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
@@ -31,6 +34,23 @@ public class HomeController : Controller
             return View(rol, new List<Estadistica>());
         }
     }
+
+    // A dónde lleva cada botón "Ver…" de las estadísticas. Depende del rol: no todos tienen las mismas pantallas.
+    private static string Destino(string rol, string texto) => (rol, texto) switch
+    {
+        (_, "Ver usuarios") => "/Usuarios",
+        ("Entrenador", "Ver clientes") => "/MisClientes",
+        ("Administrador", "Ver clientes") => "/Usuarios?rol=Cliente",
+        (_, "Ver clientes") => "/Usuarios",
+        ("Cliente", "Ver reservas") => "/MisReservas",
+        (_, "Ver reservas") => "/Sesiones",
+        (_, "Ver sesiones") => "/Sesiones",
+        (_, "Ver citas") => "/MisCitas",
+        (_, "Ver rutinas") => "/MisRutinas",
+        (_, "Ver actividades") => "/Actividades",
+        (_, "Ver salas") => "/Salas",
+        _ => "#"
+    };
 
     // Estadísticas del resumen de cada rol (las que aún no existen, no salen)
     private List<Estadistica> EstadisticasDe(string rol)
@@ -65,7 +85,7 @@ public class HomeController : Controller
 
             estadisticas.Add(new Estadistica("informe", "Ocupación de sesiones", $"{porcentaje} %",
                 "{0} plazas reservadas esta semana", "Ver sesiones",
-                Porcentaje: porcentaje, Resaltado: reservadas.ToString()));
+                Resaltado: reservadas.ToString()));
             estadisticas.Add(actividad is { } a
                 ? new Estadistica("actividad", "Actividad más reservada", a.Nombre,
                     "{0} reservas este mes", "Ver actividades", Resaltado: a.Reservas.ToString())
@@ -145,7 +165,7 @@ public class HomeController : Controller
                     "No quedan más sesiones hoy", "Ver sesiones"),
             new Estadistica("informe", "Ocupación de mis sesiones", $"{porcentaje} %",
                 "{0} plazas reservadas esta semana", "Ver sesiones",
-                Porcentaje: porcentaje, Resaltado: reservadas.ToString()),
+                Resaltado: reservadas.ToString()),
             new Estadistica("usuarios", "Alumnos esta semana", alumnos.ToString(),
                 "{0} reservas en total", "Ver sesiones", Resaltado: reservas.ToString())
         };

@@ -9,22 +9,21 @@
     @if (Model.PuedeEditar)
     {
         <div class="gf-herramientas">
-            <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-actividad" disabled
-                    aria-label="Modificar la actividad elegida" title="Modificar">
-                @Iconos.Ver("modificar")
-            </button>
-            <a class="gf-boton-icono" asp-action="Crear"
-               aria-label="Crear una actividad nueva" title="Crear actividad">@Iconos.Ver("crear")</a>
+            <form class="gf-filtro" method="get" asp-action="Index" role="search">
+                <div class="gf-buscador-corto">
+                    <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+                           placeholder="Buscar actividad" aria-label="Buscar" />
+                    <button type="submit" aria-label="Buscar" title="Buscar">@Iconos.Ver("buscar")</button>
+                </div>
+            </form>
             <a class="gf-boton-icono" asp-action="Informe"
                aria-label="Informe de actividades más reservadas" title="Informe">@Iconos.Ver("informe")</a>
         </div>
     }
-
-    @if (!Model.PuedeEditar)
+    else
     {
         <form class="gf-filtro" method="get" asp-action="Index">
-            <label class="gf-etiqueta" for="orden">Ordenar por</label>
-            <select class="form-select" id="orden" name="orden" onchange="this.form.submit()">
+            <select class="form-select" id="orden" name="orden" aria-label="Ordenar actividades" onchange="this.form.submit()">
                 @foreach (var (valor, texto) in ActividadesViewModel.Ordenes)
                 {
                     <option value="@valor" selected="@(valor == Model.Orden)">@texto</option>
@@ -37,11 +36,14 @@
 
 @if (Model.PuedeEditar)
 {
-    <form class="gf-buscador" method="get" asp-action="Index" role="search">
-        <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
-               placeholder="Buscar actividad por nombre" aria-label="Buscar actividad por nombre o descripción" />
-        <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
-    </form>
+    <div class="gf-acciones">
+        <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-actividad" disabled
+                aria-label="Modificar la actividad elegida" title="Modificar">
+            @Iconos.Ver("modificar")
+        </button>
+        <a class="gf-boton-icono" asp-action="Crear"
+           aria-label="Crear una actividad nueva" title="Crear actividad">@Iconos.Ver("crear")</a>
+    </div>
 }
 
 @if (ViewBag.Error != null)
@@ -72,7 +74,7 @@ else if (Model.PuedeEditar)
     @* Encargado: tabla con las columnas del diseño *@
     <form id="form-actividad" class="gf-tarjeta" method="get" asp-action="Editar">
         <div class="table-responsive">
-            <table class="gf-tabla gf-tabla-seleccion">
+            <table class="gf-tabla gf-tabla-seleccion gf-tabla-ordenable">
                 <caption class="visually-hidden">Actividades del centro. Elige una fila y pulsa Modificar.</caption>
                 <thead>
                     <tr>

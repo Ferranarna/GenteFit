@@ -11,8 +11,8 @@ using System.Security.Claims;
 
 namespace GenteFit.Web.Controllers;
 
-// Es la misma para todos los roles; solo el cliente ve los botones para reservar.
-[Authorize(Roles = "Cliente,Recepcionista,Encargado,Administrador")]
+// Es la misma para todos los roles; solo el cliente ve los botones para reservar y el entrenador solo ve sus sesiones.
+[Authorize(Roles = "Cliente,Recepcionista,Encargado,Administrador,Entrenador")]
 public class SesionesController : Controller
 {
     private readonly GenteFitContext _db;
@@ -33,14 +33,16 @@ public class SesionesController : Controller
             PuedeEditar = Permisos.PuedeGestionar(User)
         };
 
+        Guid? entrenadorId = User.IsInRole(nameof(Rol.Entrenador)) ? UsuarioActual() : null;
+
         try
         {
             var sesiones = new SesionRepositorio(_db);
             modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
                 .OrderBy(a => a.NombreActividad).ToList();
-            modelo.DiasConSesiones = sesiones.DiasConSesiones(modelo.Dia.Year, modelo.Dia.Month, actividad);
+            modelo.DiasConSesiones = sesiones.DiasConSesiones(modelo.Dia.Year, modelo.Dia.Month, actividad, entrenadorId);
             modelo.Sesiones = sesiones.ListarDelDia(modelo.Dia, actividad,
-                modelo.PuedeReservar ? UsuarioActual() : null);
+                modelo.PuedeReservar ? UsuarioActual() : null, entrenadorId);
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
@@ -116,8 +118,6 @@ public class SesionesController : Controller
                 Dia = dia,
                 ActividadId = actividad
             });
-
-
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
@@ -128,7 +128,7 @@ public class SesionesController : Controller
 
     private Guid UsuarioActual() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-  [HttpGet, Authorize(Roles = Permisos.Gestion)]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Crear(DateTime? dia) =>
         MostrarFormulario(new SesionFormularioViewModel { Fecha = dia ?? DateTime.Today });
 
@@ -206,7 +206,7 @@ public class SesionesController : Controller
     }
 
     [HttpGet, Authorize(Roles = Permisos.Gestion)]
-    public IActionResult Informe(DateTime? desde, DateTime? hasta, Guid? actividad, EstadoSesion? estado)
+    public IActionResult Informe(DateTime? desde, DateTime? hasta, Guid? actividad, InformeSesionesViewModel.Filtro estado)
     {
         // Sin fechas en la URL, el informe sale de este mes (como en la maqueta)
         var esteMes = InformeSesionesViewModel.Atajos(DateTime.Today)[0];
@@ -222,7 +222,8 @@ public class SesionesController : Controller
         {
             modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
                 .OrderBy(a => a.NombreActividad).ToList();
-            modelo.Informe = new SesionRepositorio(_db).Informe(modelo.Desde, modelo.Hasta, actividad, estado);
+            var informe = new SesionRepositorio(_db).Informe(modelo.Desde, modelo.Hasta, actividad);
+            modelo.Informe = InformeSesionesViewModel.Filtrar(informe, estado, DateTime.Now);
         }
         catch (ValidacionException ex)
         {

@@ -23,14 +23,15 @@
     else if (Model.Count > 0)
     {
         <div class="table-responsive">
-            <table class="gf-tabla">
+            <table class="gf-tabla gf-tabla-ordenable">
                 <caption class="visually-hidden">Clientes con citas contigo y su próxima cita</caption>
                 <thead>
                     <tr>
                         <th scope="col">Cliente</th>
                         <th scope="col">Email</th>
                         <th scope="col">Teléfono</th>
-                        <th scope="col">Próxima cita</th>
+                        <th scope="col" data-no-ordenar>Próxima cita</th>
+                        <th scope="col" data-no-ordenar><span class="visually-hidden">Rutinas</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,6 +52,10 @@
                                 }
                             </td>
                             <td>@(fila.ProximaCita is DateTime p ? p.ToString("ddd d MMM · HH:mm", es) : "Sin citas pendientes")</td>
+                            <td>
+                                <a class="gf-boton-icono" asp-controller="MisRutinas" asp-action="Index" asp-route-clienteId="@c.UsuarioId"
+                                   aria-label="Rutinas de @c.Nombre @c.Apellido1" title="Rutinas">@Iconos.Ver("lista")</a>
+                            </td>
                         </tr>
                     }
                 </tbody>

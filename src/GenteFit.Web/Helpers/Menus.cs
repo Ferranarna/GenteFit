@@ -20,7 +20,7 @@ public static class Menus
         [
             new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
             new("puerta", "Salas", "Gestiona las salas del centro.", "/Salas"),
-            new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones"),
+            new("calendario", "Sesiones", "Gestiona las sesiones y sus reservas.", "/Sesiones"),
             new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro.", "/Usuarios"),
             new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios")
         ],
@@ -28,16 +28,20 @@ public static class Menus
         [
             new("usuarios", "Clientes", "Gestiona los clientes del centro.", "/Usuarios"),
             new("actividad", "Actividades", "Consulta las actividades del centro.", "/Actividades"),
-            new("calendario", "Sesiones", "Consulta las sesiones disponibles.", "/Sesiones")
+            new("calendario", "Sesiones", "Consulta las sesiones y su disponibilidad.", "/Sesiones")
         ],
         ["Administrador"] =
         [
-             new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles.", "/Usuarios"),
-             new("intercambio", "Odoo", "Intercambia datos con el ERP Odoo.", "/Odoo")
+            new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles.", "/Usuarios"),
+            new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
+            new("puerta", "Salas", "Gestiona las salas del centro.", "/Salas"),
+            new("calendario", "Sesiones", "Gestiona las sesiones y sus reservas.", "/Sesiones"),
+            new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios"),
+            new("intercambio", "Odoo", "Intercambia datos con el ERP Odoo.", "/Odoo")
         ],
         ["Entrenador"] =
         [
-            new("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas."),
+            new("calendario", "Mis sesiones", "Consulta tus sesiones y sus reservas.", "/Sesiones"),
             new("mancuerna", "Ejercicios", "Consulta los ejercicios disponibles.", "/Ejercicios"),
             new("reloj", "Mis citas", "Organiza tus citas con tus clientes.", "/MisCitas"),
             new("usuarios", "Mis clientes", "Consulta los clientes que entrenas.", "/MisClientes")
@@ -48,11 +52,9 @@ public static class Menus
     public static readonly Tarjeta[] CentroDeMando =
     [
         new("usuarios", "Usuarios", "Gestiona los usuarios y sus roles.", "/Usuarios"),
-        new("usuario", "Clientes", "Gestiona los clientes del centro.", "/Usuarios?rol=Cliente"),
         new("actividad", "Actividades", "Gestiona las actividades del centro.", "/Actividades"),
         new("puerta", "Salas", "Gestiona las salas del centro.", "/Salas"),
         new("calendario", "Sesiones", "Gestiona las sesiones y sus reservas.", "/Sesiones"),
-        new("entrenador", "Entrenadores", "Gestiona los entrenadores del centro.", "/Usuarios?rol=Entrenador"),
         new("mancuerna", "Ejercicios", "Gestiona el catálogo de ejercicios.", "/Ejercicios"),
         new("intercambio", "Odoo", "Intercambia datos con el ERP Odoo.", "/Odoo")
     ];
@@ -61,6 +63,13 @@ public static class Menus
     public static IReadOnlyList<Tarjeta> De(ClaimsPrincipal usuario)
     {
         var rol = usuario.FindFirstValue(ClaimTypes.Role) ?? "";
-        return PorRol.TryGetValue(rol, out var pantallas) ? pantallas : [];
+        if (!PorRol.TryGetValue(rol, out var pantallas))
+            return [];
+
+        // Mis citas y Mis clientes solo son para el entrenador personal (así lo dice el diseño del Producto 1)
+        if (rol == "Entrenador" && !Permisos.EsEntrenadorPersonal(usuario))
+            return pantallas.Where(p => p.Url is not ("/MisCitas" or "/MisClientes")).ToList();
+
+        return pantallas;
     }
 }

@@ -204,5 +204,29 @@ public class CitasTests : IDisposable
         Assert.Equal(Manana10, clientes.Single(c => c.Cliente.UsuarioId == _clientes[0].UsuarioId).ProximaCita);
         Assert.Null(clientes.Single(c => c.Cliente.UsuarioId == _clientes[1].UsuarioId).ProximaCita);
     }
+
+
+    [Fact]
+    public void Solo_es_cliente_de_un_entrenador_quien_tiene_una_cita_programada_con_el()
+    {
+        Cita(_clientes[0], _david, Manana10);
+        Cita(_clientes[1], _david, Manana10.AddHours(1), EstadoCita.Cancelada);
+
+        Assert.True(_repo.EsClienteDe(_david.EntrenadorId, _clientes[0].UsuarioId));
+        Assert.False(_repo.EsClienteDe(_elena.EntrenadorId, _clientes[0].UsuarioId));   // es de David, no de Elena
+        Assert.False(_repo.EsClienteDe(_david.EntrenadorId, _clientes[1].UsuarioId));   // su cita está cancelada
+    }
+
+
+    [Fact]
+    public void Las_citas_de_un_cliente_salen_todas_o_filtradas_por_estado()
+    {
+        Cita(_clientes[0], _david, Manana10);
+        Cita(_clientes[0], _elena, Manana10.AddDays(1), EstadoCita.Cancelada);
+        Cita(_clientes[1], _david, Manana10.AddHours(1));    // de otro cliente: no cuenta
+
+        Assert.Equal(2, _repo.ListarDeCliente(_clientes[0].UsuarioId).Count);
+        Assert.Single(_repo.ListarDeCliente(_clientes[0].UsuarioId, EstadoCita.Cancelada));
+    }
 }
 

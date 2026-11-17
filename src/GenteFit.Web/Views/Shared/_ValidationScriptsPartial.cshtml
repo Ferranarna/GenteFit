@@ -1,2 +1,19 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    // Mensajes de validación cortos y en español (sustituyen a los de la librería, que están en inglés)
+    $.extend($.validator.messages, {
+        required: "Obligatorio.",
+        number: "Escribe un número.",
+        digits: "Solo números enteros.",
+        range: $.validator.format("Entre {0} y {1}."),
+        min: $.validator.format("Mínimo {0}."),
+        max: $.validator.format("Máximo {0}."),
+        step: $.validator.format("Debe ser múltiplo de {0}."),
+        minlength: $.validator.format("Mínimo {0} caracteres."),
+        maxlength: $.validator.format("Máximo {0} caracteres."),
+        rangelength: $.validator.format("Entre {0} y {1} caracteres."),
+        email: "Escribe un email válido.",
+        date: "Escribe una fecha válida."
+    });
+</script>

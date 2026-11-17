@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using GenteFit.Modelo.Enums;
 
 namespace GenteFit.Web.Controllers;
 
@@ -149,6 +150,12 @@ public class CuentaController : Controller
             new(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido1}"),
             new(ClaimTypes.Role, usuario.Rol.ToString())
         };
+
+        // Los entrenadores personales llevan una marca más, para que solo ellos vean Mis citas y Mis clientes
+        if (usuario.Rol == Rol.Entrenador
+            && new EntrenadorRepositorio(_db).ObtenerPorUsuario(usuario.UsuarioId)?.Especialidad == Especialidad.EntrenadorPersonal)
+            claims.Add(new Claim(Permisos.ClaimEntrenadorPersonal, "true"));
+
         var identidad = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identidad));
     }

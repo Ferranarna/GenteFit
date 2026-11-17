@@ -23,9 +23,9 @@ var rutinas = new RutinaRepositorio(db);
 var ejercicios = new EjercicioRepositorio(db);
 
 Titulo("2. Inicio de sesión");
-var admin = usuarios.IniciarSesion("admin@gentefit.com", InicializadorBD.ContrasenaPrueba);
+var admin = usuarios.IniciarSesion("administrador_lidia@gentefit.com", InicializadorBD.ContrasenaPrueba);
 Ok($"Sesión iniciada: {admin.Nombre} ({admin.Rol})");
-Probar("Contraseña incorrecta", () => usuarios.IniciarSesion("admin@gentefit.com", "mala"));
+Probar("Contraseña incorrecta", () => usuarios.IniciarSesion("administrador_lidia@gentefit.com", "mala"));
 
 Titulo("3. Catálogo y sesiones de mañana");
 foreach (var a in actividades.ObtenerTodos())
@@ -116,7 +116,7 @@ Ok($"Sesión cancelada. Clientes a avisar por correo: {afectados.Count}");
 
 Titulo("8. Citas con entrenador personal");
 var personal = entrenadores.ObtenerActivosPorEspecialidad(Especialidad.EntrenadorPersonal).First();
-var ana = usuarios.Buscar("ana@correo.com").First();
+var ana = usuarios.Buscar("cliente_ana@correo.com").First();
 var huecos = citas.BuscarDisponibilidad(personal.EntrenadorId, manana.AddDays(1));
 var cita = citas.Reservar(ana.UsuarioId, personal.EntrenadorId, huecos.First());
 Ok($"Cita de {ana.Nombre} con {personal.Usuario.Nombre} el {cita.FechaActividad:dd/MM HH:mm} ({cita.Duracion} min)");
@@ -335,7 +335,7 @@ Probar("Perfil con el email de otro usuario", () => usuarios.ModificarPerfil(lui
 {
     Nombre = luis.Nombre,
     Apellido1 = luis.Apellido1,
-    Email = "ana@correo.com",
+    Email = "cliente_ana@correo.com",
     Telefono = luis.Telefono
 }));
 Probar("Perfil sin nombre", () => usuarios.ModificarPerfil(luis.UsuarioId, new Usuario

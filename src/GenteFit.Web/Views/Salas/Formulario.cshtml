@@ -12,26 +12,19 @@
                 : "Cambia los datos y pulsa Guardar. Las sesiones ya programadas en la sala se mantienen.")
     </p>
 
-    @if (ViewBag.Error != null)
-    {
-        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
-    }
-
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
         <input type="hidden" asp-for="SalaId" />
-        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
 
         <div class="row g-3">
             <div class="col-12">
                 <label class="gf-etiqueta" asp-for="Nombre">Nombre de la sala</label>
-                <input class="form-control" asp-for="Nombre" placeholder="Ej. Sala Delta" aria-describedby="ayuda-nombre" />
+                <input class="form-control" asp-for="Nombre" placeholder="Ej. Sala Delta" />
                 <span class="gf-campo-error" asp-validation-for="Nombre"></span>
-                <small class="gf-campo-ayuda" id="ayuda-nombre">Obligatorio. No puede repetirse.</small>
             </div>
 
             <div class="col-12">
                 <label class="gf-etiqueta" asp-for="Ubicacion">Ubicación</label>
-                <select class="form-select" asp-for="Ubicacion" aria-describedby="ayuda-ubicacion">
+                <select class="form-select" asp-for="Ubicacion">
                     <option value="">Selecciona una planta</option>
                     @foreach (var u in Enum.GetValues<Ubicacion>())
                     {
@@ -39,9 +32,18 @@
                     }
                 </select>
                 <span class="gf-campo-error" asp-validation-for="Ubicacion"></span>
-                <small class="gf-campo-ayuda" id="ayuda-ubicacion">Planta del centro donde está la sala.</small>
             </div>
         </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+        }
+        else
+        {
+            <div class="gf-aviso gf-aviso-info">Introduce los datos.</div>
+        }
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
 
         <div class="gf-botones mt-3">
             <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>

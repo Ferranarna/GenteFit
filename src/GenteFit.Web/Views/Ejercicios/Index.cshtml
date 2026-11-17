@@ -6,41 +6,36 @@
 <div class="gf-cabecera">
     <h1>Ejercicios</h1>
 
-    @if (Model.PuedeEditar)
-    {
-        <div class="gf-herramientas">
-            <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-ejercicio" disabled
-                    aria-label="Modificar el ejercicio elegido" title="Modificar">
-                @Iconos.Ver("modificar")
-            </button>
-            <a class="gf-boton-icono" asp-action="Crear"
-               aria-label="Crear un ejercicio nuevo" title="Crear ejercicio">@Iconos.Ver("crear")</a>
-        </div>
-    }
-
-    @if (!Model.PuedeEditar)
-    {
-        <form class="gf-filtro" method="get" asp-action="Index">
-            <label class="gf-etiqueta" for="grupo">Grupo muscular</label>
-            <select class="form-select" id="grupo" name="grupo" onchange="this.form.submit()">
-                <option value="">Todos</option>
-                @foreach (var g in EjerciciosViewModel.Grupos)
-                {
-                    <option value="@g" selected="@(g == Model.Grupo)">@g</option>
-                }
-            </select>
-            <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
-        </form>
-    }
+    <form class="gf-filtro" method="get" asp-action="Index" role="search">
+        @if (Model.PuedeEditar)
+        {
+            <div class="gf-buscador-corto">
+                <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+                       placeholder="Buscar" aria-label="Buscar ejercicio por nombre o grupo muscular" />
+                <button type="submit" aria-label="Buscar" title="Buscar">@Iconos.Ver("buscar")</button>
+            </div>
+        }
+        <select class="form-select" id="grupo" name="grupo" aria-label="Filtrar por grupo muscular" onchange="this.form.submit()">
+            <option value="">Todos los grupos</option>
+            @foreach (var g in EjerciciosViewModel.Grupos)
+            {
+                <option value="@g" selected="@(g == Model.Grupo)">@g</option>
+            }
+        </select>
+        <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
+    </form>
 </div>
 
 @if (Model.PuedeEditar)
 {
-    <form class="gf-buscador" method="get" asp-action="Index" role="search">
-        <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
-               placeholder="Buscar ejercicio por nombre o grupo muscular" aria-label="Buscar ejercicio por nombre o grupo muscular" />
-        <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
-    </form>
+    <div class="gf-acciones">
+        <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-ejercicio" disabled
+                aria-label="Modificar el ejercicio elegido" title="Modificar">
+            @Iconos.Ver("modificar")
+        </button>
+        <a class="gf-boton-icono" asp-action="Crear"
+           aria-label="Crear un ejercicio nuevo" title="Crear ejercicio">@Iconos.Ver("crear")</a>
+    </div>
 }
 
 @if (ViewBag.Error != null)
@@ -71,14 +66,14 @@ else if (Model.PuedeEditar)
     @* Encargado: tabla con las columnas del diseño *@
     <form id="form-ejercicio" class="gf-tarjeta" method="get" asp-action="Editar">
         <div class="table-responsive">
-            <table class="gf-tabla gf-tabla-seleccion">
+            <table class="gf-tabla gf-tabla-seleccion gf-tabla-ordenable">
                 <caption class="visually-hidden">Catálogo de ejercicios. Elige una fila y pulsa Modificar.</caption>
                 <thead>
                     <tr>
                         <th scope="col"><span class="visually-hidden">Elegir</span></th>
                         <th scope="col">Ejercicio</th>
                         <th scope="col">Grupo muscular</th>
-                        <th scope="col">Descripción</th>
+                        <th scope="col" data-no-ordenar>Descripción</th>
                     </tr>
                 </thead>
                 <tbody>

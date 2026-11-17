@@ -6,22 +6,26 @@
 <div class="gf-cabecera">
     <h1>Salas</h1>
     <div class="gf-herramientas">
-        <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-sala" disabled
-                aria-label="Modificar la sala elegida" title="Modificar">
-            @Iconos.Ver("modificar")
-        </button>
-        <a class="gf-boton-icono" asp-action="Crear"
-           aria-label="Crear una sala nueva" title="Crear sala">@Iconos.Ver("crear")</a>
+        <form class="gf-filtro" method="get" asp-action="Index" role="search">
+            <div class="gf-buscador-corto">
+                <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+                       placeholder="Buscar sala" aria-label="Buscar" />
+                <button type="submit" aria-label="Buscar" title="Buscar">@Iconos.Ver("buscar")</button>
+            </div>
+        </form>
         <a class="gf-boton-icono" asp-action="Informe"
            aria-label="Informe de uso de salas" title="Informe">@Iconos.Ver("informe")</a>
     </div>
 </div>
 
-<form class="gf-buscador" method="get" asp-action="Index" role="search">
-    <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
-           placeholder="Buscar sala por nombre" aria-label="Buscar sala por nombre" />
-    <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
-</form>
+<div class="gf-acciones">
+    <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-sala" disabled
+            aria-label="Modificar la sala elegida" title="Modificar">
+        @Iconos.Ver("modificar")
+    </button>
+    <a class="gf-boton-icono" asp-action="Crear"
+       aria-label="Crear una sala nueva" title="Crear sala">@Iconos.Ver("crear")</a>
+</div>
 
 @if (ViewBag.Error != null)
 {
@@ -50,7 +54,7 @@ else if (Model.Salas.Count > 0)
 {
     <form id="form-sala" class="gf-tarjeta" method="get" asp-action="Editar">
         <div class="table-responsive">
-            <table class="gf-tabla gf-tabla-seleccion">
+            <table class="gf-tabla gf-tabla-seleccion gf-tabla-ordenable">
                 <caption class="visually-hidden">Salas del centro. Elige una fila y pulsa Modificar.</caption>
                 <thead>
                     <tr>

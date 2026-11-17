@@ -1,0 +1,33 @@
+﻿@model GenteFit.Modelo.Entidades.Rutina
+
+@if (Model.Detalles.Count == 0)
+{
+    <p class="gf-ayuda">Esta rutina todavía no tiene ejercicios.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="gf-tabla">
+            <caption class="visually-hidden">Ejercicios de @Model.NombreRutina con sus series y repeticiones</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Orden</th>
+                    <th scope="col">Ejercicio</th>
+                    <th scope="col">Series</th>
+                    <th scope="col">Repeticiones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.Detalles.OrderBy(d => d.Orden))
+                {
+                    <tr>
+                        <td>@d.Orden</td>
+                        <td>@d.Ejercicio.NombreEjercicio</td>
+                        <td>@d.Series</td>
+                        <td>@d.Repeticiones</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -10,25 +10,23 @@
 <div class="gf-cabecera">
     <h1>@titulo</h1>
     <div class="gf-herramientas">
-        @* Los radios de la tabla se enlazan a este formulario con form="form-usuario" *@
-        <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-usuario" disabled
-                asp-action="Editar" formmethod="get"
-                aria-label="Modificar el @tipo elegido" title="Modificar">
-            @Iconos.Ver("modificar")
-        </button>
-        <button id="boton-baja" class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-usuario" disabled
-                asp-action="DarDeBaja" formmethod="post"
-                onclick="return confirm('¿Seguro que quieres dar de baja a este @tipo? Se anularán sus reservas y citas pendientes.')"
-                aria-label="Dar de baja al @tipo elegido" title="Dar de baja">
-            @Iconos.Ver("baja")
-        </button>
-        <button id="boton-reactivar" class="gf-boton-icono" type="submit" form="form-usuario" disabled
-                asp-action="Reactivar" formmethod="post"
-                aria-label="Volver a dar de alta al @tipo elegido" title="Reactivar">
-            @Iconos.Ver("reactivar")
-        </button>
-        <a class="gf-boton-icono" asp-action="Crear"
-           aria-label="Dar de alta un @tipo nuevo" title="Nuevo @tipo">@Iconos.Ver("crear")</a>
+        <form class="gf-filtro" method="get" asp-action="Index" role="search">
+            <div class="gf-buscador-corto">
+                <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
+                       placeholder="Buscar" aria-label="@TextosUsuarios.Buscador(g)" />
+                <button type="submit" aria-label="Buscar" title="Buscar">@Iconos.Ver("buscar")</button>
+            </div>
+            @if (g == Gestion.Usuarios)
+            {
+                <select class="form-select" name="rol" aria-label="Filtrar por rol" onchange="this.form.submit()">
+                    <option value="">Todos los roles</option>
+                    @foreach (var r in Enum.GetValues<Rol>())
+                    {
+                        <option value="@r" selected="@(Model.Rol == r)">@r</option>
+                    }
+                </select>
+            }
+        </form>
         @if (Model.TieneInforme)
         {
             <a class="gf-boton-icono" asp-action="Informe"
@@ -37,21 +35,27 @@
     </div>
 </div>
 
-<form class="gf-buscador" method="get" asp-action="Index" role="search">
-    <input class="form-control" type="search" name="buscar" value="@Model.Buscar"
-           placeholder="@TextosUsuarios.Buscador(g)" aria-label="@TextosUsuarios.Buscador(g)" />
-    @if (g == Gestion.Usuarios)
-    {
-        <select class="form-select gf-filtro-rol" name="rol" aria-label="Filtrar por rol">
-            <option value="">Todos los roles</option>
-            @foreach (var r in Enum.GetValues<Rol>())
-            {
-                <option value="@r" selected="@(Model.Rol == r)">@r</option>
-            }
-        </select>
-    }
-    <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Buscar</button>
-</form>
+<div class="gf-acciones">
+    @* Los radios de la tabla se enlazan a este formulario con form="form-usuario" *@
+    <button id="boton-modificar" class="gf-boton-icono" type="submit" form="form-usuario" disabled
+            asp-action="Editar" formmethod="get"
+            aria-label="Modificar el @tipo elegido" title="Modificar">
+        @Iconos.Ver("modificar")
+    </button>
+    <button id="boton-baja" class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-usuario" disabled
+            asp-action="DarDeBaja" formmethod="post"
+            onclick="return confirm('¿Seguro que quieres dar de baja a este @tipo? Se anularán sus reservas y citas pendientes.')"
+            aria-label="Dar de baja al @tipo elegido" title="Dar de baja">
+        @Iconos.Ver("baja")
+    </button>
+    <button id="boton-reactivar" class="gf-boton-icono" type="submit" form="form-usuario" disabled
+            asp-action="Reactivar" formmethod="post"
+            aria-label="Volver a dar de alta al @tipo elegido" title="Reactivar">
+        @Iconos.Ver("reactivar")
+    </button>
+    <a class="gf-boton-icono" asp-action="Crear"
+       aria-label="Dar de alta un @tipo nuevo" title="Nuevo @tipo">@Iconos.Ver("crear")</a>
+</div>
 
 @if (ViewBag.Error != null)
 {
@@ -80,7 +84,7 @@ else if (Model.Filas.Count > 0)
 {
     <form id="form-usuario" class="gf-tarjeta" method="post" asp-action="DarDeBaja">
         <div class="table-responsive">
-            <table class="gf-tabla gf-tabla-seleccion">
+            <table class="gf-tabla gf-tabla-seleccion gf-tabla-ordenable">
                 <caption class="visually-hidden">@titulo del centro. Elige una fila y pulsa un botón de arriba.</caption>
                 <thead>
                     <tr>

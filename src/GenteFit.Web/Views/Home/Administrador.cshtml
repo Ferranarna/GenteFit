@@ -5,7 +5,7 @@
 <h1>Centro de mando</h1>
 <p class="gf-subtitulo">Hola, @User.Identity?.Name. Desde aquí accedes a todas las funciones del centro.</p>
 <div class="gf-rejilla mt-4">
-    @foreach (var tarjeta in Menus.CentroDeMando)
+    @foreach (var tarjeta in Menus.De(User))
     {
         <partial name="_Tarjeta" model="tarjeta" />
     }

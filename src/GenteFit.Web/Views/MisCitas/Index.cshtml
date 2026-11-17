@@ -1,0 +1,180 @@
+﻿@using System.Globalization
+@using GenteFit.Modelo.Enums
+@model MisCitasViewModel
+@{
+    ViewData["Title"] = "Mis citas";
+    var es = new CultureInfo("es-ES");
+    string Fecha(DateTime d) => d.ToString("yyyy-MM-dd");
+}
+
+<div class="gf-cabecera">
+    <h1>Mis citas</h1>
+    <div class="gf-herramientas">
+        <form class="gf-filtro" method="get" asp-action="Index">
+            <select class="form-select" id="estado" name="estado" aria-label="Filtrar por estado" onchange="this.form.submit()">
+                @foreach (var (valor, texto) in MisCitasViewModel.Opciones)
+                {
+                    <option value="@valor" selected="@(valor == Model.Estado)">@texto</option>
+                }
+            </select>
+            <noscript><button class="gf-boton gf-boton-auto" type="submit">Filtrar</button></noscript>
+        </form>
+        <button id="boton-anular" class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-anular" disabled
+                aria-label="Anular la cita seleccionada" title="Anular la cita seleccionada">
+            @Iconos.Ver("baja")
+        </button>
+        @if (Model.PuedeReservar)
+        {
+            <button id="boton-nueva-cita" class="gf-boton-icono" type="button"
+                    aria-label="Reservar una cita nueva" title="Nueva cita">
+                @Iconos.Ver("crear")
+            </button>
+        }
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+}
+@if (TempData["Ok"] is string ok)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">@ok</div>
+}
+
+@if (Model.PuedeReservar)
+{
+    <section id="panel-nueva-cita" class="gf-tarjeta mb-3" hidden="@(!Model.Nueva)" aria-label="Nueva cita">
+        <h2 class="gf-titulo-tarjeta">Nueva cita</h2>
+
+        <form method="post" asp-action="Reservar">
+            <div class="gf-citas-filtro">
+                <div>
+                    <label class="gf-etiqueta" for="personaId">@Model.EtiquetaOtro</label>
+                    <select class="form-select" id="personaId" name="personaId">
+                        @foreach (var p in Model.Personas)
+                        {
+                            <option value="@p.Id" selected="@(p.Id == Model.PersonaId)">@p.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="gf-etiqueta" for="dia-cita">Día</label>
+                    <input class="form-control" type="date" id="dia-cita" name="dia" value="@Fecha(Model.Dia)"
+                           min="@Fecha(DateTime.Today)" />
+                </div>
+            </div>
+
+            <fieldset class="gf-huecos">
+                <legend>Huecos disponibles (30 min)</legend>
+                @foreach (var hueco in Model.Huecos())
+                {
+                    var libre = Model.Libres.Contains(hueco);
+                    var id = $"hueco-{hueco:HHmm}";
+                    <input type="radio" class="gf-hueco-radio" name="hora" id="@id" data-hora="@hueco.ToString("HH:mm")"
+                           value="@hueco.ToString("yyyy-MM-ddTHH:mm")" disabled="@(!libre)" />
+                    <label class="gf-hueco" for="@id">@hueco.ToString("HH:mm")</label>
+                }
+            </fieldset>
+
+            <div class="gf-botones mt-3">
+                <button class="gf-boton gf-boton-auto" type="submit">Reservar</button>
+                <button id="cancelar-nueva-cita" class="gf-boton gf-boton-borde gf-boton-auto" type="button">Cancelar</button>
+            </div>
+        </form>
+    </section>
+}
+
+<form id="form-anular" method="post" asp-action="Anular"
+      onsubmit="return confirm('@(Model.EsEntrenador ? "¿Seguro que quieres anular esta cita? El cliente dejará de tenerla." : "¿Seguro que quieres anular esta cita?")')">
+    <input type="hidden" name="estado" value="@Model.Estado" />
+    <div class="gf-tarjeta">
+        @if (Model.Citas.Count == 0 && ViewBag.Error == null)
+        {
+            <p class="gf-ayuda">No tienes citas@(Model.Estado == null ? "" : " con este estado").</p>
+        }
+        else if (Model.Citas.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="gf-tabla gf-tabla-seleccion">
+                    <caption class="visually-hidden">Tus citas. Elige una fila y pulsa el botón Anular.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col"><span class="visually-hidden">Elegir</span></th>
+                            <th scope="col">@Model.EtiquetaOtro</th>
+                            <th scope="col">Fecha y hora</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cita in Model.Citas)
+                        {
+                            var otro = Model.Otro(cita);
+                            var anulable = Model.SePuedeAnular(cita);
+                            var (chip, texto) = cita.Estado == EstadoCita.Cancelada ? ("gf-chip-baja", "Cancelada")
+                            : cita.FechaActividad.AddMinutes(cita.Duracion) <= Model.Ahora ? ("gf-chip-apagado", "Finalizada")
+                            : cita.FechaActividad <= Model.Ahora ? ("gf-chip-apagado", "En curso")
+                            : ("gf-chip-activo", "Confirmada");
+                            <tr class="@(anulable ? "" : "gf-fila-bloqueada")">
+                                <td>
+                                    <input type="radio" name="citaId" value="@cita.CitaId" disabled="@(!anulable)"
+                                           aria-label="Elegir la cita con @otro.Nombre del @cita.FechaActividad.ToString("dddd d 'de' MMMM 'a las' HH:mm", es)" />
+                                </td>
+                                <td><strong>@otro.Nombre @otro.Apellido1</strong></td>
+                                <td>@cita.FechaActividad.ToString("ddd d MMM", es) · @cita.FechaActividad.ToString("HH:mm")–@cita.FechaActividad.AddMinutes(cita.Duracion).ToString("HH:mm")</td>
+                                <td><span class="gf-chip @chip">@texto</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Al elegir una fila se activa el botón de anular (mismo patrón que Mis reservas)
+        const boton = document.getElementById('boton-anular');
+        const actualizar = () => boton.disabled = !document.querySelector('input[name="citaId"]:checked');
+        document.querySelectorAll('input[name="citaId"]').forEach(radio => radio.addEventListener('change', actualizar));
+        document.querySelectorAll('.gf-tabla-seleccion tbody tr').forEach(fila =>
+            fila.addEventListener('click', e => {
+                const radio = fila.querySelector('input[name="citaId"]');
+                if (radio && !radio.disabled && e.target !== radio) { radio.checked = true; actualizar(); }
+            }));
+        actualizar();
+
+        // El + abre y cierra la tarjeta "Nueva cita"
+        const panelNueva = document.getElementById('panel-nueva-cita');
+        document.getElementById('boton-nueva-cita')?.addEventListener('click', () => panelNueva.hidden = !panelNueva.hidden);
+        document.getElementById('cancelar-nueva-cita')?.addEventListener('click', () => panelNueva.hidden = true);
+
+        // Al cambiar el día (o el entrenador, si reserva un cliente) se piden al servidor los huecos libres
+        // y se actualizan los botones de hora, sin recargar la página
+        const diaCita = document.getElementById('dia-cita');
+        const persona = document.getElementById('personaId');
+        async function actualizarHuecos() {
+            const huecos = document.querySelectorAll('.gf-hueco-radio');
+            if (!diaCita.value) return;
+            try {
+                const respuesta = await fetch('@Url.Action("Huecos")?dia=' + diaCita.value + '&persona=' + persona.value);
+                if (!respuesta.ok) throw new Error();
+                const libres = await respuesta.json();
+                huecos.forEach(h => {
+                    h.value = diaCita.value + 'T' + h.dataset.hora;
+                    h.checked = false;
+                    h.disabled = !libres.includes(h.value);
+                });
+            } catch {
+                huecos.forEach(h => { h.checked = false; h.disabled = true; });   // sin saber cuáles están libres, no se deja elegir
+            }
+        }
+        diaCita?.addEventListener('change', actualizarHuecos);
+        persona?.addEventListener('change', actualizarHuecos);
+    </script>
+}

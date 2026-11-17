@@ -21,16 +21,20 @@ public class EjercicioRepositorio : Repositorio<Ejercicio>
         base.Actualizar(ejercicio);
     }
 
-    // El cliente consulta el catálogo filtrando por grupo muscular
-    public List<Ejercicio> BuscarPorGrupo(string grupo) =>
-        _db.Ejercicios
-            .Where(e => e.GrupoMuscular != null && e.GrupoMuscular.Contains(grupo))
-            .OrderBy(e => e.NombreEjercicio)
-            .ToList();
-    // El encargado busca por nombre o por grupo muscular
-    public List<Ejercicio> Buscar(string texto) =>
-        _db.Ejercicios
-            .Where(e => e.NombreEjercicio.Contains(texto) || (e.GrupoMuscular != null && e.GrupoMuscular.Contains(texto)))
-            .OrderBy(e => e.NombreEjercicio)
-            .ToList();
+    // Catálogo ordenado por nombre. Se puede buscar por texto (nombre o grupo) y filtrar por grupo muscular, o las dos cosas.
+    public List<Ejercicio> Buscar(string? texto, string? grupo = null)
+    {
+        var consulta = _db.Ejercicios.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(texto))
+            consulta = consulta.Where(e => e.NombreEjercicio.Contains(texto)
+                || (e.GrupoMuscular != null && e.GrupoMuscular.Contains(texto)));
+
+        if (!string.IsNullOrWhiteSpace(grupo))
+            consulta = consulta.Where(e => e.GrupoMuscular != null && e.GrupoMuscular.Contains(grupo));
+
+        return consulta.OrderBy(e => e.NombreEjercicio).ToList();
+    }
+
+    public List<Ejercicio> BuscarPorGrupo(string grupo) => Buscar(null, grupo);
 }

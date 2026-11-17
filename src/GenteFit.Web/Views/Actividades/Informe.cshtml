@@ -15,7 +15,9 @@
     </div>
     <div class="gf-herramientas gf-no-imprimir">
         <button class="gf-boton-icono" type="button" onclick="window.print()"
-                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("informe")</button>
+                aria-label="Imprimir el informe" title="Imprimir">
+            @Iconos.Ver("imprimir")
+        </button>
         <a class="gf-boton-icono" asp-action="Index"
            aria-label="Volver a Actividades" title="Volver">@Iconos.Ver("volver")</a>
     </div>
@@ -36,7 +38,7 @@
 
 @if (informe != null)
 {
-    <div class="gf-rejilla mb-4">
+    <div class="gf-rejilla gf-rejilla-informe mb-4">
         <div class="gf-tarjeta gf-estadistica">
             <span class="gf-icono">@Iconos.Ver("marcador")</span>
             <small class="gf-estadistica-titulo">Reservas confirmadas</small>
@@ -50,7 +52,8 @@
             <div class="gf-estadistica-detalle">
                 @if (informe.MasReservada is { } mejor)
                 {
-                    <b>@mejor.Confirmadas</b> @(mejor.Confirmadas == 1 ? "reserva" : "reservas")
+                    <b>@mejor.Confirmadas</b> 
+                    @(mejor.Confirmadas == 1 ? "reserva" : "reservas")
                 }
                 else
                 {
@@ -59,20 +62,16 @@
             </div>
         </div>
         <div class="gf-tarjeta gf-estadistica">
-            <span class="gf-icono">@Iconos.Ver("calendario")</span>
+            <span class="gf-icono">@Iconos.Ver("informe")</span>
             <small class="gf-estadistica-titulo">Ocupación media</small>
             <div class="gf-estadistica-valor">@(informe.OcupacionMedia is int media ? $"{media}%" : "—")</div>
-            @if (informe.OcupacionMedia is int m)
-            {
-                <div class="gf-barra" aria-hidden="true"><i style="width:@(Math.Min(m, 100))%"></i></div>
-            }
-            <div class="gf-estadistica-detalle">Plazas reservadas sobre plazas ofrecidas</div>
+            <div class="gf-estadistica-detalle">Plazas reservadas</div>
         </div>
     </div>
 
     <div class="gf-tarjeta">
         <div class="table-responsive">
-            <table class="gf-tabla">
+            <table class="gf-tabla gf-tabla-ordenable">
                 <caption class="visually-hidden">Actividades ordenadas de más a menos reservas confirmadas</caption>
                 <thead>
                     <tr>
@@ -85,7 +84,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @{ var posicion = 0; }
+                    @{
+                        var posicion = 0;
+                    }
                     @foreach (var f in informe.Filas)
                     {
                         posicion++;

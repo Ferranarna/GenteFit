@@ -79,6 +79,111 @@
             menu.addEventListener('show.bs.collapse', () => bootstrap.Dropdown.getInstance(usuario)?.hide());
         }
     </script>
+    <template id="gf-chevron">@Iconos.Ver("chevron")</template>
+    <script>
+        // Cada desplegable (<select class="form-select">) se ve como el menú del usuario.
+        // El <select> original sigue ahí, oculto: guarda el valor y sigue enviándose con su formulario.
+        document.querySelectorAll('select.form-select').forEach(select => {
+            const caja = document.createElement('div');
+            caja.className = 'dropdown gf-desplegable';
+
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.className = 'gf-desplegable-boton';
+            boton.disabled = select.disabled;
+            boton.setAttribute('data-bs-toggle', 'dropdown');
+            boton.setAttribute('aria-expanded', 'false');
+            boton.setAttribute('aria-label', select.getAttribute('aria-label') ?? '');
+            const texto = document.createElement('span');
+            boton.append(texto, document.getElementById('gf-chevron').content.cloneNode(true));
+
+            const lista = document.createElement('ul');
+            lista.className = 'dropdown-menu';
+
+            const pintar = () => {
+                texto.textContent = select.selectedOptions[0]?.textContent.trim() ?? '';
+                lista.querySelectorAll('.dropdown-item').forEach((item, i) =>
+                    item.classList.toggle('activo', select.options[i].selected));
+            };
+
+            Array.from(select.options).forEach(opcion => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'dropdown-item';
+                item.textContent = opcion.textContent.trim();
+                item.addEventListener('click', () => {
+                    select.value = opcion.value;
+                    pintar();
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+                const fila = document.createElement('li');
+                fila.append(item);
+                lista.append(fila);
+            });
+
+            caja.append(boton, lista);
+            // El menú flota por encima de todo (así una tabla con scroll no lo recorta) y se abre hacia arriba si abajo no cabe
+            new bootstrap.Dropdown(boton, { popperConfig: { strategy: 'fixed' } });
+            // Flotando, el "100%" sería el de la pantalla; por eso se le da el ancho del botón al abrirlo
+            boton.addEventListener('show.bs.dropdown', () => lista.style.minWidth = boton.offsetWidth + 'px');
+            select.classList.add('gf-select-oculto');
+            select.after(caja);
+            pintar();
+        });
+    </script>
+    <script>
+        // Tablas con la clase "gf-tabla-ordenable": al pulsar el título de una columna, se ordena por ella.
+        document.querySelectorAll('table.gf-tabla-ordenable').forEach(tabla => {
+            const cuerpo = tabla.tBodies[0];
+            if (!tabla.tHead || !cuerpo) return;
+            const titulos = Array.from(tabla.tHead.rows[0].cells);
+            const esNumero = texto => /^-?\d+([.,]\d+)?\s*%?$/.test(texto);
+
+            titulos.forEach((titulo, columna) => {
+                const lleva = Array.from(cuerpo.rows).some(fila => fila.cells[columna]?.querySelector('input'));
+                if (lleva || titulo.hasAttribute('data-no-ordenar')) return;
+
+                const boton = document.createElement('button');
+                boton.type = 'button';
+                boton.className = 'gf-ordenar';
+                boton.append(...titulo.childNodes);
+                titulo.append(boton);
+
+                boton.addEventListener('click', () => {
+                    const ascendente = titulo.getAttribute('aria-sort') !== 'ascending';
+                    titulos.forEach(t => t.removeAttribute('aria-sort'));
+                    titulo.setAttribute('aria-sort', ascendente ? 'ascending' : 'descending');
+
+                    const valor = fila => fila.cells[columna]?.textContent.trim() ?? '';
+                    const filas = Array.from(cuerpo.rows).sort((a, b) => {
+                        const x = valor(a), y = valor(b);
+                        const orden = esNumero(x) && esNumero(y)
+                            ? parseFloat(x.replace(',', '.')) - parseFloat(y.replace(',', '.'))
+                            : x.localeCompare(y, 'es', { sensitivity: 'base', numeric: true });
+                        return ascendente ? orden : -orden;
+                    });
+                    cuerpo.append(...filas);
+                });
+            });
+        });
+    </script>
+
+    <script>
+        const errorBaseDeDatos = @Html.Raw(Json.Serialize(Errores.ErrorBaseDeDatos));
+        document.querySelectorAll('.gf-aviso-ok, .gf-aviso-error').forEach(aviso => {
+            const esOk = aviso.classList.contains('gf-aviso-ok');
+            if (!esOk && (aviso.closest('form') || aviso.textContent.trim() === errorBaseDeDatos)) return;
+
+            setTimeout(() => {
+                aviso.classList.add('gf-aviso-saliendo');
+                aviso.addEventListener('transitionend', () => {
+                    const contenedor = aviso.parentElement;
+                    aviso.remove();
+                    if (contenedor.id === 'avisos' && contenedor.children.length === 0) contenedor.remove();
+                }, { once: true });
+            }, esOk ? 4000 : 7000);
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

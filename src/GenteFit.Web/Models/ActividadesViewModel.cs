@@ -18,8 +18,8 @@ public class ActividadesViewModel
 
     public static readonly (string Valor, string Texto)[] Ordenes =
     [
-        ("nombre", "Nombre"),
-        ("intensidad", "Intensidad")
+        ("nombre", "Ordenar por nombre"),
+        ("intensidad", "Ordenar por intensidad")
     ];
 
     public static string TextoEspecialidad(Especialidad especialidad) => especialidad switch
