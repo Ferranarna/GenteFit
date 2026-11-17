@@ -9,9 +9,11 @@ public static class Iconos
     {
         // Acciones de tabla y botones
         ["modificar"] = """<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>""",
+        ["buscar"] = """<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>""",
         ["baja"] = """<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>""",
         ["reservas"] = """<path d="M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/>""",
         ["crear"] = """<path d="M12 5v14M5 12h14"/>""",
+        ["chevron"] = """<path d="M6 9l6 6 6-6"/>""",
         ["quitar"] = """<path d="M5 12h14"/>""",
         ["informe"] = """<path d="M6 20V12M12 20V4M18 20V12M2 20h20"/>""",
         ["imprimir"] = """<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v7H6z"/>""",

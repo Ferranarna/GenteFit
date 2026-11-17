@@ -48,13 +48,14 @@ public class MisCitasController : Controller
         return View("Cliente", modelo);
     }
 
-    // El Id del entrenador es el mismo que el de su usuario (migración EntrenadorUsuario)
+    // El Id del entrenador es el mismo que el de su usuario 
     private IActionResult DelEntrenador(EstadoCita? estado)
     {
         var modelo = new CitasEntrenadorViewModel { Estado = estado, Ahora = DateTime.Now };
         try
         {
-            modelo.Citas = new CitaRepositorio(_db).ListarDeEntrenador(UsuarioActual(), estado);
+            var citas = new CitaRepositorio(_db).ListarDeEntrenador(UsuarioActual(), estado);
+            modelo.Citas = CitasEntrenadorViewModel.Ordenar(citas, modelo.Ahora);
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {

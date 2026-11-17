@@ -21,13 +21,15 @@ public class MisReservasController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index(EstadoReserva? estado)
+    public IActionResult Index(MisReservasViewModel.Filtro estado)
     {
         var modelo = new MisReservasViewModel { Estado = estado, Ahora = DateTime.Now };
 
         try
         {
-            modelo.Reservas = new ReservaRepositorio(_db).ListarDeCliente(UsuarioActual(), estado);
+            var todas = new ReservaRepositorio(_db).ListarDeCliente(UsuarioActual());
+            var filtradas = MisReservasViewModel.Filtrar(todas, estado, modelo.Ahora);
+            modelo.Reservas = MisReservasViewModel.Ordenar(filtradas, modelo.Ahora);
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
@@ -38,7 +40,7 @@ public class MisReservasController : Controller
     }
 
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult Anular(Guid reservaId, EstadoReserva? estado)
+    public IActionResult Anular(Guid reservaId, MisReservasViewModel.Filtro estado)
     {
         try
         {

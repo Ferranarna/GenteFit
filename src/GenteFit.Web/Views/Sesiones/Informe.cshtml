@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Informe de sesiones";
     var es = new CultureInfo("es-ES");
+    var ahora = DateTime.Now;
     string Fecha(DateTime d) => d.ToString("yyyy-MM-dd");
     var atajos = InformeSesionesViewModel.Atajos(DateTime.Today);
     var nombreActividad = Model.Actividades.FirstOrDefault(a => a.ActividadId == Model.ActividadId)?.NombreActividad ?? "Todas";
@@ -16,8 +17,14 @@
         <h1>Informe: sesiones del periodo</h1>
         <p class="gf-subtitulo">Todas las sesiones con su entrenador, estado y ocupación.</p>
     </div>
-    <a class="gf-boton-icono gf-no-imprimir" asp-action="Index"
-       aria-label="Volver a sesiones" title="Volver">@Iconos.Ver("volver")</a>
+    <div class="gf-herramientas gf-no-imprimir">
+        <button class="gf-boton-icono" type="button" onclick="window.print()"
+                aria-label="Imprimir el informe" title="Imprimir">
+            @Iconos.Ver("imprimir")
+        </button>
+        <a class="gf-boton-icono" asp-action="Index"
+           aria-label="Volver a sesiones" title="Volver">@Iconos.Ver("volver")</a>
+    </div>
 </div>
 
 @* Solo en papel: qué se ha filtrado y cuándo *@
@@ -29,15 +36,15 @@
 
 <form class="gf-tarjeta gf-no-imprimir mb-3" method="get" asp-action="Informe" aria-label="Filtros del informe">
     <div class="row g-3 align-items-end">
-        <div class="col-sm-6 col-lg-3">
+        <div class="col-sm-6 col-lg">
             <label class="gf-etiqueta" for="desde">Desde</label>
             <input class="form-control" type="date" id="desde" name="desde" value="@Fecha(Model.Desde)" required />
         </div>
-        <div class="col-sm-6 col-lg-3">
+        <div class="col-sm-6 col-lg">
             <label class="gf-etiqueta" for="hasta">Hasta</label>
             <input class="form-control" type="date" id="hasta" name="hasta" value="@Fecha(Model.Hasta)" required />
         </div>
-        <div class="col-sm-6 col-lg-3">
+        <div class="col-sm-6 col-lg">
             <label class="gf-etiqueta" for="actividad">Actividad</label>
             <select class="form-select" id="actividad" name="actividad">
                 <option value="">Todas</option>
@@ -47,7 +54,7 @@
                 }
             </select>
         </div>
-        <div class="col-sm-6 col-lg-3">
+        <div class="col-sm-6 col-lg">
             <label class="gf-etiqueta" for="estado">Estado</label>
             <select class="form-select" id="estado" name="estado">
                 @foreach (var e in InformeSesionesViewModel.Estados)
@@ -56,7 +63,7 @@
                 }
             </select>
         </div>
-        <div class="col-12">
+        <div class="col-12 col-lg-auto mb-lg-2">
             <button class="gf-boton gf-boton-auto" type="submit">Filtrar</button>
         </div>
     </div>
@@ -80,21 +87,24 @@
 
 @if (informe != null)
 {
-    <div class="gf-rejilla mb-3">
+    <div class="gf-rejilla gf-rejilla-informe mb-3">
         <div class="gf-tarjeta gf-estadistica">
-            <small class="gf-estadistica-titulo">Programadas</small>
+            <span class="gf-icono">@Iconos.Ver("calendario")</span>
+            <small class="gf-estadistica-titulo">Sesiones</small>
             <div class="gf-estadistica-valor">@informe.Programadas</div>
-            <div class="gf-estadistica-detalle">en el periodo</div>
+            <div class="gf-estadistica-detalle">sin contar las canceladas</div>
         </div>
         <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("baja")</span>
             <small class="gf-estadistica-titulo">Canceladas</small>
             <div class="gf-estadistica-valor">@informe.Canceladas</div>
             <div class="gf-estadistica-detalle">en el periodo</div>
         </div>
         <div class="gf-tarjeta gf-estadistica">
+            <span class="gf-icono">@Iconos.Ver("informe")</span>
             <small class="gf-estadistica-titulo">Ocupación media</small>
             <div class="gf-estadistica-valor">@(informe.OcupacionMedia is int m ? $"{m} %" : "—")</div>
-            <div class="gf-estadistica-detalle">de las programadas</div>
+            <div class="gf-estadistica-detalle">de las no canceladas</div>
         </div>
     </div>
 
@@ -103,9 +113,6 @@
             <h2 id="titulo-tabla" class="gf-estadistica-detalle m-0">
                 <b>@informe.Filas.Count</b> @(informe.Filas.Count == 1 ? "sesión" : "sesiones")
             </h2>
-            <button class="gf-boton gf-boton-borde gf-boton-auto gf-no-imprimir" type="button" onclick="window.print()">
-                @Iconos.Ver("imprimir") Imprimir
-            </button>
         </div>
 
         @if (informe.Filas.Count == 0)
@@ -115,11 +122,11 @@
         else
         {
             <div class="table-responsive">
-                <table class="gf-tabla">
+                <table class="gf-tabla gf-tabla-ordenable">
                     <caption class="visually-hidden">Sesiones del periodo con su estado y ocupación</caption>
                     <thead>
                         <tr>
-                            <th scope="col">Fecha</th>
+                            <th scope="col" data-no-ordenar>Fecha</th>
                             <th scope="col">Actividad</th>
                             <th scope="col">Sala</th>
                             <th scope="col">Entrenador</th>
@@ -132,16 +139,18 @@
                         {
                             var s = f.Sesion;
                             var cancelada = s.Estado == EstadoSesion.Cancelada;
+                            var finalizada = !cancelada && s.Fecha.AddMinutes(s.Duracion) <= ahora;
+                            var enCurso = !cancelada && !finalizada && s.Fecha <= ahora;
+                            var (chip, texto) = cancelada ? ("gf-chip-baja", "Cancelada")
+                            : finalizada ? ("gf-chip-apagado", "Finalizada")
+                            : enCurso ? ("gf-chip-apagado", "En curso")
+                            : ("gf-chip-activo", "Programada");
                             <tr>
                                 <td>@s.Fecha.ToString("dd/MM HH:mm")</td>
                                 <td>@s.Actividad.NombreActividad</td>
                                 <td>@s.Sala.NombreSala</td>
                                 <td>@s.Entrenador.Usuario.Nombre @s.Entrenador.Usuario.Apellido1</td>
-                                <td>
-                                    <span class="gf-chip @(cancelada ? "gf-chip-baja" : "gf-chip-activo")">
-                                        @(cancelada ? "Cancelada" : "Programada")
-                                    </span>
-                                </td>
+                                <td><span class="gf-chip @chip">@texto</span></td>
                                 <td class="gf-ocupacion">
                                     @if (f.Porcentaje is int p)
                                     {

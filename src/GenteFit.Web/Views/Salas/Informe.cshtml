@@ -18,7 +18,7 @@
     </div>
     <div class="gf-herramientas gf-no-imprimir">
         <button class="gf-boton-icono" type="button" onclick="window.print()"
-                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("informe")</button>
+                aria-label="Imprimir el informe" title="Imprimir">@Iconos.Ver("imprimir")</button>
         <a class="gf-boton-icono" asp-action="Index"
            aria-label="Volver a Salas" title="Volver">@Iconos.Ver("volver")</a>
     </div>
@@ -39,7 +39,7 @@
 
 @if (informe != null)
 {
-    <div class="gf-rejilla mb-4">
+    <div class="gf-rejilla gf-rejilla-informe mb-4">
         <div class="gf-tarjeta gf-estadistica">
             <span class="gf-icono">@Iconos.Ver("calendario")</span>
             <small class="gf-estadistica-titulo">Sesiones programadas</small>
@@ -71,7 +71,7 @@
 
     <div class="gf-tarjeta">
         <div class="table-responsive">
-            <table class="gf-tabla">
+            <table class="gf-tabla gf-tabla-ordenable">
                 <caption class="visually-hidden">Salas ordenadas de más a menos horas de uso</caption>
                 <thead>
                     <tr>

@@ -15,10 +15,9 @@
     <h1>Sesiones</h1>
     <div class="gf-herramientas">
         <form class="gf-filtro" method="get" asp-action="Index">
-                       <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
-            <label class="gf-etiqueta" for="actividad">Actividad</label>
-            <select class="form-select" id="actividad" name="actividad" onchange="this.form.submit()">
-                <option value="">Todas</option>
+            <input type="hidden" name="dia" value="@Fecha(Model.Dia)" />
+            <select class="form-select" id="actividad" name="actividad" aria-label="Filtrar por actividad" onchange="this.form.submit()">
+                <option value="">Todas las actividades</option>
                 @foreach (var a in Model.Actividades)
                 {
                     <option value="@a.ActividadId" selected="@(a.ActividadId == Model.ActividadId)">@a.NombreActividad</option>
@@ -29,29 +28,35 @@
 
         @if (Model.PuedeEditar)
         {
-            <button class="gf-boton-icono" type="submit" form="form-sesion" data-necesita-sesion disabled
-                    asp-action="Reservas" formmethod="get"
-                    aria-label="Ver las reservas de la sesión elegida" title="Ver reservas">
-                @Iconos.Ver("reservas")
-            </button>
-            <button class="gf-boton-icono" type="submit" form="form-sesion" data-necesita-sesion disabled
-                    asp-action="Editar" formmethod="get"
-                    aria-label="Modificar la sesión elegida" title="Modificar">
-                @Iconos.Ver("modificar")
-            </button>
-            <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-sesion" data-necesita-sesion disabled
-                    asp-action="Cancelar"
-                    onclick="return confirm('¿Seguro que quieres cancelar esta sesión? Se anularán todas sus reservas y la lista de espera.')"
-                    aria-label="Cancelar la sesión elegida" title="Cancelar sesión">
-                @Iconos.Ver("baja")
-            </button>
-            <a class="gf-boton-icono" asp-action="Crear" asp-route-dia="@Fecha(Model.Dia)"
-               aria-label="Crear una sesión nueva" title="Crear sesión">@Iconos.Ver("crear")</a>
             <a class="gf-boton-icono" asp-action="Informe"
                aria-label="Informe de sesiones del periodo" title="Informe">@Iconos.Ver("informe")</a>
         }
     </div>
 </div>
+
+@if (Model.PuedeEditar)
+{
+    <div class="gf-acciones">
+        <button class="gf-boton-icono" type="submit" form="form-sesion" data-necesita-sesion disabled
+                asp-action="Reservas" formmethod="get"
+                aria-label="Ver las reservas de la sesión elegida" title="Ver reservas">
+            @Iconos.Ver("reservas")
+        </button>
+        <button class="gf-boton-icono" type="submit" form="form-sesion" data-necesita-sesion disabled
+                asp-action="Editar" formmethod="get"
+                aria-label="Modificar la sesión elegida" title="Modificar">
+            @Iconos.Ver("modificar")
+        </button>
+        <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-sesion" data-necesita-sesion disabled
+                asp-action="Cancelar"
+                onclick="return confirm('¿Seguro que quieres cancelar esta sesión? Se anularán todas sus reservas y la lista de espera.')"
+                aria-label="Cancelar la sesión elegida" title="Cancelar sesión">
+            @Iconos.Ver("baja")
+        </button>
+        <a class="gf-boton-icono" asp-action="Crear" asp-route-dia="@Fecha(Model.Dia)"
+           aria-label="Crear una sesión nueva" title="Crear sesión">@Iconos.Ver("crear")</a>
+    </div>
+}
 
 @if (Model.PuedeEditar)
 {

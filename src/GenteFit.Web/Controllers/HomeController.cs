@@ -85,7 +85,7 @@ public class HomeController : Controller
 
             estadisticas.Add(new Estadistica("informe", "Ocupación de sesiones", $"{porcentaje} %",
                 "{0} plazas reservadas esta semana", "Ver sesiones",
-                Porcentaje: porcentaje, Resaltado: reservadas.ToString()));
+                Resaltado: reservadas.ToString()));
             estadisticas.Add(actividad is { } a
                 ? new Estadistica("actividad", "Actividad más reservada", a.Nombre,
                     "{0} reservas este mes", "Ver actividades", Resaltado: a.Reservas.ToString())
@@ -165,7 +165,7 @@ public class HomeController : Controller
                     "No quedan más sesiones hoy", "Ver sesiones"),
             new Estadistica("informe", "Ocupación de mis sesiones", $"{porcentaje} %",
                 "{0} plazas reservadas esta semana", "Ver sesiones",
-                Porcentaje: porcentaje, Resaltado: reservadas.ToString()),
+                Resaltado: reservadas.ToString()),
             new Estadistica("usuarios", "Alumnos esta semana", alumnos.ToString(),
                 "{0} reservas en total", "Ver sesiones", Resaltado: reservas.ToString())
         };

@@ -9,5 +9,4 @@ public record Estadistica(
     string Detalle,
     string TextoEnlace,
     string Enlace = "#",
-    int? Porcentaje = null,
     string? Resaltado = null);

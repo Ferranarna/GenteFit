@@ -35,12 +35,7 @@ public class EjerciciosController : Controller
         try
         {
             var repo = new EjercicioRepositorio(_db);
-            if (!string.IsNullOrWhiteSpace(buscar))
-                modelo.Ejercicios = repo.Buscar(buscar.Trim());
-            else if (modelo.Grupo != null)
-                modelo.Ejercicios = repo.BuscarPorGrupo(modelo.Grupo);
-            else
-                modelo.Ejercicios = repo.ObtenerTodos().OrderBy(e => e.NombreEjercicio).ToList();
+            modelo.Ejercicios = repo.Buscar(buscar?.Trim(), modelo.Grupo);
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {

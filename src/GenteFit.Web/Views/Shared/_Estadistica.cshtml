@@ -7,10 +7,7 @@
     <span class="gf-icono">@Iconos.Ver(Model.Icono)</span>
     <small class="gf-estadistica-titulo">@Model.Titulo</small>
     <div class="gf-estadistica-valor">@Model.Valor</div>
-    @if (Model.Porcentaje is int porcentaje)
-    {
-        <div class="gf-barra"><i style="width:@(porcentaje)%"></i></div>
-    }
+    
     <div class="gf-estadistica-detalle">
         @partes[0]@if (partes.Length > 1)
         {

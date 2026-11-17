@@ -18,4 +18,18 @@ public class CitasEntrenadorViewModel
 
     public bool SePuedeAnular(Cita cita) =>
        cita.Estado == EstadoCita.Programada && cita.FechaActividad > Ahora;
+
+    // Primero lo que queda por venir (o en curso), de la más próxima a la más lejana;
+    // después las finalizadas, de la más reciente a la más antigua.
+    public static List<Cita> Ordenar(IEnumerable<Cita> citas, DateTime ahora)
+    {
+        var lista = citas.ToList();
+        var porVenir = lista
+            .Where(c => c.FechaActividad.AddMinutes(c.Duracion) > ahora)
+            .OrderBy(c => c.FechaActividad);
+        var finalizadas = lista
+            .Where(c => c.FechaActividad.AddMinutes(c.Duracion) <= ahora)
+            .OrderByDescending(c => c.FechaActividad);
+        return porVenir.Concat(finalizadas).ToList();
+    }
 }

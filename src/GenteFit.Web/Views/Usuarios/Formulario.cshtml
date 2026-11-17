@@ -19,14 +19,8 @@
                 : "Cambia los datos y pulsa Guardar.")
     </p>
 
-    @if (ViewBag.Error != null)
-    {
-        <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
-    }
-
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
         <input type="hidden" asp-for="UsuarioId" />
-        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
 
         <div class="row g-3">
             <div class="col-md-6">
@@ -67,8 +61,7 @@
                     @if (rolFijo)
                     {
                         <input type="hidden" asp-for="Rol" />
-                        <input class="form-control" id="Rol-texto" value="Entrenador" disabled aria-describedby="ayuda-rol" />
-                        <small class="gf-campo-ayuda" id="ayuda-rol">Un entrenador no puede cambiar de rol.</small>
+                        <input class="form-control" id="Rol-texto" value="Entrenador" disabled />
                     }
                     else
                     {
@@ -86,7 +79,7 @@
 
             <div class="col-md-6" id="bloque-especialidad" hidden="@(!verEspecialidad)">
                 <label class="gf-etiqueta" asp-for="Especialidad">Especialidad *</label>
-                <select class="form-select" asp-for="Especialidad" aria-describedby="ayuda-especialidad">
+                <select class="form-select" asp-for="Especialidad">
                     <option value="">Selecciona una especialidad</option>
                     @foreach (var e in Enum.GetValues<Especialidad>())
                     {
@@ -94,20 +87,27 @@
                     }
                 </select>
                 <span class="gf-campo-error" asp-validation-for="Especialidad"></span>
-                <small class="gf-campo-ayuda" id="ayuda-especialidad">Debe coincidir con la de las actividades que imparte.</small>
             </div>
 
             @if (Model.EsNueva)
             {
                 <div class="col-12">
                     <label class="gf-etiqueta" asp-for="Contrasena">Contraseña inicial *</label>
-                    <input class="form-control" asp-for="Contrasena" type="password" autocomplete="new-password"
-                           aria-describedby="ayuda-contrasena" />
+                    <input class="form-control" asp-for="Contrasena" type="password" autocomplete="new-password" />
                     <span class="gf-campo-error" asp-validation-for="Contrasena"></span>
-                    <small class="gf-campo-ayuda" id="ayuda-contrasena">Solo en el alta. Después la podrá cambiar desde su menú.</small>
                 </div>
             }
         </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+        }
+        else
+        {
+            <div class="gf-aviso gf-aviso-info">Introduce los datos.</div>
+        }
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
 
         <div class="gf-botones mt-3">
             <button class="gf-boton gf-boton-auto" type="submit">Guardar</button>

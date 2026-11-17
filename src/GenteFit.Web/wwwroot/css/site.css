@@ -61,9 +61,10 @@ a {
         color: var(--gf-acento);
     }
 
-/* Texto de las opciones: igual en las pestañas y en el menú del usuario */
+/* Texto de las opciones: igual en las pestañas, en el menú del usuario y en los desplegables */
 .gf-nav .nav-link,
-.gf-nav .dropdown-item {
+.gf-nav .dropdown-item,
+.gf-desplegable .dropdown-item {
     color: var(--gf-texto-suave);
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -75,12 +76,15 @@ a {
 
     .gf-nav .nav-link:hover,
     .gf-nav .dropdown-item:hover,
-    .gf-nav .dropdown-item:active {
+    .gf-nav .dropdown-item:active,
+    .gf-desplegable .dropdown-item:hover,
+    .gf-desplegable .dropdown-item:active {
         color: #fff;
         background: rgba(77, 184, 255, .18);
     }
 
-    .gf-nav .nav-link.activo {
+    .gf-nav .nav-link.activo,
+    .gf-desplegable .dropdown-item.activo {
         color: #04121f;
         background: var(--gf-acento);
     }
@@ -176,6 +180,10 @@ a {
     font-size: .95rem;
 }
 
+.gf-estrecho .gf-subtitulo {
+    margin-bottom: 1.25rem;
+}
+
 /* ===== Tarjetas ===== */
 .gf-tarjeta {
     background: var(--gf-tarjeta);
@@ -188,6 +196,11 @@ a {
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+/* Resumen de los informes: las tarjetas se reparten todo el ancho */
+.gf-rejilla-informe {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 a.gf-tarjeta {
@@ -301,25 +314,42 @@ label.gf-etiqueta {
 }
 
 .form-control, .form-select {
-    background: #050b14;
+    background-color: #050b14;
     color: var(--gf-texto);
     border: 1px solid var(--gf-borde);
     border-radius: 10px;
     padding: .7rem .9rem;
+    color-scheme: dark;
 }
 
     .form-control:focus, .form-select:focus {
-        background: #050b14;
+        background-color: #050b14;
         color: #fff;
         border-color: var(--gf-acento);
         box-shadow: 0 0 0 3px rgba(77, 184, 255, .25);
     }
 
-.form-control:disabled, .form-select:disabled {
-    background: #050b14;
-    color: var(--gf-texto-suave);
-    opacity: .6;
-    cursor: not-allowed;
+    .form-control:disabled, .form-select:disabled {
+        background-color: #050b14;
+        color: var(--gf-texto-suave);
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+/* Desplegables: flecha a la derecha, para que se vea que se pueden abrir */
+.form-select {
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fdcff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .85rem center;
+    background-size: 16px 16px;
+    cursor: pointer;
+}
+
+/* Fecha y hora: se escriben. Se oculta el botón que abre el calendario o el reloj del navegador, porque no se puede adaptar al diseño */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
 }
 
 .gf-ayuda {
@@ -462,7 +492,6 @@ label.gf-etiqueta {
 
 .gf-boton-auto {
     width: auto;
-    padding: .5rem 1.1rem;
     text-decoration: none;
     text-align: center;
 }
@@ -572,8 +601,167 @@ input:-webkit-autofill:focus {
     }
 
     .gf-filtro .form-select {
-        min-width: 200px;
+        min-width: 14rem;
     }
+
+/* ===== Botones que actúan sobre la fila elegida: debajo de la cabecera, a la derecha ===== */
+.gf-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+/* ===== Tablas ordenables: el título de la columna es un botón ===== */
+.gf-ordenar {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+}
+
+    .gf-ordenar:hover {
+        color: #fff;
+    }
+
+th[aria-sort] .gf-ordenar::after {
+    content: "▲";
+    font-size: .6rem;
+    color: var(--gf-acento-claro);
+}
+
+th[aria-sort="descending"] .gf-ordenar::after {
+    content: "▼";
+}
+
+/* Móvil: buscador y desplegable ocupan cada uno una fila entera */
+@media (max-width: 576px) {
+    .gf-herramientas {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .gf-filtro {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+        .gf-buscador-corto,
+        .gf-filtro .gf-desplegable {
+            flex: 1 1 100%;
+            width: 100%;
+        }
+}
+
+/* ===== Buscador pequeño de las cabeceras: la lupa va dentro del campo ===== */
+.gf-buscador-corto {
+    position: relative;
+    width: 14rem;
+}
+
+    .gf-buscador-corto .form-control {
+        padding-right: 2.9rem;
+    }
+
+    .gf-buscador-corto button {
+        position: absolute;
+        top: 50%;
+        right: .4rem;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--gf-acento-claro);
+        cursor: pointer;
+    }
+
+        .gf-buscador-corto button:hover,
+        .gf-buscador-corto button:focus-visible {
+            background: rgba(77, 184, 255, .15);
+        }
+
+    .gf-buscador-corto .gf-ico {
+        width: 20px;
+        height: 20px;
+    }
+
+/* ===== Desplegables: se abren como el menú del usuario ===== */
+.gf-select-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gf-desplegable {
+    min-width: 14rem;
+}
+
+.gf-desplegable-boton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    width: 100%;
+    padding: .7rem .9rem;
+    background-color: #050b14;
+    color: var(--gf-texto);
+    border: 1px solid var(--gf-borde);
+    border-radius: 10px;
+    font: inherit;
+    cursor: pointer;
+}
+
+    .gf-desplegable-boton:hover,
+    .gf-desplegable-boton[aria-expanded="true"] {
+        border-color: var(--gf-acento);
+    }
+
+    .gf-desplegable-boton:focus-visible {
+        outline: 0;
+        border-color: var(--gf-acento);
+        box-shadow: 0 0 0 3px rgba(77, 184, 255, .25);
+    }
+
+    .gf-desplegable-boton:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    .gf-desplegable-boton .gf-ico {
+        flex: none;
+        width: 16px;
+        height: 16px;
+        color: var(--gf-acento-claro);
+        transition: transform .15s;
+    }
+
+    .gf-desplegable-boton[aria-expanded="true"] .gf-ico {
+        transform: rotate(180deg);
+    }
+
+.gf-desplegable .dropdown-menu {
+    min-width: 100%;
+    margin-top: 8px;
+    padding: .5rem;
+    background: var(--gf-tarjeta);
+    border: 1px solid var(--gf-borde);
+    border-radius: var(--gf-radio);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+}
 
 /* ===== Pantalla Sesiones: calendario ===== */
 .gf-calendario-mes {
@@ -787,7 +975,7 @@ input:-webkit-autofill:focus {
     }
 
     .gf-boton-icono:disabled {
-        opacity: .35;
+        opacity: .55;
         cursor: not-allowed;
     }
 
@@ -946,19 +1134,16 @@ input:-webkit-autofill:focus {
     }
 }
 
-/* ===== Formularios: ayuda y errores bajo cada campo ===== */
-.gf-campo-ayuda, .gf-campo-error {
-    display: block;
-    font-size: .8rem;
-    margin-top: .35rem;
-}
-
-.gf-campo-ayuda {
-    color: var(--gf-texto-suave);
-}
-
+/* ===== Formularios: validación ===== */
 .gf-campo-error {
+    display: block;
+    margin-top: .35rem;
+    font-size: .8rem;
     color: var(--gf-error);
+}
+
+.field-validation-valid {
+    display: none;
 }
 
 .input-validation-error {
@@ -967,6 +1152,17 @@ input:-webkit-autofill:focus {
 
 .validation-summary-valid {
     display: none;
+}
+
+/* Avisos de los formularios: el azul se oculta cuando hay errores, y la lista de errores se ve como una frase */
+.gf-aviso-info:has(+ .validation-summary-errors) {
+    display: none;
+}
+
+.gf-aviso ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 /* ===== Informes (sesiones, salas, actividades...): atajos y tabla ===== */
@@ -1017,10 +1213,12 @@ input:-webkit-autofill:focus {
     display: none;
 }
 
+@page {
+    size: A4;
+    margin: 1.5cm;
+}
+
 @media print {
-    @page {
-        margin: 1.5cm;
-    }
 
     /* Papel: fondo blanco y texto negro en todo */
     * {
@@ -1063,15 +1261,18 @@ input:-webkit-autofill:focus {
     .gf-chip {
         border: 1px solid #000;
     }
-}
+
+    .gf-icono {
+        border-color: #000 !important;
+    }
+
+    .gf-aviso {
+        border-color: #999 !important;
+    }
 }
 
+
 /* ===== Pantalla Actividades ===== */
-.gf-buscador {
-    display: flex;
-    gap: .75rem;
-    margin-bottom: 1.25rem;
-}
 
 .gf-actividades {
     display: grid;
@@ -1252,20 +1453,6 @@ input:-webkit-autofill:focus {
         grid-template-columns: 1fr;
     }
 }
-/* ===== Gestión de usuarios (Clientes / Entrenadores / Usuarios) ===== */
-.gf-filtro-rol {
-    flex: 0 0 12rem;
-    width: auto;
-}
-@media (max-width: 576px) {
-    .gf-buscador:has(.gf-filtro-rol) {
-        flex-wrap: wrap;
-    }
-    .gf-filtro-rol {
-        flex: 1 1 100%;
-    }
-}
-
 
 /* ===== Pantalla Odoo ===== */
 .gf-estado-fila {

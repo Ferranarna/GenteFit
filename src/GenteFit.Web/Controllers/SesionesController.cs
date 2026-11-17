@@ -118,8 +118,6 @@ public class SesionesController : Controller
                 Dia = dia,
                 ActividadId = actividad
             });
-
-
         }
         catch (Exception ex) when (Errores.EsDeBaseDeDatos(ex))
         {
@@ -130,7 +128,7 @@ public class SesionesController : Controller
 
     private Guid UsuarioActual() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-  [HttpGet, Authorize(Roles = Permisos.Gestion)]
+    [HttpGet, Authorize(Roles = Permisos.Gestion)]
     public IActionResult Crear(DateTime? dia) =>
         MostrarFormulario(new SesionFormularioViewModel { Fecha = dia ?? DateTime.Today });
 
@@ -208,7 +206,7 @@ public class SesionesController : Controller
     }
 
     [HttpGet, Authorize(Roles = Permisos.Gestion)]
-    public IActionResult Informe(DateTime? desde, DateTime? hasta, Guid? actividad, EstadoSesion? estado)
+    public IActionResult Informe(DateTime? desde, DateTime? hasta, Guid? actividad, InformeSesionesViewModel.Filtro estado)
     {
         // Sin fechas en la URL, el informe sale de este mes (como en la maqueta)
         var esteMes = InformeSesionesViewModel.Atajos(DateTime.Today)[0];
@@ -224,7 +222,8 @@ public class SesionesController : Controller
         {
             modelo.Actividades = new ActividadRepositorio(_db).ObtenerTodos()
                 .OrderBy(a => a.NombreActividad).ToList();
-            modelo.Informe = new SesionRepositorio(_db).Informe(modelo.Desde, modelo.Hasta, actividad, estado);
+            var informe = new SesionRepositorio(_db).Informe(modelo.Desde, modelo.Hasta, actividad);
+            modelo.Informe = InformeSesionesViewModel.Filtrar(informe, estado, DateTime.Now);
         }
         catch (ValidacionException ex)
         {

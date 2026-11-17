@@ -10,8 +10,7 @@
     <h1>Mis citas</h1>
     <div class="gf-herramientas">
         <form class="gf-filtro" method="get" asp-action="Index">
-            <label class="gf-etiqueta" for="estado">Mostrar</label>
-            <select class="form-select" id="estado" name="estado" onchange="this.form.submit()">
+            <select class="form-select" id="estado" name="estado" aria-label="Filtrar por estado" onchange="this.form.submit()">
                 @foreach (var (valor, texto) in CitasEntrenadorViewModel.Opciones)
                 {
                     <option value="@valor" selected="@(valor == Model.Estado)">@texto</option>
@@ -65,7 +64,8 @@
                         {
                             var anulable = Model.SePuedeAnular(cita);
                             var (chip, texto) = cita.Estado == EstadoCita.Cancelada ? ("gf-chip-baja", "Cancelada")
-                            : cita.FechaActividad <= Model.Ahora ? ("gf-chip-apagado", "Realizada")
+                            : cita.FechaActividad.AddMinutes(cita.Duracion) <= Model.Ahora ? ("gf-chip-apagado", "Finalizada")
+                            : cita.FechaActividad <= Model.Ahora ? ("gf-chip-apagado", "En curso")
                             : ("gf-chip-activo", "Confirmada");
                             <tr class="@(anulable ? "" : "gf-fila-bloqueada")">
                                 <td>
