@@ -3,12 +3,13 @@
 }
 <div class="gf-estrecho">
     <h1>Cambiar contraseña</h1>
+    <p class="gf-subtitulo">Escribe tu contraseña actual y la nueva. Los campos marcados con * son obligatorios.</p>
 
     <form class="gf-tarjeta" method="post" asp-action="CambiarContrasena">
-        <label class="gf-etiqueta" for="actual">Contraseña actual</label>
+        <label class="gf-etiqueta" for="actual">Contraseña actual *</label>
         <input class="form-control mb-3" id="actual" name="actual" type="password" />
 
-        <label class="gf-etiqueta" for="nueva">Contraseña nueva</label>
+        <label class="gf-etiqueta" for="nueva">Contraseña nueva *</label>
         <input class="form-control" id="nueva" name="nueva" type="password" />
 
         @if (ViewBag.Error != null)

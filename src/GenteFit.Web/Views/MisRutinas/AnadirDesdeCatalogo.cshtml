@@ -20,7 +20,7 @@
     {
         <form class="gf-tarjeta" method="post" asp-action="AnadirDesdeCatalogo">
             <input type="hidden" name="ejercicioId" value="@Model.Ejercicio.EjercicioId" />
-            <label class="gf-etiqueta" for="rutinaId">Rutina</label>
+            <label class="gf-etiqueta" for="rutinaId">Rutina *</label>
             <select class="form-select" id="rutinaId" name="rutinaId" required>
                 @foreach (var r in Model.Rutinas)
                 {

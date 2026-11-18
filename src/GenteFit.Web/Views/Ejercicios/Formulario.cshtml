@@ -9,6 +9,7 @@
     <p class="gf-subtitulo">
         @(Model.EsNuevo ? "Añade un ejercicio al catálogo. Los clientes podrán usarlo en sus rutinas."
                 : "Cambia los datos y pulsa Guardar. Las rutinas que ya lo usan se mantienen.")
+        Los campos marcados con * son obligatorios.
     </p>
 
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
@@ -16,13 +17,13 @@
 
         <div class="row g-3">
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Nombre">Nombre del ejercicio</label>
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre del ejercicio *</label>
                 <input class="form-control" asp-for="Nombre" placeholder="Ej. Zancada" />
                 <span class="gf-campo-error" asp-validation-for="Nombre"></span>
             </div>
 
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="GrupoMuscular">Grupo muscular</label>
+                <label class="gf-etiqueta" asp-for="GrupoMuscular">Grupo muscular *</label>
                 <select class="form-select" asp-for="GrupoMuscular">
                     <option value="">Selecciona un grupo</option>
                     @foreach (var g in EjerciciosViewModel.Grupos)
@@ -34,7 +35,7 @@
             </div>
 
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Descripcion">Descripción (opcional)</label>
+                <label class="gf-etiqueta" asp-for="Descripcion">Descripción</label>
                 <textarea class="form-control" asp-for="Descripcion" rows="3"
                           placeholder="Explica cómo se realiza el ejercicio"></textarea>
                 <span class="gf-campo-error" asp-validation-for="Descripcion"></span>

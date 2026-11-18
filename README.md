@@ -1,32 +1,42 @@
 # GenteFit
 
-Aplicación de gestión de un centro deportivo (clientes, actividades, horarios, reservas y lista de espera), desarrollada en .NET para la asignatura **FP.452 – Técnicas de persistencia de datos con .NET y apps ERP** (DAM).
+Aplicación web de gestión de un centro deportivo (clientes, actividades, salas, sesiones, reservas con lista de espera, citas con entrenador personal y rutinas), desarrollada en .NET para la asignatura **FP.452 – Técnicas de persistencia de datos con .NET y apps ERP** (DAM).
 
-Equipo: **BugBusters** 
+Equipo: **BugBusters**
 
 ## Estado por productos
 
 | Producto | Contenido | Estado |
 |---|---|---|
 | 1 | Diseño UML y pantallas | Entregado |
-| 2 | Capa de acceso a datos (ORM + SQL Server, lectura XML) | En curso |
-| 3 | Aplicación Windows Forms | Pendiente |
+| 2 | Capa de acceso a datos (ORM + SQL Server) y capa XML | Entregado |
+| 3 | Aplicación web ASP.NET Core MVC | Entregado |
 | 4 | Intercambio de datos con Odoo (Python + XML) | Pendiente |
 | 5 | Implantación del ERP | Pendiente |
+
+## Funcionalidades
+
+La aplicación tiene cinco perfiles y cada uno solo ve sus pantallas:
+
+- **Cliente:** consulta actividades, ejercicios y sesiones; reserva plaza o se apunta a la lista de espera; gestiona sus reservas, citas y rutinas.
+- **Recepcionista:** da de alta, modifica, da de baja y reactiva clientes; consulta actividades y sesiones.
+- **Encargado:** gestiona actividades, salas, ejercicios, entrenadores y sesiones; consulta las reservas y la lista de espera; saca informes.
+- **Entrenador:** consulta sus sesiones y los ejercicios. El **entrenador personal**, además, gestiona sus citas y crea rutinas a sus clientes.
+- **Administrador:** acceso total, incluida la gestión de usuarios y roles y la pantalla de Odoo (de momento solo diseño).
 
 ## Arquitectura
 
 Arquitectura **por capas**, una solución de Visual Studio (.NET 8) con un proyecto por capa. Cada capa solo conoce a las que tiene "debajo", nunca al revés.
 
 ```
-Presentación  (GenteFit.UI)                   <- Producto 3
+Presentación  (GenteFit.Web, ASP.NET Core MVC)  <- Producto 3
       |
-   Negocio    (GenteFit.Negocio)              <- Producto 3
+ Datos / XML  (GenteFit.Datos, GenteFit.Xml)    <- Producto 2
       |
- Datos / XML  (GenteFit.Datos, GenteFit.Xml)  <- Producto 2
-      |
-   Modelo     (GenteFit.Modelo)               <- clases del diagrama de clases (Producto 1)
+   Modelo     (GenteFit.Modelo)                 <- clases del diagrama de clases (Producto 1)
 ```
+
+Una petición viaja así: **navegador → controlador (`[Authorize(Roles)]`) → repositorio (valida y aplica las reglas) → `GenteFitContext` (EF Core) → SQL Server**.
 
 ### Estructura de carpetas
 
@@ -34,63 +44,85 @@ Presentación  (GenteFit.UI)                   <- Producto 3
 GenteFit/
 ├── GenteFit.sln
 ├── README.md
-├── .gitignore
 ├── src/
-│   ├── GenteFit.Modelo/      (C#)  Entidades del dominio: Cliente, Actividad, Reserva...
-│   ├── GenteFit.Datos/       (C#)  Acceso a SQL Server mediante Entity Framework Core
-│   ├── GenteFit.Xml/         (F#)  Lectura de la fuente de datos XML
-│   ├── GenteFit.Negocio/     (C#)  Reglas: 16 plazas, lista de espera... (Producto 3)
-│   └── GenteFit.UI/          (C#)  ASP.NET Core (Producto 3)
-├── tests/                          Pruebas automáticas, un proyecto por capa
-├── docs/                           Documentación, diagramas y justificación
-└── odoo/                           Módulo para Odoo (Producto 4)
+│   ├── GenteFit.Modelo/   (C#)  Entidades del dominio y enumerados
+│   ├── GenteFit.Datos/    (C#)  EF Core, migraciones, repositorios y reglas de negocio
+│   ├── GenteFit.Xml/      (F#)  Lectura y escritura de ficheros XML
+│   ├── GenteFit.Web/      (C#)  Aplicación web: controladores, vistas Razor, CSS
+│   ├── GenteFit.Demo/     (C#)  Aplicación de consola del Producto 2
+│   └── GenteFit.Tests/    (C#)  Pruebas automáticas (xUnit)
+├── instalador/                  Script de Inno Setup y GenteFit.bat
+├── publicar/                    Web publicada (generada con dotnet publish; no se sube a Git)
+└── salida/                      Instalador setup.exe (generado; no se sube a Git)
 ```
 
-### Responsabilidad de cada capa
+### Responsabilidad de cada proyecto
 
-- **Modelo:** clases simples que representan los datos. No saben nada de SQL, XML ni pantallas. Es compartida por todas las demás capas.
-- **Datos:** guarda y recupera el modelo en SQL Server. Es la única capa que habla con la base de datos.
-- **Xml:** lee ficheros XML y los convierte en objetos del modelo, y también guarda objetos del modelo en un fichero XML. Es independiente de la base de datos.
-- **Negocio:** aplica las reglas de GenteFit sobre el modelo, apoyándose en Datos y Xml.
-- **UI:** muestra la información y recoge las acciones del usuario. No accede nunca a la base de datos directamente.
+- **Modelo:** clases simples que representan los datos. No saben nada de SQL, XML ni pantallas.
+- **Datos:** guarda y recupera el modelo en SQL Server. Los repositorios validan y aplican las reglas (plazas, lista de espera, citas, etc.).
+- **Xml:** lee ficheros XML y los convierte en objetos del modelo, y guarda objetos del modelo en XML. Es independiente de la base de datos.
+- **Web:** muestra la información y recoge las acciones del usuario. No escribe SQL ni reglas de negocio: las pide a los repositorios.
+- **Demo:** prueba la capa de datos y la capa XML sin interfaz gráfica.
+- **Tests:** 148 pruebas de la capa de datos con SQLite en memoria.
 
-### Lenguajes
+### Lenguajes y tecnologías
 
-- **C#:** modelo, datos, negocio e interfaz.
+- **C# (.NET 8):** modelo, datos, web y pruebas. ASP.NET Core MVC con vistas Razor, Entity Framework Core 8 y SQL Server.
 - **F#:** capa XML.
+- **Bootstrap 5 + CSS propio** (clases `gf-`), **xUnit** para las pruebas e **Inno Setup** para el instalador.
 
-### Cómo se han creado las capas (a alto nivel)
-
-1. **Solución en blanco** (`GenteFit.sln`) en la raíz del repo: es el contenedor que agrupa todos los proyectos.
-2. **Un proyecto por capa**, todos en la carpeta `src/` y con **.NET 8.0**. Cada capa es una *biblioteca de clases* (genera una `.dll`, no se ejecuta sola); la aplicación Windows Forms llegará en el Producto 3.
-   - `GenteFit.Modelo` (C#)
-   - `GenteFit.Datos` (C#)
-   - `GenteFit.Xml` (F#)
-3. **Referencias de proyecto** para que las capas se vean entre sí, siempre en una sola dirección: `Datos → Modelo` y `Xml → Modelo`. El Modelo no depende de ninguna otra capa.
-4. `.gitignore` (plantilla de Visual Studio) evita subir `bin/`, `obj/` y `.vs/`, y `.gitattributes` unifica los finales de línea entre equipos.
-
-Para trabajar: clonar el repo, abrir `GenteFit.sln` en Visual Studio 2022 y compilar la solución para comprobar que todo funciona.
-
-## Base de datos (SQL Server + EF Core)
- 
-Cada miembro tiene su propia copia local de la base de datos, lo que se comparte por Git es la estructura (migraciones en `src/GenteFit.Datos/Migrations`).
 ### Requisitos (solo la primera vez)
- 
+
 - **SQL Server 2025 Developer:** para guardar y gestionar la base de datos.
 - **SSMS (SQL Server Management Studio):** para ver y manejar la base de datos.
 - **.NET 8 SDK:** kit para construir programas en .NET.
-- **Herramienta de EF Core (`dotnet-ef` 8.0.11):** utilidad de línea de comandos que añade el comando `dotnet ef`, con el que se crea y actualiza la estructura de la base de datos local (migraciones) y se puede borrar.
-### Normas
- 
-- Nunca cambiar tablas a mano desde SSMS: el cambio no llega al resto y EF se desincroniza. Todo cambio de estructura = cambio en las clases + migración.
-- Una sola persona a la vez crea migraciones, para evitar conflictos en `GenteFitContextModelSnapshot.cs`. Avisar antes por el grupo.
-- Incluir siempre la carpeta `Migrations` en el commit.
-- No borrar ni editar migraciones ya fusionadas; si algo falla, se crea otra que lo corrija.
+- **Herramienta de EF Core (`dotnet-ef` 8.0.11):** añade el comando `dotnet ef`, con el que se crea y actualiza la estructura de la base de datos local (migraciones) y se puede borrar.
 
-## Flujo de trabajo en Git
+Para empezar de cero con los datos de ejemplo:
 
-- `main` no se toca: solo recibe `develop` cuando se termina un producto, y siempre debe compilar.
-- `develop` es la rama de integración: todo se fusiona aquí.
-- Una rama por tarea (`orm`, `xml`, `docs`...), fusionada con *Pull Request* revisado por otro miembro.
-- Mensajes de commit cortos que digan qué hace el cambio.
-- Las entregas se marcan con etiquetas (p. ej. `producto2-entrega`).
+```bash
+dotnet ef database drop --project src/GenteFit.Datos
+dotnet run --project src/GenteFit.Web
+```
+
+## Cómo ejecutarlo
+
+Requisitos: SDK de .NET 8 y SQL Server en marcha (instalación normal o Express).
+
+```bash
+git clone https://github.com/Ferranarna/GenteFit
+cd GenteFit
+dotnet build
+dotnet run --project src/GenteFit.Web
+```
+
+Abre `http://localhost:5173`. Al arrancar se crea la base de datos y se aplican las migraciones; si está vacía, se llena con datos de ejemplo. La cadena de conexión está en `src/GenteFit.Web/appsettings.json` (por defecto `Server=localhost`; con Express, `localhost\SQLEXPRESS`).
+
+**Usuarios de ejemplo** (contraseña de todos: `GenteFit123`):
+
+| Rol | Email |
+|---|---|
+| Administrador | `administrador_lidia@gentefit.com` |
+| Recepcionista | `recepcionista_rosa@gentefit.com` |
+| Encargado | `encargado_jordi@gentefit.com` |
+| Entrenador personal | `entrenador_david@gentefit.com` |
+| Cliente | `cliente_ana@correo.com` |
+
+Para ejecutar las pruebas: `dotnet test`.
+
+## Instalador (Windows)
+
+1. Publicar la web: `dotnet publish src/GenteFit.Web -c Release -r win-x64 --self-contained true -o publicar`
+2. Abrir `instalador/GenteFit.iss` con **Inno Setup** y compilar: crea `salida/setup.exe`.
+
+El instalador pregunta el servidor de SQL Server, copia la aplicación en Archivos de programa y crea accesos directos a `GenteFit.bat`, que arranca el servidor y abre el navegador.
+
+## Base de datos (SQL Server + EF Core)
+
+Cada miembro tiene su propia copia local de la base de datos; lo que se comparte por Git es la estructura (migraciones en `src/GenteFit.Datos/Migrations`: `Inicial`, `EntrenadorUsuario` y `RutinaCreador`).
+
+
+## Uso de herramientas de IA
+
+- **ChatGPT:** Generación de las imágenes de actividades y ejercicios (`wwwroot/img`).
+- **Claude:** Claude se ha utilizado como apoyo en consultas, revisión y redacción.

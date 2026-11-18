@@ -16,8 +16,7 @@
     <h1>@titulo</h1>
     <p class="gf-subtitulo">
         @(Model.EsNueva ? "Rellena los datos. Los campos marcados con * son obligatorios."
-                : "Cambia los datos y pulsa Guardar.")
-    </p>
+                : "Cambia los datos y pulsa Guardar. Los campos marcados con * son obligatorios.")
 
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
         <input type="hidden" asp-for="UsuarioId" />

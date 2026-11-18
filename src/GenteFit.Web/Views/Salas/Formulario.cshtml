@@ -10,6 +10,7 @@
     <p class="gf-subtitulo">
         @(Model.EsNueva ? "Añade una sala al centro. Todas las salas admiten hasta 16 participantes."
                 : "Cambia los datos y pulsa Guardar. Las sesiones ya programadas en la sala se mantienen.")
+        Los campos marcados con * son obligatorios.
     </p>
 
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
@@ -17,13 +18,13 @@
 
         <div class="row g-3">
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Nombre">Nombre de la sala</label>
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre de la sala *</label>
                 <input class="form-control" asp-for="Nombre" placeholder="Ej. Sala Delta" />
                 <span class="gf-campo-error" asp-validation-for="Nombre"></span>
             </div>
 
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Ubicacion">Ubicación</label>
+                <label class="gf-etiqueta" asp-for="Ubicacion">Ubicación *</label>
                 <select class="form-select" asp-for="Ubicacion">
                     <option value="">Selecciona una planta</option>
                     @foreach (var u in Enum.GetValues<Ubicacion>())

@@ -10,6 +10,7 @@
     <p class="gf-subtitulo">
         @(Model.EsNueva ? "Añade una actividad al catálogo del centro."
                 : "Cambia los datos y pulsa Guardar. Las sesiones ya programadas se mantienen.")
+        Los campos marcados con * son obligatorios.
     </p>
 
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
@@ -17,13 +18,13 @@
 
         <div class="row g-3">
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Nombre">Nombre</label>
+                <label class="gf-etiqueta" asp-for="Nombre">Nombre *</label>
                 <input class="form-control" asp-for="Nombre" placeholder="Ej. Yoga" />
                 <span class="gf-campo-error" asp-validation-for="Nombre"></span>
             </div>
 
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Especialidad">Especialidad requerida al entrenador</label>
+                <label class="gf-etiqueta" asp-for="Especialidad">Especialidad requerida al entrenador *</label>
                 <select class="form-select" asp-for="Especialidad">
                     <option value="">Selecciona una especialidad</option>
                     @foreach (var e in Enum.GetValues<Especialidad>())
@@ -35,14 +36,14 @@
             </div>
 
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="Descripcion">Descripción (opcional)</label>
+                <label class="gf-etiqueta" asp-for="Descripcion">Descripción</label>
                 <textarea class="form-control" asp-for="Descripcion" rows="3"
                           placeholder="Describe brevemente la actividad"></textarea>
                 <span class="gf-campo-error" asp-validation-for="Descripcion"></span>
             </div>
 
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="Intensidad">Intensidad</label>
+                <label class="gf-etiqueta" asp-for="Intensidad">Intensidad *</label>
                 <select class="form-select" asp-for="Intensidad">
                     <option value="">Selecciona una intensidad</option>
                     @foreach (var i in Enum.GetValues<Intensidad>())
@@ -54,7 +55,7 @@
             </div>
 
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="LimiteUsuarios">Plazas por sesión</label>
+                <label class="gf-etiqueta" asp-for="LimiteUsuarios">Plazas por sesión *</label>
                 <input class="form-control" asp-for="LimiteUsuarios" type="number" />
                 <span class="gf-campo-error" asp-validation-for="LimiteUsuarios"></span>
             </div>
