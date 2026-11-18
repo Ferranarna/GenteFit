@@ -113,7 +113,7 @@
                         @Iconos.Ver("imprimir")
                     </button>
                     <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="eliminar-@r.RutinaId"
-                            onclick="return confirm('¿Seguro que quieres eliminar esta rutina? Se borrarán también sus ejercicios.')"
+                            data-confirm="¿Seguro que quieres eliminar esta rutina? Se borrarán también sus ejercicios."
                             aria-label="Eliminar la rutina @r.NombreRutina" title="Eliminar rutina">
                         @Iconos.Ver("eliminar")
                     </button>
@@ -166,7 +166,7 @@
                                         <td>
                                             <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="quitar-@r.RutinaId"
                                                     name="detalleId" value="@d.DetalleRutinaId"
-                                                    onclick="return confirm('¿Quitar este ejercicio de la rutina?')"
+                                                    data-confirm="¿Quitar este ejercicio de la rutina?"
                                                     aria-label="Quitar @d.Ejercicio.NombreEjercicio" title="Quitar ejercicio">
                                                 @Iconos.Ver("eliminar")
                                             </button>

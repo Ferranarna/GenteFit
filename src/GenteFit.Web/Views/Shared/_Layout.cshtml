@@ -80,6 +80,58 @@
         }
     </script>
     <template id="gf-chevron">@Iconos.Ver("chevron")</template>
+    <dialog id="gf-confirmar" class="gf-dialogo" aria-labelledby="gf-confirmar-titulo">
+        <form method="dialog">
+            <p data-gf-texto id="gf-confirmar-titulo"></p>
+            <p data-gf-texto></p>
+            <div class="gf-dialogo-botones">
+                <button value="no" class="gf-boton gf-boton-borde gf-boton-auto">Cancelar</button>
+                <button value="si" class="gf-boton gf-boton-auto" autofocus>Aceptar</button>
+            </div>
+        </form>
+    </dialog>
+    <script>
+        (function () {
+            const dlg = document.getElementById('gf-confirmar');
+            const texto = dlg.querySelector('[data-gf-texto]');
+            let pendiente = null;
+
+            function pedir(mensaje, alAceptar) {
+                texto.textContent = mensaje;
+                pendiente = alAceptar;
+                dlg.showModal();
+            }
+            dlg.addEventListener('close', () => {
+                if (dlg.returnValue === 'si' && pendiente) pendiente();
+                pendiente = null;
+                dlg.returnValue = '';
+            });
+
+            // Botones con data-confirm
+            document.addEventListener('click', e => {
+                const b = e.target.closest('button[data-confirm]');
+                if (!b || b.dataset.ok) return;
+                e.preventDefault();
+                pedir(b.dataset.confirm, () => {
+                    b.dataset.ok = '1';
+                    b.click();
+                    delete b.dataset.ok;
+                });
+            });
+
+            // Formularios con data-confirm
+            document.addEventListener('submit', e => {
+                const f = e.target;
+                if (!f.dataset.confirm || f.dataset.ok) return;
+                e.preventDefault();
+                const quien = e.submitter;
+                pedir(f.dataset.confirm, () => {
+                    f.dataset.ok = '1';
+                    f.requestSubmit(quien);
+                });
+            });
+        })();
+    </script>
     <script>
         // Cada desplegable (<select class="form-select">) se ve como el menú del usuario.
         // El <select> original sigue ahí, oculto: guarda el valor y sigue enviándose con su formulario.

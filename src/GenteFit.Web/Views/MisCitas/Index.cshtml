@@ -90,7 +90,7 @@
 }
 
 <form id="form-anular" method="post" asp-action="Anular"
-      onsubmit="return confirm('@(Model.EsEntrenador ? "¿Seguro que quieres anular esta cita? El cliente dejará de tenerla." : "¿Seguro que quieres anular esta cita?")')">
+      data-confirm="@(Model.EsEntrenador ? "¿Seguro que quieres anular esta cita? El cliente dejará de tenerla." : "¿Seguro que quieres anular esta cita?")">
     <input type="hidden" name="estado" value="@Model.Estado" />
     <div class="gf-tarjeta">
         @if (Model.Citas.Count == 0 && ViewBag.Error == null)

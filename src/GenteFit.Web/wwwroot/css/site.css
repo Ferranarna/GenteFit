@@ -1592,3 +1592,34 @@ th[aria-sort="descending"] .gf-ordenar::after {
     cursor: not-allowed;
     box-shadow: none;
 }
+
+.gf-dialogo {
+    background: var(--gf-tarjeta);
+    color: var(--gf-texto);
+    border: 1px solid var(--gf-borde);
+    border-radius: var(--gf-radio);
+    padding: 1.5rem;
+    width: min(28rem, calc(100vw - 2rem));
+    text-align: center;
+}
+
+    .gf-dialogo::backdrop {
+        background: rgba(6, 12, 21, 0.75);
+    }
+
+    .gf-dialogo h2 {
+        font-size: 1.15rem;
+        margin: 0 0 0.5rem;
+    }
+
+    .gf-dialogo p {
+        color: var(--gf-texto);
+        font-size: 0.95rem;
+        margin: 0 0 1.25rem;
+    }
+
+.gf-dialogo-botones {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}

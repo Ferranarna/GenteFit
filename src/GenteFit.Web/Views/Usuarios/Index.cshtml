@@ -44,7 +44,7 @@
     </button>
     <button id="boton-baja" class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-usuario" disabled
             asp-action="DarDeBaja" formmethod="post"
-            onclick="return confirm('¿Seguro que quieres dar de baja a este @tipo? Se anularán sus reservas y citas pendientes.')"
+            data-confirm="¿Seguro que quieres dar de baja a este @tipo? Se anularán sus reservas y citas pendientes."
             aria-label="Dar de baja al @tipo elegido" title="Dar de baja">
         @Iconos.Ver("baja")
     </button>

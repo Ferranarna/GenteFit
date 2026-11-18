@@ -49,7 +49,7 @@
         </button>
         <button class="gf-boton-icono gf-boton-icono-peligro" type="submit" form="form-sesion" data-necesita-sesion disabled
                 asp-action="Cancelar"
-                onclick="return confirm('¿Seguro que quieres cancelar esta sesión? Se anularán todas sus reservas y la lista de espera.')"
+                data-confirm="¿Seguro que quieres cancelar esta sesión? Se anularán todas sus reservas y la lista de espera."
                 aria-label="Cancelar la sesión elegida" title="Cancelar sesión">
             @Iconos.Ver("baja")
         </button>
