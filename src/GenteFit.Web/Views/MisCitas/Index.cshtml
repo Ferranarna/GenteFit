@@ -54,7 +54,7 @@
         <form method="post" asp-action="Reservar">
             <div class="gf-citas-filtro">
                 <div>
-                    <label class="gf-etiqueta" for="personaId">@Model.EtiquetaOtro</label>
+                    <label class="gf-etiqueta" for="personaId">@Model.EtiquetaOtro *</label>
                     <select class="form-select" id="personaId" name="personaId">
                         @foreach (var p in Model.Personas)
                         {
@@ -63,7 +63,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="gf-etiqueta" for="dia-cita">Día</label>
+                    <label class="gf-etiqueta" for="dia-cita">Día *</label>
                     <input class="form-control" type="date" id="dia-cita" name="dia" value="@Fecha(Model.Dia)"
                            min="@Fecha(DateTime.Today)" />
                 </div>

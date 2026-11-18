@@ -130,7 +130,10 @@ var rutina = rutinas.Crear(ana.UsuarioId, "Pierna lunes");
 var sentadilla = ejercicios.BuscarPorGrupo("Piernas").First();
 var detalle = rutinas.AnadirEjercicio(rutina.RutinaId, sentadilla.EjercicioId, 1, 4, 12);
 Ok($"Rutina '{rutina.NombreRutina}' con {sentadilla.NombreEjercicio} {detalle.Series}x{detalle.Repeticiones}");
+Ok($"Creador: {(rutina.EntrenadorId == null ? "la propia clienta" : "un entrenador")} · fecha: {rutina.FechaCreacion:dd/MM/yyyy}");
 Probar("Configurar 0 series", () => rutinas.ConfigurarEjercicio(detalle.DetalleRutinaId, 0, 12));
+Probar("Configurar 21 series", () => rutinas.ConfigurarEjercicio(detalle.DetalleRutinaId, 21, 10));
+Probar("Configurar 101 repeticiones", () => rutinas.ConfigurarEjercicio(detalle.DetalleRutinaId, 5, 101));
 rutinas.ConfigurarEjercicio(detalle.DetalleRutinaId, 5, 10);
 Ok($"Modificación correcta: {sentadilla.NombreEjercicio} pasa de 4x12 a {detalle.Series}x{detalle.Repeticiones}");
 rutinas.Eliminar(rutina.RutinaId);
@@ -302,7 +305,8 @@ Probar("Ver los clientes de una sesión que no es suya", () => reservas.ListarCo
 
 // RUTINA CREADA POR ENTRENADOR PERSONAL
 Titulo("Rutina creada por el entrenador personal");
-var marta = usuarios.Buscar("marta@correo.com").First();
+// Un cliente que no tiene ninguna cita programada con el entrenador personal
+var sinCita = usuarios.ObtenerClientes().First(c => !citas.EsClienteDe(personal.EntrenadorId, c.UsuarioId));
 var citaRutina = citas.Reservar(luis.UsuarioId, personal.EntrenadorId,
     citas.BuscarDisponibilidad(personal.EntrenadorId, DateTime.Today.AddDays(1)).First());
 
@@ -310,8 +314,9 @@ var rutinaLuis = rutinas.CrearParaCliente(personal.EntrenadorId, luis.UsuarioId,
 var sentadillaLuis = ejercicios.BuscarPorGrupo("Piernas").First();
 var detalleLuis = rutinas.AnadirEjercicio(rutinaLuis.RutinaId, sentadillaLuis.EjercicioId, 1, 3, 10);
 Ok($"Rutina '{rutinaLuis.NombreRutina}' creada para {luis.Nombre} con {sentadillaLuis.NombreEjercicio} {detalleLuis.Series}x{detalleLuis.Repeticiones}");
+Ok($"Creador: {(rutinaLuis.EntrenadorId == personal.EntrenadorId ? "el entrenador personal" : "otro")} · fecha: {rutinaLuis.FechaCreacion:dd/MM/yyyy}");
 
-Probar("Rutina para un cliente sin cita con él", () => rutinas.CrearParaCliente(personal.EntrenadorId, marta.UsuarioId, "No debería"));
+Probar("Rutina para un cliente sin cita con él", () => rutinas.CrearParaCliente(personal.EntrenadorId, sinCita.UsuarioId, "No debería"));
 Probar("Rutina de un entrenador que no es personal", () => rutinas.CrearParaCliente(instructoraYoga.EntrenadorId, luis.UsuarioId, "No debería"));
 
 rutinas.Eliminar(rutinaLuis.RutinaId);

@@ -10,6 +10,7 @@
     <p class="gf-subtitulo">
         @(Model.EsNueva ? "Programa una sesión nueva en el calendario."
                 : "Cambia los datos y pulsa Guardar. Las reservas de la sesión se mantienen.")
+        Los campos marcados con * son obligatorios.
     </p>
 
     <form class="gf-tarjeta" method="post" asp-action="Guardar">
@@ -17,7 +18,7 @@
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="ActividadId">Actividad</label>
+                <label class="gf-etiqueta" asp-for="ActividadId">Actividad *</label>
                 <select class="form-select" asp-for="ActividadId">
                     <option value="">Elige la actividad</option>
                     @foreach (var a in Model.Actividades)
@@ -29,7 +30,7 @@
             </div>
 
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="SalaId">Sala</label>
+                <label class="gf-etiqueta" asp-for="SalaId">Sala *</label>
                 <select class="form-select" asp-for="SalaId">
                     <option value="">Elige la sala</option>
                     @foreach (var s in Model.Salas)
@@ -41,7 +42,7 @@
             </div>
 
             <div class="col-12">
-                <label class="gf-etiqueta" asp-for="EntrenadorId">Entrenador</label>
+                <label class="gf-etiqueta" asp-for="EntrenadorId">Entrenador *</label>
                 <select class="form-select" asp-for="EntrenadorId">
                     <option value="">Elige el entrenador</option>
                     @foreach (var e in Model.Entrenadores)
@@ -53,19 +54,19 @@
             </div>
 
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="Fecha">Fecha</label>
+                <label class="gf-etiqueta" asp-for="Fecha">Fecha *</label>
                 <input class="form-control" asp-for="Fecha" />
                 <span class="gf-campo-error" asp-validation-for="Fecha"></span>
             </div>
 
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="Hora">Hora de inicio</label>
+                <label class="gf-etiqueta" asp-for="Hora">Hora de inicio *</label>
                 <input class="form-control" asp-for="Hora" type="time" />
                 <span class="gf-campo-error" asp-validation-for="Hora"></span>
             </div>
 
             <div class="col-md-6">
-                <label class="gf-etiqueta" asp-for="Duracion">Duración (min)</label>
+                <label class="gf-etiqueta" asp-for="Duracion">Duración (min) *</label>
                 <input class="form-control" asp-for="Duracion" type="number" />
                 <span class="gf-campo-error" asp-validation-for="Duracion"></span>
             </div>

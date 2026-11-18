@@ -70,7 +70,7 @@
         <h2 class="gf-titulo-tarjeta">Nueva rutina</h2>
         <form method="post" asp-action="Crear">
             <input type="hidden" name="clienteId" value="@cliente?.UsuarioId" />
-            <label class="gf-etiqueta" for="nombre-nueva">Nombre de la rutina</label>
+            <label class="gf-etiqueta" for="nombre-nueva">Nombre de la rutina *</label>
             <input class="form-control" id="nombre-nueva" name="nombre" maxlength="100" placeholder="Ej. Pierna y glúteo" />
 
             <div class="gf-botones mt-3">

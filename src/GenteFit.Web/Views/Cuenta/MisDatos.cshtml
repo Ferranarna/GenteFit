@@ -4,15 +4,16 @@
 }
 <div class="gf-estrecho">
     <h1>Mis datos</h1>
+    <p class="gf-subtitulo">Cambia tus datos y pulsa Guardar. Los campos marcados con * son obligatorios.</p>
 
     <form class="gf-tarjeta" method="post" asp-action="MisDatos">
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="gf-etiqueta" for="nombre">Nombre</label>
+                <label class="gf-etiqueta" for="nombre">Nombre *</label>
                 <input class="form-control" id="nombre" name="nombre" type="text" value="@Model.Nombre" />
             </div>
             <div class="col-md-6">
-                <label class="gf-etiqueta" for="apellido1">Primer apellido</label>
+                <label class="gf-etiqueta" for="apellido1">Primer apellido *</label>
                 <input class="form-control" id="apellido1" name="apellido1" type="text" value="@Model.Apellido1" />
             </div>
             <div class="col-md-6">
@@ -20,12 +21,12 @@
                 <input class="form-control" id="apellido2" name="apellido2" type="text" value="@Model.Apellido2" />
             </div>
             <div class="col-md-6">
-                <label class="gf-etiqueta" for="telefono">Teléfono</label>
+                <label class="gf-etiqueta" for="telefono">Teléfono *</label>
                 <input class="form-control" id="telefono" name="telefono" type="tel"
                        value="@(Model.Telefono == 0 ? "" : Model.Telefono.ToString())" />
             </div>
             <div class="col-12">
-                <label class="gf-etiqueta" for="email">Email</label>
+                <label class="gf-etiqueta" for="email">Email *</label>
                 <input class="form-control" id="email" name="email" type="email" value="@Model.Email" />
             </div>
             <div class="col-12">

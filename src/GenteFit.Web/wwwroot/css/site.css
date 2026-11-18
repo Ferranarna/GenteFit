@@ -391,7 +391,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .gf-aviso {
     border-radius: 10px;
     border: 1px solid;
-    padding: .75rem 1rem;
+    padding: .4rem 1rem;
     margin: 1rem 0;
     text-align: center;
     font-size: .9rem;
@@ -1020,7 +1020,7 @@ th[aria-sort="descending"] .gf-ordenar::after {
 /* ===== Filas seleccionables: se elige pulsando la fila, sin círculo ===== */
 /* El radio sigue ahí (teclado y lectores de pantalla) pero no se ve; la fila elegida se tiñe y lleva una barra azul a la izquierda */
 .gf-tabla-seleccion input[type="radio"],
-.gf-sesion input[name="sesionId"] {
+.gf-sesion input[type="radio"][name="sesionId"] {
     position: absolute;
     opacity: 0;
     width: 1px;
@@ -1078,40 +1078,38 @@ th[aria-sort="descending"] .gf-ordenar::after {
     color: var(--gf-texto-suave);
 }
 
-/* Sesiones (encargado): la lista se elige igual */
-.gf-sesion:has(input[name="sesionId"]) {
+/* Sesiones (encargado): la lista se elige igual (solo filas con el radio de elegir, no el campo oculto del botón Reservar) */
+.gf-sesion:has(input[type="radio"][name="sesionId"]) {
     position: relative;
     cursor: pointer;
 }
 
-    .gf-sesion:has(input[name="sesionId"]):hover {
+    .gf-sesion:has(input[type="radio"][name="sesionId"]):hover {
         background: rgba(77, 184, 255, .06);
     }
 
-.gf-sesion:has(input[name="sesionId"]:checked) {
+.gf-sesion:has(input[type="radio"][name="sesionId"]:checked) {
     background: rgba(77, 184, 255, .15);
     box-shadow: inset 3px 0 0 var(--gf-acento);
 }
 
-.gf-sesion:has(input[name="sesionId"]:focus-visible) {
+.gf-sesion:has(input[type="radio"][name="sesionId"]:focus-visible) {
     outline: 2px solid var(--gf-acento-claro);
     outline-offset: -2px;
 }
 
 /* El hueco del radio desaparece (no ocupa una columna) */
-.gf-sesion-accion:has(> input[name="sesionId"]) {
+.gf-sesion-accion:has(> input[type="radio"][name="sesionId"]) {
     display: contents;
 }
 
 @media (min-width: 769px) {
-    .gf-sesion:has(input[name="sesionId"]) {
+    .gf-sesion:has(input[type="radio"][name="sesionId"]) {
         grid-template-columns: 8rem 1fr 1fr;
         padding-left: .9rem;
         padding-right: .9rem;
     }
 }
-
-
 
 /* ===== Mis citas (cliente) ===== */
 .gf-citas {
