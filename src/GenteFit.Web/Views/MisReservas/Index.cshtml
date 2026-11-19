@@ -39,7 +39,7 @@
 }
 
 <form id="form-anular" method="post" asp-action="Anular"
-      onsubmit="return confirm('¿Seguro que quieres anular esta reserva? Si tenías plaza, pasará a la primera persona de la lista de espera.')">
+      data-confirm="¿Seguro que quieres anular esta reserva? Si tenías plaza, pasará a la primera persona de la lista de espera.">
     <input type="hidden" name="estado" value="@Model.Estado" />
 
     <div class="gf-tarjeta">
