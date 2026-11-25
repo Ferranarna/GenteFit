@@ -26,6 +26,7 @@ services:
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./addons:/mnt/extra-addons
+      - ./xsd:/mnt/gentefit-xsd:ro
     restart: unless-stopped
 
 volumes:
