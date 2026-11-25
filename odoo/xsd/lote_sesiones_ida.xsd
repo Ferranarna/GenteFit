@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Esquema del lote de sesiones GenteFit -> Odoo. Versión 1.0 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+<xs:include schemaLocation="tipos_comunes.xsd"/>
+
+	<!-- ========== Tipos simples (reglas de un solo valor) ========== -->
+
+	<xs:simpleType name="TipoIdLote">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="GF-\d{4}-\d{2}-\d{2}-\d{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ========== Tipos complejos (elementos con hijos o atributos) ========== -->
+
+	<!-- Referencia: nombre en el texto + Id de GenteFit en el atributo -->
+
+	<xs:complexType name="TipoCabecera">
+		<xs:sequence>
+			<xs:element name="id_lote"         type="TipoIdLote"/>
+			<xs:element name="sentido"         type="xs:string" fixed="GenteFit_a_Odoo"/>
+			<xs:element name="generado"        type="xs:dateTime"/>
+			<xs:element name="periodo_desde"   type="xs:date"/>
+			<xs:element name="periodo_hasta"   type="xs:date"/>
+			<xs:element name="total_registros" type="xs:positiveInteger"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TipoSesion">
+		<xs:sequence>
+			<xs:element name="gentefit_id"     type="TipoGuid"/>
+			<xs:element name="fecha"           type="xs:dateTime"/>
+			<xs:element name="duracion"        type="TipoDuracion"/>
+			<xs:element name="estado"          type="TipoEstadoSesion"/>
+			<xs:element name="actividad"       type="TipoReferencia"/>
+			<xs:element name="intensidad"      type="TipoIntensidad"/>
+			<xs:element name="sala"            type="TipoReferencia"/>
+			<xs:element name="entrenador"      type="TipoReferencia"/>
+			<xs:element name="plazas_ocupadas" type="xs:nonNegativeInteger"/>
+			<xs:element name="plazas_limite"   type="xs:positiveInteger"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- ========== Elemento raíz ========== -->
+
+	<xs:element name="lote_sesiones">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="cabecera" type="TipoCabecera"/>
+				<xs:element name="sesiones">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="sesion" type="TipoSesion"
+										minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.0"/>
+		</xs:complexType>
+
+		<!-- Una misma sesión no puede aparecer dos veces en el lote -->
+		<xs:unique name="SesionUnica">
+			<xs:selector xpath="sesiones/sesion"/>
+			<xs:field xpath="gentefit_id"/>
+		</xs:unique>
+	</xs:element>
+
+</xs:schema>

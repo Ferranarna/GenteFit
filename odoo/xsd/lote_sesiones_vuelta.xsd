@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Esquema del lote de sesiones Odoo -> GenteFit. Versión 1.0 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+	<xs:include schemaLocation="tipos_comunes.xsd"/>
+
+	<xs:simpleType name="TipoIdLoteOdoo">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="OD-\d{4}-\d{2}-\d{2}-\d{3}"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="TipoCabeceraVuelta">
+		<xs:sequence>
+			<xs:element name="id_lote"         type="TipoIdLoteOdoo"/>
+			<xs:element name="sentido"         type="xs:string" fixed="Odoo_a_GenteFit"/>
+			<xs:element name="generado"        type="xs:dateTime"/>
+			<xs:element name="periodo_desde"   type="xs:date"/>
+			<xs:element name="periodo_hasta"   type="xs:date"/>
+			<xs:element name="total_registros" type="xs:positiveInteger"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TipoSesionVuelta">
+		<xs:sequence>
+			<xs:element name="gentefit_id" type="TipoGuid"/>
+			<xs:element name="fecha"       type="xs:dateTime"/>
+			<xs:element name="duracion"    type="TipoDuracion"/>
+			<xs:element name="estado"      type="TipoEstadoSesion"/>
+			<xs:element name="actividad"   type="TipoReferencia"/>
+			<xs:element name="sala"        type="TipoReferencia"/>
+			<xs:element name="entrenador"  type="TipoReferencia"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="lote_sesiones">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="cabecera" type="TipoCabeceraVuelta"/>
+				<xs:element name="sesiones">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="sesion" type="TipoSesionVuelta"
+										minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required" fixed="1.0"/>
+		</xs:complexType>
+
+		<xs:unique name="SesionUnicaVuelta">
+			<xs:selector xpath="sesiones/sesion"/>
+			<xs:field xpath="gentefit_id"/>
+		</xs:unique>
+	</xs:element>
+
+</xs:schema>
