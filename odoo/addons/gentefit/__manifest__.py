@@ -10,6 +10,7 @@
         "security/ir.model.access.csv",
         "views/gentefit_sesion_views.xml",
         "wizards/importar_lote_views.xml",
+        "wizards/exportar_lote_views.xml",
     ],
     "application": True,
     "installable": True,
