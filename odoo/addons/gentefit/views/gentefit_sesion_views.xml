@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<record id="gentefit_sesion_view_tree" model="ir.ui.view">
+		<field name="name">gentefit.sesion.tree</field>
+		<field name="model">gentefit.sesion</field>
+		<field name="arch" type="xml">
+			<tree>
+				<field name="fecha"/>
+				<field name="actividad_nombre"/>
+				<field name="sala_nombre"/>
+				<field name="entrenador_nombre"/>
+				<field name="duracion"/>
+				<field name="plazas_ocupadas"/>
+				<field name="plazas_limite"/>
+				<field name="estado"/>
+			</tree>
+		</field>
+	</record>
+
+	<record id="gentefit_sesion_view_form" model="ir.ui.view">
+		<field name="name">gentefit.sesion.form</field>
+		<field name="model">gentefit.sesion</field>
+		<field name="arch" type="xml">
+			<form>
+				<sheet>
+					<group>
+						<group string="Sesión">
+							<field name="fecha"/>
+							<field name="duracion"/>
+							<field name="estado"/>
+							<field name="plazas_ocupadas"/>
+							<field name="plazas_limite"/>
+						</group>
+						<group string="Actividad, sala y entrenador">
+							<field name="actividad_nombre"/>
+							<field name="intensidad"/>
+							<field name="sala_nombre"/>
+							<field name="entrenador_nombre"/>
+						</group>
+					</group>
+					<group string="Referencias GenteFit">
+						<field name="gentefit_id"/>
+						<field name="actividad_ref"/>
+						<field name="sala_ref"/>
+						<field name="entrenador_ref"/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<record id="gentefit_sesion_action" model="ir.actions.act_window">
+		<field name="name">Sesiones</field>
+		<field name="res_model">gentefit.sesion</field>
+		<field name="view_mode">tree,form</field>
+	</record>
+
+	<menuitem id="gentefit_menu_root" name="GenteFit" sequence="10"/>
+	<menuitem id="gentefit_sesion_menu" name="Sesiones"
+              parent="gentefit_menu_root" action="gentefit_sesion_action"/>
+</odoo>

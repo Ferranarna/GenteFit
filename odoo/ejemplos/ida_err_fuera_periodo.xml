@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<lote_sesiones version="1.0">
+	<cabecera>
+		<id_lote>GF-2026-11-25-001</id_lote>
+		<sentido>GenteFit_a_Odoo</sentido>
+		<generado>2026-11-25T10:30:00</generado>
+		<periodo_desde>2026-11-30</periodo_desde>
+		<periodo_hasta>2026-12-06</periodo_hasta>
+		<total_registros>2</total_registros>
+	</cabecera>
+	<sesiones>
+		<sesion>
+			<gentefit_id>6b1f2c3a-9d4e-4f7a-8b21-0c5d7e9f1a23</gentefit_id>
+			<fecha>2026-11-30T19:00:00</fecha>
+			<duracion>60</duracion>
+			<estado>Programada</estado>
+			<actividad id="a3c9e1f0-2b7d-4c58-9e16-7f4a2d8b0c11">Pilates Iniciación</actividad>
+			<intensidad>Baja</intensidad>
+			<sala id="d84b0e2c-5a1f-4e93-b7c6-3e2f9a1d6b40">Sala Montaña</sala>
+			<entrenador id="1e7a5c9b-0d3f-4b62-a8e4-9c1b7f2d3e55">Laura O'Connor</entrenador>
+			<plazas_ocupadas>12</plazas_ocupadas>
+			<plazas_limite>16</plazas_limite>
+		</sesion>
+		<sesion>
+			<gentefit_id>f02d8a6e-3c1b-4e9f-a571-2b8d4c6e0f99</gentefit_id>
+			<fecha>2026-12-10T08:30:00</fecha>
+			<duracion>45</duracion>
+			<estado>Cancelada</estado>
+			<actividad id="c5e2a7d1-8f3b-4a60-b9d2-1e6f0c4a7b38">Spinning</actividad>
+			<intensidad>Alta</intensidad>
+			<sala id="7a3e1d9c-2f5b-4c80-96e4-b0d8f3a2c615">Sala Ciclo</sala>
+			<entrenador id="9c4f2b7e-1a6d-4e35-8f09-d3b5a7c1e284">Marc Peña</entrenador>
+			<plazas_ocupadas>0</plazas_ocupadas>
+			<plazas_limite>16</plazas_limite>
+		</sesion>
+	</sesiones>
+</lote_sesiones>
