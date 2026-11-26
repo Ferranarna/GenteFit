@@ -110,6 +110,33 @@ public class SesionRepositorio : Repositorio<Sesion>
         }).ToList();
     }
 
+    public List<SesionParaExportar> ListarParaExportar(DateTime desde, DateTime hasta, bool incluirCanceladas)
+    {
+        var inicio = desde.Date;
+        var fin = hasta.Date.AddDays(1);
+
+        var sesiones = _db.Sesiones
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Include(s => s.Entrenador).ThenInclude(e => e.Usuario)
+            .Where(s => s.Fecha >= inicio && s.Fecha < fin
+                && (incluirCanceladas || s.Estado == EstadoSesion.Programada))
+            .OrderBy(s => s.Fecha)
+            .ToList();
+
+        // Una sola consulta para contar las confirmadas de todas las sesiones (sin N+1)
+        var ids = sesiones.Select(s => s.SesionId).ToList();
+        var ocupadas = _db.Reservas
+            .Where(r => ids.Contains(r.SesionId) && r.Estado == EstadoReserva.Confirmada)
+            .GroupBy(r => r.SesionId)
+            .Select(g => new { SesionId = g.Key, Total = g.Count() })
+            .ToDictionary(x => x.SesionId, x => x.Total);
+
+        return sesiones
+            .Select(s => new SesionParaExportar(s, ocupadas.GetValueOrDefault(s.SesionId)))
+            .ToList();
+    }
+
     public HashSet<int> DiasConSesiones(int anio, int mes, Guid? actividadId = null, Guid? entrenadorId = null)
     {
         var inicio = new DateTime(anio, mes, 1);
@@ -232,6 +259,58 @@ public class SesionRepositorio : Repositorio<Sesion>
 
         return (Math.Max(0, plazas - reservadas), quedan.Count());
     }
+
+    // Aplica en GenteFit una sesión recibida de Odoo, con las mismas reglas que la pantalla de sesiones.
+    // Nunca lanza ValidacionException: si una regla no se cumple, la sesión queda Rechazada con su motivo.
+    public SesionAplicada AplicarDesdeOdoo(Sesion recibida, DateTime ahora)
+    {
+        try
+        {
+            var actual = _db.Sesiones.AsNoTracking().FirstOrDefault(s => s.SesionId == recibida.SesionId);
+
+            if (actual == null)
+            {
+                if (recibida.Estado == EstadoSesion.Cancelada)
+                    return Resultado(recibida, AccionImportacion.SinCambios, "Cancelada en Odoo, pero no existía en GenteFit.");
+
+                Programar(recibida, ahora);
+                return Resultado(recibida, AccionImportacion.Creada);
+            }
+
+            if (recibida.Estado == EstadoSesion.Cancelada)
+            {
+                if (actual.Estado == EstadoSesion.Cancelada)
+                    return Resultado(recibida, AccionImportacion.SinCambios);
+
+                var afectados = Cancelar(recibida.SesionId, ahora);
+                return Resultado(recibida, AccionImportacion.Cancelada, $"{afectados.Count} reservas anuladas.");
+            }
+
+            if (MismosDatos(actual, recibida))
+                return Resultado(recibida, AccionImportacion.SinCambios);
+
+            Modificar(recibida, ahora);
+            return Resultado(recibida, AccionImportacion.Modificada);
+        }
+        catch (ValidacionException ex)
+        {
+            // Olvida los cambios a medio hacer de esta sesión para que no se guarden con la siguiente
+            _db.ChangeTracker.Clear();
+            return Resultado(recibida, AccionImportacion.Rechazada, ex.Message);
+        }
+    }
+
+    // Aplica todas las sesiones del lote en orden. Cada una es independiente: un rechazo no detiene las demás.
+    public List<SesionAplicada> AplicarLoteDesdeOdoo(IEnumerable<Sesion> recibidas, DateTime ahora) =>
+        recibidas.Select(s => AplicarDesdeOdoo(s, ahora)).ToList();
+
+    private static bool MismosDatos(Sesion a, Sesion b) =>
+        a.Estado == b.Estado && a.Fecha == b.Fecha && a.Duracion == b.Duracion
+        && a.ActividadId == b.ActividadId && a.SalaId == b.SalaId && a.EntrenadorId == b.EntrenadorId;
+
+    private static SesionAplicada Resultado(Sesion s, AccionImportacion accion, string? detalle = null) =>
+        new(s.SesionId, s.Fecha, accion, detalle);
+
     private void Validar(Sesion sesion)
     {
         var actividad = _db.Actividades.Find(sesion.ActividadId)

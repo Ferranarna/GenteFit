@@ -24,6 +24,11 @@
   <ItemGroup>
     <ProjectReference Include="..\GenteFit.Datos\GenteFit.Datos.csproj" />
     <ProjectReference Include="..\GenteFit.Modelo\GenteFit.Modelo.csproj" />
+    <ProjectReference Include="..\GenteFit.Xml\GenteFit.Xml.fsproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\odoo\ejemplos\*.xml" Link="ejemplos\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 
 </Project>

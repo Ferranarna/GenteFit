@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GenteFit.Datos\GenteFit.Datos.csproj" />
     <ProjectReference Include="..\GenteFit.Modelo\GenteFit.Modelo.csproj" />
+    <ProjectReference Include="..\GenteFit.Xml\GenteFit.Xml.fsproj" />
   </ItemGroup>
 
   <PropertyGroup>
