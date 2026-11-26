@@ -1,13 +1,14 @@
 import base64
 from datetime import date, datetime
 
+import pytz
 from lxml import etree
 
 from odoo import fields, models
 from odoo.exceptions import UserError
 
-# El XSD de ida, montado desde odoo/xsd por el docker-compose.yml (solo lectura)
 RUTA_XSD_IDA = "/mnt/gentefit-xsd/lote_sesiones_ida.xsd"
+ZONA_ESPANA = pytz.timezone("Europe/Madrid")
 
 
 class GentefitImportarLote(models.TransientModel):
@@ -19,15 +20,12 @@ class GentefitImportarLote(models.TransientModel):
     resultado = fields.Text(string="Resultado", readonly=True)
 
     def action_importar(self):
-        documento = self._leer_y_validar_xml()
-        validas, rechazadas = self._comprobar_reglas(documento)
+        documento = self._leer_y_validar_xml()            # niveles A y B
+        validas, rechazadas = self._comprobar_reglas(documento)  # nivel C
+        creadas, actualizadas = self._guardar_sesiones(validas)
+        self.resultado = self._redactar_informe(documento, creadas, actualizadas, rechazadas)
 
-        # De momento solo lo contamos. En el paso 5 guardaremos las válidas
-        lineas = [f"Sesiones correctas: {len(validas)}", f"Sesiones rechazadas: {len(rechazadas)}"]
-        for gentefit_id, motivo in rechazadas:
-            lineas.append(f"  - {gentefit_id}: {motivo}")
-        self.resultado = "\n".join(lineas)
-
+        # Vuelve a abrir la misma ventana para que se vea el informe
         return {
             "type": "ir.actions.act_window",
             "res_model": self._name,
@@ -68,7 +66,7 @@ class GentefitImportarLote(models.TransientModel):
     def _comprobar_reglas(self, documento):
         """Nivel C. Devuelve (validas, rechazadas).
         validas: lista de diccionarios listos para guardar.
-        rechazadas: lista de (gentefit_id, motivo)."""
+        rechazadas: lista de (sesion, motivo)."""
         cabecera = documento.find("cabecera")
         nodos_sesion = documento.findall("sesiones/sesion")
 
@@ -89,14 +87,14 @@ class GentefitImportarLote(models.TransientModel):
 
             # Regla 2: no puede haber más plazas ocupadas que el límite
             if sesion["plazas_ocupadas"] > sesion["plazas_limite"]:
-                rechazadas.append((sesion["gentefit_id"],
+                rechazadas.append((sesion,
                     f"plazas ocupadas ({sesion['plazas_ocupadas']}) mayor que el límite "
                     f"({sesion['plazas_limite']})"))
                 continue
 
             # Regla 3: la fecha tiene que estar dentro del periodo del lote (incluidos los extremos)
             if not desde <= sesion["fecha"].date() <= hasta:
-                rechazadas.append((sesion["gentefit_id"],
+                rechazadas.append((sesion,
                     f"fecha {sesion['fecha']:%d/%m/%Y} fuera del periodo "
                     f"{desde:%d/%m/%Y} - {hasta:%d/%m/%Y}"))
                 continue
@@ -108,9 +106,8 @@ class GentefitImportarLote(models.TransientModel):
     def _leer_sesion(self, nodo):
         """Convierte un <sesion> del XML en un diccionario con los nombres de campo del modelo."""
         return {
-            "gentefit_id": nodo.findtext("gentefit_id"),
-            # Hora de España tal cual viene. En el paso 5 la pasaremos a UTC.
-            # [:19] = "AAAA-MM-DDTHH:MM:SS": ignora décimas de segundo o zona si las trajera
+
+            "gentefit_id": nodo.findtext("gentefit_id").lower(),
             "fecha": datetime.fromisoformat(nodo.findtext("fecha")[:19]),
             "duracion": int(nodo.findtext("duracion")),
             "estado": nodo.findtext("estado"),
@@ -124,3 +121,52 @@ class GentefitImportarLote(models.TransientModel):
             "plazas_ocupadas": int(nodo.findtext("plazas_ocupadas")),
             "plazas_limite": int(nodo.findtext("plazas_limite")),
         }
+
+    # ------------------------------------------------------------------
+    # Guardar: upsert por gentefit_id
+    # ------------------------------------------------------------------
+    def _guardar_sesiones(self, validas):
+        """Crea o actualiza cada sesión válida. Devuelve (creadas, actualizadas)."""
+
+        Sesion = self.env["gentefit.sesion"].with_context(gentefit_importando=True)
+        creadas, actualizadas = [], []
+
+        for sesion in validas:
+            valores = dict(sesion)  
+            valores["fecha"] = self._hora_espana_a_utc(sesion["fecha"])
+
+            # Upsert: buscar por la referencia externa; si existe se actualiza, si no se crea
+            existente = Sesion.search([("gentefit_id", "=", sesion["gentefit_id"])], limit=1)
+            if existente:
+                existente.write(valores)
+                actualizadas.append(sesion)
+            else:
+                Sesion.create(valores)
+                creadas.append(sesion)
+
+        return creadas, actualizadas
+
+    @staticmethod
+    def _hora_espana_a_utc(fecha_local):
+        """2026-11-30 19:00 (España) -> 2026-11-30 18:00 (UTC), sin zona, que es como la guarda Odoo.
+        pytz tiene en cuenta el horario de verano (UTC+2) y el de invierno (UTC+1)."""
+        return ZONA_ESPANA.localize(fecha_local).astimezone(pytz.utc).replace(tzinfo=None)
+
+    # ------------------------------------------------------------------
+    # Informe final
+    # ------------------------------------------------------------------
+    def _redactar_informe(self, documento, creadas, actualizadas, rechazadas):
+        id_lote = documento.findtext("cabecera/id_lote")
+        lineas = [
+            f"Lote {id_lote} importado.",
+            "",
+            f"Creadas: {len(creadas)}",
+            f"Actualizadas: {len(actualizadas)}",
+            f"Rechazadas: {len(rechazadas)}",
+        ]
+        for sesion, motivo in rechazadas:
+            lineas.append(
+                f"  - {sesion['actividad_nombre']} del {sesion['fecha']:%d/%m/%Y %H:%M} "
+                f"({sesion['gentefit_id']}): {motivo}"
+            )
+        return "\n".join(lineas)
