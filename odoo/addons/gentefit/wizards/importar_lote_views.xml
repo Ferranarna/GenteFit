@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- La ventana del asistente -->
+    <record id="gentefit_importar_lote_view_form" model="ir.ui.view">
+        <field name="name">gentefit.importar.lote.form</field>
+        <field name="model">gentefit.importar.lote</field>
+        <field name="arch" type="xml">
+            <form string="Importar lote de GenteFit">
+                <group>
+                    <!-- filename: Odoo guarda el nombre del archivo en ese campo -->
+                    <field name="fichero" filename="nombre_fichero"/>
+                    <field name="nombre_fichero" invisible="1"/>
+                </group>
+                <!-- El informe solo aparece cuando tiene texto -->
+                <group invisible="not resultado">
+                    <field name="resultado" nolabel="1" colspan="2"/>
+                </group>
+                <footer>
+                    <button name="action_importar" type="object" string="Importar" class="btn-primary"/>
+                    <button string="Cerrar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- La acción: abre la ventana como emergente (target new) -->
+    <record id="gentefit_importar_lote_action" model="ir.actions.act_window">
+        <field name="name">Importar lote</field>
+        <field name="res_model">gentefit.importar.lote</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- El menú: GenteFit → Importar lote -->
+    <menuitem id="gentefit_importar_lote_menu" name="Importar lote"
+              parent="gentefit_menu_root" action="gentefit_importar_lote_action" sequence="20"/>
+</odoo>
