@@ -27,4 +27,8 @@
     <ProjectReference Include="..\GenteFit.Xml\GenteFit.Xml.fsproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Include="..\..\odoo\ejemplos\*.xml" Link="ejemplos\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
 </Project>
