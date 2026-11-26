@@ -5,9 +5,14 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="Library.fs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Include="Library.fs" />
+		<Compile Include="LoteOdoo.fs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\odoo\xsd\*.xsd" Link="xsd\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GenteFit.Modelo\GenteFit.Modelo.csproj" />

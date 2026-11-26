@@ -1,48 +1,102 @@
-﻿@{
+﻿@model ExportarLoteViewModel
+@{
     ViewData["Title"] = "Gestión de Odoo";
 }
 
 <h1>Gestión de Odoo (ERP)</h1>
+<p class="gf-subtitulo">
+    Intercambio de sesiones con Odoo mediante ficheros XML. Los campos marcados con * son obligatorios.
+</p>
 
-<div class="gf-aviso gf-aviso-info" id="aviso-odoo" role="note">
-    En construcción
-</div>
+@if (TempData["LoteGenerado"] is string lote)
+{
+    <div class="gf-aviso gf-aviso-ok" role="status">
+        @TempData["Info"]
+        <a asp-action="Descargar" asp-route-id="@lote">Descargar @(lote).xml</a>
+    </div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
+}
 
 <div class="row g-3 mt-1">
-    <section class="col-lg-6" aria-labelledby="titulo-estado">
-        <div class="gf-tarjeta h-100">
-            <h2 id="titulo-estado" class="gf-titulo-tarjeta">Estado de la integración</h2>
+    <section class="col-lg-6" aria-labelledby="titulo-exportar">
+        <form class="gf-tarjeta h-100" method="post" asp-action="Exportar">
+            <h2 id="titulo-exportar" class="gf-titulo-tarjeta">Exportar lote a Odoo</h2>
+            <p class="gf-subtitulo">Genera un fichero XML con las sesiones del periodo elegido.</p>
 
-            <div class="gf-estado-fila">
-                <div>
-                    <strong>Conexión con Odoo</strong>
-                    <small>Estado de la conexión con el ERP</small>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="gf-etiqueta" asp-for="IdLote">Identificador del lote *</label>
+                    <input class="form-control" asp-for="IdLote" aria-describedby="ayuda-idlote" />
+                    <small id="ayuda-idlote" class="text-muted">Formato GF-AAAA-MM-DD-NNN.</small>
+                    <span class="gf-campo-error" asp-validation-for="IdLote"></span>
                 </div>
-                <span class="gf-chip gf-chip-apagado">Por definir</span>
+
+                <div class="col-md-6">
+                    <label class="gf-etiqueta" asp-for="Desde">Desde *</label>
+                    <input class="form-control" asp-for="Desde" />
+                    <span class="gf-campo-error" asp-validation-for="Desde"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="gf-etiqueta" asp-for="Hasta">Hasta *</label>
+                    <input class="form-control" asp-for="Hasta" />
+                    <span class="gf-campo-error" asp-validation-for="Hasta"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="IncluirCanceladas" />
+                        <label class="form-check-label" asp-for="IncluirCanceladas">
+                            Incluir sesiones canceladas (para que Odoo se entere de las cancelaciones)
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <div class="gf-estado-fila">
-                <div>
-                    <strong>Última exportación / importación</strong>
-                    <small>Fecha y resultado</small>
-                </div>
-                <span class="gf-chip gf-chip-apagado" aria-label="Ninguna todavía">—</span>
+            <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+            <div class="gf-botones mt-3">
+                <button class="gf-boton gf-boton-auto" type="submit">Exportar lote (XML)</button>
             </div>
-        </div>
+        </form>
     </section>
 
-    <section class="col-lg-6" aria-labelledby="titulo-acciones">
-        <div class="gf-tarjeta h-100">
-            <h2 id="titulo-acciones" class="gf-titulo-tarjeta">Acciones</h2>
+    <section class="col-lg-6" aria-labelledby="titulo-importar">
+        <form class="gf-tarjeta h-100" method="post" asp-action="Importar" enctype="multipart/form-data">
+            <h2 id="titulo-importar" class="gf-titulo-tarjeta">Importar lote desde Odoo</h2>
+            <p class="gf-subtitulo">
+                Aplica en GenteFit las sesiones creadas o modificadas en Odoo.
+                Las que no cumplan las reglas del centro se rechazan y se indica el motivo.
+            </p>
 
-            <div class="gf-odoo-acciones">
-                <button class="gf-boton gf-boton-auto" type="button" disabled aria-describedby="aviso-odoo">
-                    Exportar datos a Odoo (XML)
-                </button>
-                <button class="gf-boton gf-boton-borde gf-boton-auto" type="button" disabled aria-describedby="aviso-odoo">
-                    Importar datos desde Odoo (XML)
-                </button>
+            <label class="gf-etiqueta" for="fichero">Fichero del lote (OD-….xml) *</label>
+            <input class="form-control" type="file" id="fichero" name="fichero"
+                   accept=".xml,application/xml,text/xml" required aria-describedby="ayuda-fichero" />
+            <small id="ayuda-fichero" class="text-muted">El fichero que genera el asistente "Exportar sesiones" de Odoo.</small>
+
+            @if (ViewBag.ErroresImportacion is string[] errores)
+            {
+                <div class="gf-aviso gf-aviso-error" role="alert">
+                    <strong>No se ha importado el lote.</strong>
+                    <ul class="mb-0">
+                        @foreach (var e in errores)
+                        {
+                            <li>@e</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="gf-botones mt-3">
+                <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Importar lote (XML)</button>
             </div>
-        </div>
+        </form>
     </section>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

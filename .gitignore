@@ -365,3 +365,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Lotes XML generados por la pantalla Odoo (datos, no código)
+src/GenteFit.Web/lotes/

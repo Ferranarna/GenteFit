@@ -1,0 +1,71 @@
+﻿@using System.Globalization
+@using GenteFit.Datos.Repositorios
+@model ImportacionViewModel
+@{
+    ViewData["Title"] = "Resultado de la importación";
+    var es = new CultureInfo("es-ES");
+    var rechazadas = Model.Cuantas(AccionImportacion.Rechazada);
+}
+
+<div class="gf-cabecera">
+    <h1>Resultado de la importación</h1>
+    <a class="gf-boton-icono" asp-action="Index" aria-label="Volver a Gestión de Odoo" title="Volver">@Iconos.Ver("volver")</a>
+</div>
+
+<section class="gf-tarjeta" aria-labelledby="titulo-lote">
+    <h2 id="titulo-lote" class="gf-titulo-tarjeta">Lote @Model.IdLote</h2>
+    <p>
+        Periodo del @Model.Desde.ToString("d 'de' MMMM", es) al @Model.Hasta.ToString("d 'de' MMMM 'de' yyyy", es)
+        · @Model.Filas.Count sesiones recibidas
+    </p>
+    <p>
+        @foreach (var accion in Enum.GetValues<AccionImportacion>().Where(a => Model.Cuantas(a) > 0))
+        {
+            <span class="gf-chip @ImportacionViewModel.ClaseChip(accion)">@ImportacionViewModel.Texto(accion): @Model.Cuantas(accion)</span>
+        }
+    </p>
+
+    @if (rechazadas > 0)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">
+            @rechazadas @(rechazadas == 1 ? "sesión no se ha aplicado" : "sesiones no se han aplicado").
+            Revisa el motivo en la tabla, corrígelo en Odoo y vuelve a exportar.
+        </div>
+    }
+    else
+    {
+        <div class="gf-aviso gf-aviso-ok" role="status">Todas las sesiones se han procesado correctamente.</div>
+    }
+</section>
+
+<section class="gf-tarjeta mt-3" aria-labelledby="titulo-detalle">
+    <h2 id="titulo-detalle" class="gf-titulo-tarjeta">Detalle por sesión</h2>
+    <div class="table-responsive">
+        <table class="gf-tabla">
+            <caption class="visually-hidden">Resultado de cada sesión del lote @Model.IdLote</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Actividad</th>
+                    <th scope="col">Sala</th>
+                    <th scope="col">Entrenador</th>
+                    <th scope="col">Resultado</th>
+                    <th scope="col">Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.Filas)
+                {
+                    <tr>
+                        <td>@f.Fecha.ToString("ddd d/MM HH:mm", es)</td>
+                        <td>@f.Actividad</td>
+                        <td>@f.Sala</td>
+                        <td>@f.Entrenador</td>
+                        <td><span class="gf-chip @ImportacionViewModel.ClaseChip(f.Accion)">@ImportacionViewModel.Texto(f.Accion)</span></td>
+                        <td>@f.Detalle</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
