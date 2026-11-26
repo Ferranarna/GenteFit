@@ -97,6 +97,9 @@
     </section>
 </div>
 
+@* Estado de la integración e historial: componente con su propia lógica (ViewComponents/EstadoOdooViewComponent.cs) *@
+@await Component.InvokeAsync("EstadoOdoo")
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

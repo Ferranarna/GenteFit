@@ -220,3 +220,57 @@ module ImportadorOdoo =
                               Desde = DateTime.Parse(valor cabecera "periodo_desde", CultureInfo.InvariantCulture)
                               Hasta = DateTime.Parse(valor cabecera "periodo_hasta", CultureInfo.InvariantCulture)
                               Sesiones = sesiones }
+
+    /// Resumen de un lote guardado en la carpeta de lotes (para el historial de la pantalla).
+type ResumenLote =
+    { IdLote: string
+      /// true: enviado a Odoo (GF-...). false: recibido de Odoo (OD-...).
+      Enviado: bool
+      Generado: DateTime
+      Desde: DateTime
+      Hasta: DateTime
+      Sesiones: int }
+
+/// Lee los lotes guardados para mostrar el historial.
+module HistorialOdoo =
+
+    /// Texto de un elemento hijo, o None si el padre o el hijo no existen.
+    let private hijo (padre: XElement) (nombre: string) : string option =
+        match padre with
+        | null -> None
+        | p ->
+            match p.Element(XName.Get nombre) with
+            | null -> None
+            | e -> Some e.Value
+
+    /// Lee la cabecera de un lote guardado. None si el fichero no se puede leer o no es un lote.
+    let leerResumen (ruta: string) : ResumenLote option =
+        try
+            let cabecera = XDocument.Load(ruta).Root.Element(XName.Get "cabecera")
+
+            match hijo cabecera "id_lote", hijo cabecera "generado", hijo cabecera "periodo_desde",
+                  hijo cabecera "periodo_hasta", hijo cabecera "total_registros" with
+            | Some id, Some generado, Some desde, Some hasta, Some total ->
+                Some
+                    { IdLote = id
+                      Enviado = id.StartsWith "GF-"
+                      Generado = XmlConvert.ToDateTime(generado, XmlDateTimeSerializationMode.RoundtripKind)
+                      Desde = DateTime.Parse(desde, CultureInfo.InvariantCulture)
+                      Hasta = DateTime.Parse(hasta, CultureInfo.InvariantCulture)
+                      Sesiones = int total }
+            | _ -> None
+        with
+        | :? XmlException
+        | :? IOException
+        | :? UnauthorizedAccessException
+        | :? FormatException -> None
+
+    /// Lotes de la carpeta, del más reciente al más antiguo. Si la carpeta no existe, lista vacía.
+    let listar (carpeta: string) : ResumenLote list =
+        if not (Directory.Exists carpeta) then
+            []
+        else
+            Directory.GetFiles(carpeta, "*.xml")
+            |> Seq.choose leerResumen
+            |> Seq.sortByDescending (fun l -> l.Generado)
+            |> Seq.toList

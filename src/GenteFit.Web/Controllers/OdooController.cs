@@ -21,8 +21,7 @@ public class OdooController : Controller
     public OdooController(GenteFitContext db, IConfiguration config, IWebHostEnvironment entorno)
     {
         _db = db;
-        // Carpeta donde se guarda una copia de cada lote. Si no se configura, "lotes" dentro de la web.
-        _carpetaLotes = Path.Combine(entorno.ContentRootPath, config["Odoo:CarpetaLotes"] ?? "lotes");
+        _carpetaLotes = ConfigOdoo.CarpetaLotes(config, entorno);
     }
 
     [HttpGet]
