@@ -2,11 +2,12 @@
 import os
 import uuid
 from datetime import datetime
+from unittest.mock import patch
 
 import pytz
 from lxml import etree
 
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import TransactionCase, tagged
 
 CARPETA_EJEMPLOS = os.path.join(os.path.dirname(__file__), "ejemplos")
@@ -21,6 +22,10 @@ class TestExportarLote(TransactionCase):
         super().setUp()
         self.Sesion = self.env["gentefit.sesion"]
         self.Sesion.search([]).unlink()
+        # "Ahora" fijo, para que los tests no dependan del día en que se ejecutan
+        reloj = patch.object(type(self.Sesion), "_ahora", lambda s: datetime(2026, 1, 1))
+        reloj.start()
+        self.addCleanup(reloj.stop)
 
     # ---------- Ayudas ----------
 
@@ -110,7 +115,7 @@ class TestExportarLote(TransactionCase):
 
     def test_solo_exporta_las_pendientes_del_periodo(self):
         dentro = self._crear("2026-12-06T23:00:00")
-        self._crear("2026-12-07T00:00:00")                                   # fuera
+        self._crear("2026-12-07T10:00:00")                           # fuera
         self._crear("2026-12-01T10:00:00", {"gentefit_importando": True})    # no pendiente
         documento = self._exportar()
         self.assertEqual(
@@ -146,3 +151,48 @@ class TestExportarLote(TransactionCase):
         with self.assertRaises(UserError):
             self._asistente().action_exportar()
         self.assertTrue(sesion.pendiente_envio)
+
+    
+    # ---------- Reglas del centro ----------
+
+    def test_no_permite_sesiones_antes_de_las_nueve(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2026-12-01T08:00:00")
+
+    def test_no_permite_acabar_despues_de_medianoche(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2026-12-01T23:30:00")
+
+    def test_no_permite_una_duracion_fuera_de_rango(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2026-12-01T10:00:00", duracion=200)
+
+    def test_no_permite_programar_en_el_pasado(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2025-12-01T10:00:00")
+
+    def test_no_permite_modificar_una_sesion_empezada(self):
+        sesion = self._crear("2025-12-01T10:00:00", {"gentefit_importando": True})
+        with self.assertRaises(ValidationError):
+            sesion.with_context(gentefit_importando=False).write({"duracion": 45})
+
+    def test_no_permite_modificar_una_sesion_cancelada(self):
+        sesion = self._crear("2026-12-01T10:00:00", estado="Cancelada")
+        with self.assertRaises(ValidationError):
+            sesion.write({"estado": "Programada"})
+
+    def test_lo_que_llega_de_genteFit_no_se_comprueba(self):
+        self.assertTrue(
+            self._crear("2026-12-01T08:00:00", {"gentefit_importando": True}))
+    
+    def test_no_permite_mas_de_16_plazas(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2026-12-01T10:00:00", plazas_limite=17)
+
+    def test_no_permite_un_limite_de_cero_plazas(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2026-12-01T10:00:00", plazas_limite=0)
+
+    def test_no_permite_mas_ocupadas_que_el_limite(self):
+        with self.assertRaises(ValidationError):
+            self._crear("2026-12-01T10:00:00", plazas_limite=8, plazas_ocupadas=9)

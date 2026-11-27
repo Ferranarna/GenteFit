@@ -56,10 +56,19 @@ class GentefitExportarLote(models.TransientModel):
         # Vuelve a abrir la misma ventana para poder descargar el fichero
         return {
             "type": "ir.actions.act_window",
+            "name": "Exportar sesiones",
             "res_model": self._name,
             "res_id": self.id,
             "view_mode": "form",
             "target": "new",
+        }
+
+    def action_descargar(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/web/content/{self._name}/{self.id}/fichero/{self.nombre_fichero}?download=true",
+            "target": "self",
         }
 
     # ------------------------------------------------------------------

@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GenteFit.Web.ViewComponents;
 
-// Bloque "Estado de la integración + Historial" de la pantalla Odoo.
-// Es un componente: tiene su propia lógica y se pinta desde la vista con Component.InvokeAsync.
+// Tarjetas de resumen de la pantalla Odoo: estado del servidor y últimos intercambios.
 public class EstadoOdooViewComponent : ViewComponent
 {
     private readonly IHttpClientFactory _http;

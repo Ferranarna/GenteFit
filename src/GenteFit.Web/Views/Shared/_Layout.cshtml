@@ -224,6 +224,7 @@
         const errorBaseDeDatos = @Html.Raw(Json.Serialize(Errores.ErrorBaseDeDatos));
         document.querySelectorAll('.gf-aviso-ok, .gf-aviso-error').forEach(aviso => {
             const esOk = aviso.classList.contains('gf-aviso-ok');
+            if (aviso.hasAttribute('data-fijo')) return; // avisos marcados para quedarse
             if (!esOk && (aviso.closest('form') || aviso.textContent.trim() === errorBaseDeDatos)) return;
 
             setTimeout(() => {

@@ -1,28 +1,24 @@
 ﻿@model ExportarLoteViewModel
 @{
     ViewData["Title"] = "Gestión de Odoo";
+    var loteGenerado = TempData["LoteGenerado"] as string;
 }
 
-<h1>Gestión de Odoo (ERP)</h1>
-<p class="gf-subtitulo">
-    Intercambio de sesiones con Odoo mediante ficheros XML. Los campos marcados con * son obligatorios.
-</p>
-
-@if (TempData["LoteGenerado"] is string lote)
-{
-    <div class="gf-aviso gf-aviso-ok" role="status">
-        @TempData["Info"]
-        <a asp-action="Descargar" asp-route-id="@lote">Descargar @(lote).xml</a>
+<div class="gf-cabecera">
+    <div>
+        <h1>Gestión de Odoo (ERP)</h1>
+        <p class="gf-subtitulo">
+            Intercambio de sesiones con Odoo mediante ficheros XML. Los campos marcados con * son obligatorios.
+        </p>
     </div>
-}
-@if (ViewBag.Error != null)
-{
-    <div class="gf-aviso gf-aviso-error" role="alert">@ViewBag.Error</div>
-}
+</div>
 
-<div class="row g-3 mt-1">
+@* Tarjetas de resumen *@
+@await Component.InvokeAsync("EstadoOdoo")
+
+<div class="row g-3">
     <section class="col-lg-6" aria-labelledby="titulo-exportar">
-        <form class="gf-tarjeta h-100" method="post" asp-action="Exportar">
+        <form class="gf-tarjeta gf-odoo-tarjeta h-100" method="post" asp-action="Exportar">
             <h2 id="titulo-exportar" class="gf-titulo-tarjeta">Exportar lote a Odoo</h2>
             <p class="gf-subtitulo">Genera un fichero XML con las sesiones del periodo elegido.</p>
 
@@ -49,23 +45,36 @@
                 <div class="col-12">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="IncluirCanceladas" />
-                        <label class="form-check-label" asp-for="IncluirCanceladas">
-                            Incluir sesiones canceladas (para que Odoo se entere de las cancelaciones)
-                        </label>
+                        <label class="form-check-label" asp-for="IncluirCanceladas">Incluir sesiones canceladas</label>
                     </div>
                 </div>
             </div>
 
-            <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
-
-            <div class="gf-botones mt-3">
+            <div class="gf-botones gf-botones-odoo mt-auto pt-3">
                 <button class="gf-boton gf-boton-auto" type="submit">Exportar lote (XML)</button>
+                @if (loteGenerado != null)
+                {
+                    <a id="descargar-lote" class="gf-boton gf-boton-borde gf-boton-auto gf-boton-con-icono"
+                       asp-action="Descargar" asp-route-id="@loteGenerado">
+                        @Iconos.Ver("descargar") Descargar @(loteGenerado).xml
+                    </a>
+                }
             </div>
+
+            @if (loteGenerado != null)
+            {
+                <div class="gf-aviso gf-aviso-ok mb-0" role="status" data-fijo>@TempData["Info"]</div>
+            }
+            @if (ViewBag.Error != null)
+            {
+                <div class="gf-aviso gf-aviso-error mb-0" role="alert" data-fijo>@ViewBag.Error</div>
+            }
+            <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error mb-0" role="alert" data-fijo></div>
         </form>
     </section>
 
     <section class="col-lg-6" aria-labelledby="titulo-importar">
-        <form class="gf-tarjeta h-100" method="post" asp-action="Importar" enctype="multipart/form-data">
+        <form class="gf-tarjeta gf-odoo-tarjeta h-100" method="post" asp-action="Importar" enctype="multipart/form-data">
             <h2 id="titulo-importar" class="gf-titulo-tarjeta">Importar lote desde Odoo</h2>
             <p class="gf-subtitulo">
                 Aplica en GenteFit las sesiones creadas o modificadas en Odoo.
@@ -73,13 +82,24 @@
             </p>
 
             <label class="gf-etiqueta" for="fichero">Fichero del lote (OD-….xml) *</label>
-            <input class="form-control" type="file" id="fichero" name="fichero"
-                   accept=".xml,application/xml,text/xml" required aria-describedby="ayuda-fichero" />
+            <div class="gf-fichero">
+                <input class="gf-fichero-input" type="file" id="fichero" name="fichero" aria-required="true"
+                       accept=".xml,application/xml,text/xml" aria-describedby="ayuda-fichero error-fichero" />
+                <label class="form-control gf-fichero-campo" for="fichero">
+                    <span id="nombre-fichero" class="gf-fichero-vacio">Elegir fichero XML...</span>
+                    @Iconos.Ver("subir")
+                </label>
+            </div>
+            <span id="error-fichero" class="gf-campo-error" role="alert"></span>
             <small id="ayuda-fichero" class="text-muted">El fichero que genera el asistente "Exportar sesiones" de Odoo.</small>
+
+            <div class="gf-botones mt-auto pt-3">
+                <button class="gf-boton gf-boton-auto" type="submit">Importar lote (XML)</button>
+            </div>
 
             @if (ViewBag.ErroresImportacion is string[] errores)
             {
-                <div class="gf-aviso gf-aviso-error" role="alert">
+                <div class="gf-aviso gf-aviso-error mb-0" role="alert" data-fijo>
                     <strong>No se ha importado el lote.</strong>
                     <ul class="mb-0">
                         @foreach (var e in errores)
@@ -89,17 +109,43 @@
                     </ul>
                 </div>
             }
-
-            <div class="gf-botones mt-3">
-                <button class="gf-boton gf-boton-borde gf-boton-auto" type="submit">Importar lote (XML)</button>
-            </div>
         </form>
     </section>
 </div>
 
-@* Estado de la integración e historial: componente con su propia lógica (ViewComponents/EstadoOdooViewComponent.cs) *@
-@await Component.InvokeAsync("EstadoOdoo")
+@* Historial de lotes, a todo el ancho *@
+@await Component.InvokeAsync("HistorialLotes")
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Campo de fichero: muestra el nombre elegido y avisa si falta
+        const fichero = document.getElementById('fichero');
+        const nombreFichero = document.getElementById('nombre-fichero');
+        const errorFichero = document.getElementById('error-fichero');
+
+        function marcarError(mensaje) {
+            errorFichero.textContent = mensaje;
+            fichero.classList.toggle('input-validation-error', mensaje !== '');
+            fichero.setAttribute('aria-invalid', mensaje !== '');
+        }
+
+        fichero.addEventListener('change', () => {
+            const elegido = fichero.files.length > 0;
+            nombreFichero.textContent = elegido ? fichero.files[0].name : 'Elegir fichero XML...';
+            nombreFichero.classList.toggle('gf-fichero-vacio', !elegido);
+            marcarError('');
+        });
+
+        // Recién generado el lote, se descarga solo 
+        document.getElementById('descargar-lote')?.click();
+
+        fichero.form.addEventListener('submit', e => {
+            if (fichero.files.length === 0) {
+                e.preventDefault();
+                marcarError('Elige el fichero XML exportado desde Odoo.');
+                fichero.focus();
+            }
+        });
+    </script>
 }

@@ -10,7 +10,7 @@
 					<field name="periodo_hasta"/>
 				</group>
 				<group invisible="not fichero">
-					<field name="fichero" filename="nombre_fichero" readonly="1"/>
+					<field name="fichero" invisible="1"/>
 					<field name="nombre_fichero" invisible="1"/>
 				</group>
 				<group invisible="not resultado">
@@ -19,6 +19,8 @@
 				<footer>
 					<button name="action_exportar" type="object" string="Exportar"
                             class="btn-primary" invisible="fichero"/>
+					<button name="action_descargar" type="object" string="Descargar fichero XML"
+		class="btn-primary" icon="fa-download" invisible="not fichero"/>
 					<button string="Cerrar" special="cancel"/>
 				</footer>
 			</form>

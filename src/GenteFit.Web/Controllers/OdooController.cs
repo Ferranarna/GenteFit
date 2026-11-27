@@ -1,4 +1,6 @@
 ﻿using System.Text.RegularExpressions;
+using System.Xml;
+using System.Xml.Linq;
 using GenteFit.Datos;
 using GenteFit.Datos.Repositorios;
 using GenteFit.Modelo.Enums;
@@ -8,6 +10,7 @@ using GenteFit.Xml;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.FSharp.Collections;
+
 
 namespace GenteFit.Web.Controllers;
 
@@ -98,7 +101,12 @@ public class OdooController : Controller
         var rutaXsd = Path.Combine(EsquemasOdoo.carpeta, "lote_sesiones_vuelta.xsd");
         var lectura = ImportadorOdoo.leerLoteVuelta(rutaXsd, memoria);
         if (lectura.IsError)
-            return ErrorImportacion(lectura.ErrorValue.ToArray());
+        {
+            if (EsLoteDeIda(memoria))
+                return ErrorImportacion("Este fichero es un lote enviado a Odoo (GF-…). Elige el fichero OD-….xml que genera el asistente \"Exportar sesiones\" de Odoo.");
+
+            return ErrorImportacion(Resumir(lectura.ErrorValue.ToArray()));
+        }
 
         var lote = lectura.ResultValue;
         try
@@ -130,6 +138,28 @@ public class OdooController : Controller
         modelo.IdLote = SiguienteIdLote(DateTime.Today);
         return View(nameof(Index), modelo);
     }
+
+    // ¿Es un lote de ida (GenteFit -> Odoo) subido por error?
+    private static bool EsLoteDeIda(MemoryStream memoria)
+    {
+        memoria.Position = 0;
+        try
+        {
+            var sentido = XDocument.Load(memoria).Root?.Element("cabecera")?.Element("sentido")?.Value;
+            return sentido == "GenteFit_a_Odoo";
+        }
+        catch (XmlException)
+        {
+            return false;
+        }
+    }
+
+    // Como mucho 3 errores en pantalla, para que el aviso se pueda leer
+    private static string[] Resumir(string[] errores) =>
+        errores.Length <= 3
+            ? errores
+            : [.. errores.Take(3), $"Hay {errores.Length - 3} errores más. Vuelve a generar el fichero desde Odoo."];
+
 
     [HttpGet]
     public IActionResult Descargar(string id)

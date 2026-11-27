@@ -1623,3 +1623,76 @@ th[aria-sort="descending"] .gf-ordenar::after {
     gap: 0.75rem;
     justify-content: center;
 }
+
+/* Pantalla Odoo: tarjetas, botones, campo de fichero e historial */
+.gf-odoo-tarjeta {
+    display: flex;
+    flex-direction: column;
+}
+
+    .gf-odoo-tarjeta > .gf-subtitulo {
+        margin-bottom: 1.25rem;
+    }
+
+.gf-botones-odoo {
+    flex-wrap: wrap;
+}
+
+.gf-boton-con-icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+}
+
+    .gf-boton-con-icono .gf-ico {
+        width: 16px;
+        height: 16px;
+        color: inherit;
+    }
+
+.gf-fichero {
+    position: relative;
+    margin-bottom: .35rem;
+}
+
+/* El selector del navegador no se ve, pero sigue funcionando con teclado */
+.gf-fichero-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.gf-fichero-campo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin: 0;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+
+.gf-fichero-vacio {
+    color: var(--gf-texto-suave);
+}
+
+.gf-fichero-input:focus-visible + .gf-fichero-campo {
+    border-color: var(--gf-acento);
+    box-shadow: 0 0 0 3px rgba(77, 184, 255, .25);
+}
+
+.gf-fichero-input.input-validation-error + .gf-fichero-campo {
+    border-color: var(--gf-error);
+}
+
+.gf-tabla-lotes th,
+.gf-tabla-lotes td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+    .gf-tabla-lotes td:last-child {
+        text-align: right;
+    }

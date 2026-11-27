@@ -21,6 +21,8 @@ public static class Iconos
         ["flecha"] = """<path d="M5 12h14M13 6l6 6-6 6"/>""",
         ["reactivar"] = """<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>""",
         ["volver"] = """<path d="M19 12H5M11 6l-6 6 6 6"/>""",
+        ["descargar"] = """<path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 20h16"/>""",
+        ["subir"] = """<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/>""",
 
         // Barra superior y menú de usuario
         ["usuario"] = """<circle cx="12" cy="8.5" r="4"/><path d="M4.5 20.5c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/>""",

@@ -1,0 +1,53 @@
+﻿@using System.Globalization
+@using GenteFit.Xml
+@model List<ResumenLote>
+@{
+    var es = new CultureInfo("es-ES");
+}
+
+<section class="gf-tarjeta mt-3" aria-labelledby="titulo-historial">
+    <h2 id="titulo-historial" class="gf-titulo-tarjeta">Historial de lotes</h2>
+
+    @if (Model.Count == 0)
+    {
+        <p>Aún no se ha enviado ni recibido ningún lote.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="gf-tabla gf-tabla-lotes">
+                <caption class="visually-hidden">Lotes enviados y recibidos, del más reciente al más antiguo</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Lote</th>
+                        <th scope="col">Sentido</th>
+                        <th scope="col">Generado</th>
+                        <th scope="col">Periodo</th>
+                        <th scope="col">Sesiones</th>
+                        <th scope="col"><span class="visually-hidden">Descargar</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in Model)
+                    {
+                        <tr>
+                            <td>@l.IdLote</td>
+                            <td>
+                                <span class="gf-chip @(l.Enviado ? "gf-chip-activo" : "gf-chip-espera")">
+                                    @(l.Enviado ? "Enviado a Odoo" : "Recibido de Odoo")
+                                </span>
+                            </td>
+                            <td>@l.Generado.ToString("d MMM yyyy, HH:mm", es)</td>
+                            <td>@l.Desde.ToString("d MMM", es) – @l.Hasta.ToString("d MMM", es)</td>
+                            <td>@l.Sesiones</td>
+                            <td>
+                                <a class="gf-boton-icono" asp-controller="Odoo" asp-action="Descargar" asp-route-id="@l.IdLote"
+                                   aria-label="Descargar el lote @l.IdLote" title="Descargar">@Iconos.Ver("descargar")</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

@@ -27,14 +27,14 @@
 
     @if (rechazadas > 0)
     {
-        <div class="gf-aviso gf-aviso-error" role="alert">
+        <div class="gf-aviso gf-aviso-error" role="alert" data-fijo>
             @rechazadas @(rechazadas == 1 ? "sesión no se ha aplicado" : "sesiones no se han aplicado").
             Revisa el motivo en la tabla, corrígelo en Odoo y vuelve a exportar.
         </div>
     }
     else
     {
-        <div class="gf-aviso gf-aviso-ok" role="status">Todas las sesiones se han procesado correctamente.</div>
+        <div class="gf-aviso gf-aviso-ok" role="status" data-fijo>Todas las sesiones se han procesado correctamente.</div>
     }
 </section>
 
