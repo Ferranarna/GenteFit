@@ -29,8 +29,8 @@
 							<field name="fecha"/>
 							<field name="duracion"/>
 							<field name="estado"/>
-							<field name="plazas_ocupadas"/>
-							<field name="plazas_limite"/>
+							<field name="plazas_ocupadas" readonly="1"/>
+							<field name="plazas_limite" readonly="1"/>
 							<field name="pendiente_envio" readonly="1"/>
 						</group>
 						<group string="Actividad, sala y entrenador">

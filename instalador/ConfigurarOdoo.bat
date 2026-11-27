@@ -16,7 +16,7 @@ if errorlevel 1 goto fallo
 %COMPOSE% stop odoo >nul 2>&1
 
 echo [2/4] Creando la base de datos e instalando el modulo GenteFit...
-%COMPOSE% run --rm odoo odoo -d gentefit -i gentefit --load-language=es_ES --without-demo=all --stop-after-init --no-http
+%COMPOSE% run --rm odoo odoo -d gentefit -i gentefit -u gentefit --load-language=es_ES --without-demo=all --stop-after-init --no-http
 if errorlevel 1 goto fallo
 
 echo [3/4] Poniendo idioma y zona horaria...
