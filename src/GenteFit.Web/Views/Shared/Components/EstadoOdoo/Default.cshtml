@@ -2,102 +2,49 @@
 @model EstadoOdooViewModel
 @{
     var es = new CultureInfo("es-ES");
+    string Contar(int n, string uno, string varios) => $"{n} {(n == 1 ? uno : varios)}";
 }
 
-<div class="row g-3 mt-1">
-    <section class="col-lg-4" aria-labelledby="titulo-estado">
-        <div class="gf-tarjeta h-100">
-            <h2 id="titulo-estado" class="gf-titulo-tarjeta">Estado de la integración</h2>
-
-            <div class="gf-estado-fila">
-                <div>
-                    <strong>Servidor Odoo</strong>
-                    <small>@Model.UrlOdoo</small>
-                </div>
-                @if (Model.OdooDisponible)
-                {
-                    <span class="gf-chip gf-chip-activo">Disponible</span>
-                }
-                else
-                {
-                    <span class="gf-chip gf-chip-baja">No disponible</span>
-                }
-            </div>
-
-            <div class="gf-estado-fila">
-                <div>
-                    <strong>Última exportación</strong>
-                    <small>@(Model.UltimaExportacion is { } ex ? $"{ex.IdLote} · {ex.Generado.ToString("d MMM, HH:mm", es)}" : "Ninguna todavía")</small>
-                </div>
-                <span class="gf-chip gf-chip-apagado">@Model.LotesEnviados enviados</span>
-            </div>
-
-            <div class="gf-estado-fila">
-                <div>
-                    <strong>Última importación</strong>
-                    <small>@(Model.UltimaImportacion is { } im ? $"{im.IdLote} · {im.Generado.ToString("d MMM, HH:mm", es)}" : "Ninguna todavía")</small>
-                </div>
-                <span class="gf-chip gf-chip-apagado">@Model.LotesRecibidos recibidos</span>
-            </div>
-
-            @if (!Model.OdooDisponible)
+<div class="gf-rejilla gf-rejilla-informe mb-3">
+    <div class="gf-tarjeta gf-estadistica">
+        <span class="gf-icono">@Iconos.Ver("intercambio")</span>
+        <small class="gf-estadistica-titulo">Servidor Odoo</small>
+        <div class="gf-estadistica-valor">
+            @if (Model.OdooDisponible)
             {
-                <p class="gf-subtitulo mt-2" role="note">
-                    Puedes seguir exportando: el fichero queda guardado y se puede cargar en Odoo cuando vuelva a estar disponible.
-                </p>
-            }
-        </div>
-    </section>
-
-    <section class="col-lg-8" aria-labelledby="titulo-historial">
-        <div class="gf-tarjeta h-100">
-            <h2 id="titulo-historial" class="gf-titulo-tarjeta">Historial de lotes</h2>
-            <p class="gf-subtitulo">
-                @Model.SesionesEnviadas sesiones enviadas a Odoo · @Model.SesionesRecibidas sesiones recibidas
-            </p>
-
-            @if (Model.Lotes.Count == 0)
-            {
-                <p>Aún no se ha enviado ni recibido ningún lote.</p>
+                <span class="gf-chip gf-chip-activo">Disponible</span>
             }
             else
             {
-                <div class="table-responsive">
-                    <table class="gf-tabla">
-                        <caption class="visually-hidden">Lotes enviados y recibidos, del más reciente al más antiguo</caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">Lote</th>
-                                <th scope="col">Sentido</th>
-                                <th scope="col">Generado</th>
-                                <th scope="col">Periodo</th>
-                                <th scope="col">Sesiones</th>
-                                <th scope="col"><span class="visually-hidden">Descargar</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var l in Model.Lotes)
-                            {
-                                <tr>
-                                    <td>@l.IdLote</td>
-                                    <td>
-                                        <span class="gf-chip @(l.Enviado ? "gf-chip-activo" : "gf-chip-espera")">
-                                            @(l.Enviado ? "Enviado a Odoo" : "Recibido de Odoo")
-                                        </span>
-                                    </td>
-                                    <td>@l.Generado.ToString("d MMM yyyy, HH:mm", es)</td>
-                                    <td>@l.Desde.ToString("d MMM", es) – @l.Hasta.ToString("d MMM", es)</td>
-                                    <td>@l.Sesiones</td>
-                                    <td>
-                                        <a asp-controller="Odoo" asp-action="Descargar" asp-route-id="@l.IdLote"
-                                           aria-label="Descargar el lote @l.IdLote">Descargar</a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                <span class="gf-chip gf-chip-baja">No disponible</span>
             }
         </div>
-    </section>
+        <div class="gf-estadistica-detalle">
+            @Model.UrlOdoo
+            @if (!Model.OdooDisponible)
+            {
+                <div role="note">Puedes seguir exportando y cargar el fichero más tarde.</div>
+            }
+        </div>
+    </div>
+
+    <div class="gf-tarjeta gf-estadistica">
+        <span class="gf-icono">@Iconos.Ver("subir")</span>
+        <small class="gf-estadistica-titulo">Última exportación</small>
+        <div class="gf-estadistica-valor">@(Model.UltimaExportacion?.Generado.ToString("d MMM, HH:mm", es) ?? "Ninguna todavía")</div>
+        <div class="gf-estadistica-detalle">
+            <b>@Contar(Model.SesionesEnviadas, "sesión enviada", "sesiones enviadas")</b>
+            en @Contar(Model.LotesEnviados, "lote", "lotes")
+        </div>
+    </div>
+
+    <div class="gf-tarjeta gf-estadistica">
+        <span class="gf-icono">@Iconos.Ver("descargar")</span>
+        <small class="gf-estadistica-titulo">Última importación</small>
+        <div class="gf-estadistica-valor">@(Model.UltimaImportacion?.Generado.ToString("d MMM, HH:mm", es) ?? "Ninguna todavía")</div>
+        <div class="gf-estadistica-detalle">
+            <b>@Contar(Model.SesionesRecibidas, "sesión recibida", "sesiones recibidas")</b>
+            en @Contar(Model.LotesRecibidos, "lote", "lotes")
+        </div>
+    </div>
 </div>

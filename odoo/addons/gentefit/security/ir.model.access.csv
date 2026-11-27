@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_gentefit_sesion_user,gentefit.sesion.user,model_gentefit_sesion,base.group_user,1,1,1,1
 access_gentefit_importar_lote_user,gentefit.importar.lote.user,model_gentefit_importar_lote,base.group_user,1,1,1,1
+access_gentefit_exportar_lote_user,gentefit.exportar.lote.user,model_gentefit_exportar_lote,base.group_user,1,1,1,1

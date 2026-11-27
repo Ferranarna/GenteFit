@@ -115,7 +115,9 @@ Para ejecutar las pruebas: `dotnet test`.
 1. Publicar la web: `dotnet publish src/GenteFit.Web -c Release -r win-x64 --self-contained true -o publicar`
 2. Abrir `instalador/GenteFit.iss` con **Inno Setup** y compilar: crea `salida/setup.exe`.
 
-El instalador pregunta el servidor de SQL Server, copia la aplicación en Archivos de programa y crea accesos directos a `GenteFit.bat`, que arranca el servidor y abre el navegador.
+El instalador pregunta el servidor de SQL Server, la carpeta de intercambio y la dirección de Odoo, copia la aplicación en Archivos de programa y crea accesos directos a `GenteFit.bat`, que arranca el servidor y abre el navegador.
+
+Al terminar ejecuta `ConfigurarOdoo.bat`, que levanta Odoo con Docker, crea la base de datos `gentefit` y activa el módulo. Requiere **Docker Desktop** instalado y en marcha. Se puede repetir desde el menú Inicio (**Configurar Odoo**) sin perder datos.
 
 ## Base de datos (SQL Server + EF Core)
 

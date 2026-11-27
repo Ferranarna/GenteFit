@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="gentefit_exportar_lote_view_form" model="ir.ui.view">
+		<field name="name">gentefit.exportar.lote.form</field>
+		<field name="model">gentefit.exportar.lote</field>
+		<field name="arch" type="xml">
+			<form string="Exportar sesiones a GenteFit">
+				<group invisible="fichero">
+					<field name="periodo_desde"/>
+					<field name="periodo_hasta"/>
+				</group>
+				<group invisible="not fichero">
+					<field name="fichero" invisible="1"/>
+					<field name="nombre_fichero" invisible="1"/>
+				</group>
+				<group invisible="not resultado">
+					<field name="resultado" nolabel="1" colspan="2"/>
+				</group>
+				<footer>
+					<button name="action_exportar" type="object" string="Exportar"
+                            class="btn-primary" invisible="fichero"/>
+					<button name="action_descargar" type="object" string="Descargar fichero XML"
+		class="btn-primary" icon="fa-download" invisible="not fichero"/>
+					<button string="Cerrar" special="cancel"/>
+				</footer>
+			</form>
+		</field>
+	</record>
+
+	<record id="gentefit_exportar_lote_action" model="ir.actions.act_window">
+		<field name="name">Exportar sesiones</field>
+		<field name="res_model">gentefit.exportar.lote</field>
+		<field name="view_mode">form</field>
+		<field name="target">new</field>
+	</record>
+
+	<menuitem id="gentefit_exportar_lote_menu" name="Exportar sesiones"
+              parent="gentefit_menu_root" action="gentefit_exportar_lote_action" sequence="30"/>
+</odoo>
